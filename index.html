@@ -10,6 +10,9 @@
     
     <!-- مكتبة الإكسيل (تُستخدم في الاستيراد والتصدير) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <!-- مكتبة تحويل الموقع لـ PDF بنفس الألوان -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <!-- مكتبات فايربيز السحابية والمصادقة -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -158,7 +161,7 @@
         .print-footer { display: none; }
         
         /* ==========================================
-           تحديثات الطباعة و PDF للحفاظ على الألوان
+           تحديثات الطباعة (للمتصفح العادي)
            ========================================== */
         @media print {
             * { 
@@ -243,7 +246,7 @@
         </div>
     </div>
 
-    <!-- 3. حاوية النظام تظهر فقط بعد المصادقة -->
+    <!-- 3. حاوية النظام -->
     <div id="appContainer">
 
         <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
@@ -279,6 +282,7 @@
                 </div>
 
                 <div class="topbar-actions no-print">
+                    <!-- اسم المستخدم مع زر التعديل -->
                     <div class="user-badge">
                         <i class="fa-solid fa-user-doctor"></i> 
                         <span id="userNameDisplay">...</span>
@@ -292,6 +296,7 @@
                         <input type="text" class="search-box" id="searchInput" placeholder="ابحث عن اسم الصنف..." onkeyup="filterSearch()">
                     </div>
 
+                    <!-- زر تسجيل الخروج -->
                     <button class="btn-logout" onclick="handleLogout()" title="تسجيل الخروج">
                         خروج <i class="fa-solid fa-door-open"></i>
                     </button>
@@ -344,7 +349,7 @@
                         
                         <button class="btn btn-success-light no-print" onclick="exportToExcel()"><i class="fa-solid fa-file-export"></i> إكسيل</button>
                         
-                        <!-- زر حفظ PDF الجديد للجرد -->
+                        <!-- زر حفظ PDF المباشر -->
                         <button class="btn btn-danger no-print" onclick="downloadPDF()"><i class="fa-solid fa-file-pdf"></i> حفظ PDF</button>
                         
                         <button class="btn btn-primary" onclick="preparePrint()"><i class="fa-solid fa-print"></i> طباعة</button>
@@ -382,7 +387,7 @@
                         
                         <button class="btn btn-success-light" onclick="exportSettlementToExcel()"><i class="fa-solid fa-file-export"></i> تصدير إكسيل للتسويات</button>
                         
-                        <!-- زر حفظ PDF الجديد للتسويات -->
+                        <!-- زر حفظ PDF لتسويات -->
                         <button class="btn btn-danger" onclick="downloadSettlementPDF()"><i class="fa-solid fa-file-pdf"></i> حفظ PDF</button>
                         
                         <button class="btn btn-outline" onclick="window.print()"><i class="fa-solid fa-print"></i> طباعة تقرير التسويات</button>
@@ -1030,7 +1035,7 @@
         }
 
         // ==========================================
-        // دوال التصدير للإكسيل و PDF
+        // دوال التصدير للإكسيل 
         // ==========================================
         function exportToExcel() {
             if (typeof XLSX === 'undefined') {
@@ -1112,6 +1117,7 @@
 
                 let dIdx = 0, sIdx = 0;
                 
+                // حركات النقل
                 while (dIdx < deficits.length && sIdx < surpluses.length) {
                     let d = deficits[dIdx]; let s = surpluses[sIdx];
                     let transferAmount = Math.min(d.amount, s.amount);
@@ -1123,6 +1129,7 @@
                     if (s.amount === 0) sIdx++;
                 }
 
+                // نواقص تحتاج طلب
                 while (dIdx < deficits.length) {
                     if(deficits[dIdx].amount > 0) {
                         exportData.push(['عجز كلي (نواقص)', item, deficits[dIdx].amount, '-', deficits[dIdx].loc]);
@@ -1130,6 +1137,7 @@
                     dIdx++;
                 }
 
+                // رواكد جاهزة للإرجاع
                 while (sIdx < surpluses.length) {
                     if(surpluses[sIdx].amount > 0) {
                         exportData.push(['زيادة كلية (رواكد)', item, surpluses[sIdx].amount, surpluses[sIdx].loc, '-']);
@@ -1155,27 +1163,93 @@
             XLSX.writeFile(wb, fileName);
         }
 
-        // دالة حفظ PDF ذكية (تُغير اسم الملف مؤقتاً)
+        // ==========================================
+        // دوال إنشاء وتحميل الـ PDF المباشر (بالألوان)
+        // ==========================================
+        function triggerDirectPDF(filename) {
+            document.getElementById('printHeader').style.display = 'block';
+            document.getElementById('printFooter').style.display = 'flex';
+            
+            const currentUserName = document.getElementById('userNameDisplay').innerText;
+            document.getElementById('printUserName').innerText = currentUserName;
+
+            const toolbars = document.querySelectorAll('.toolbar');
+            toolbars.forEach(tb => tb.style.display = 'none');
+
+            const table = document.getElementById('inventoryTable');
+            if (table) {
+                const rows = table.querySelectorAll('tr');
+                rows.forEach(row => {
+                    if(row.cells.length > 7) row.cells[7].style.display = 'none';
+                    const inputs = row.querySelectorAll('input');
+                    inputs.forEach(input => {
+                        const span = document.createElement('span');
+                        span.className = 'temp-pdf-span';
+                        span.innerText = input.value || '0';
+                        span.style.fontWeight = 'bold';
+                        span.style.color = '#1f2937';
+                        input.style.display = 'none';
+                        input.parentNode.appendChild(span);
+                    });
+                });
+            }
+
+            const element = document.querySelector('.content');
+            
+            const oldTitle = document.getElementById('currentLocationTitle').innerHTML;
+            document.getElementById('currentLocationTitle').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري تنزيل PDF...';
+
+            const opt = {
+                margin:       [0.3, 0.3, 0.3, 0.3],
+                filename:     filename,
+                image:        { type: 'jpeg', quality: 1 },
+                html2canvas:  { scale: 2, useCORS: true, windowWidth: 1000 },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                document.getElementById('printHeader').style.display = '';
+                document.getElementById('printFooter').style.display = '';
+                toolbars.forEach(tb => tb.style.display = '');
+
+                if (table) {
+                    const rows = table.querySelectorAll('tr');
+                    rows.forEach(row => {
+                        if(row.cells.length > 7) row.cells[7].style.display = '';
+                        const inputs = row.querySelectorAll('input');
+                        inputs.forEach(input => { input.style.display = ''; });
+                        const spans = row.querySelectorAll('.temp-pdf-span');
+                        spans.forEach(span => span.remove());
+                    });
+                }
+                document.getElementById('currentLocationTitle').innerHTML = oldTitle;
+            });
+        }
+
         function downloadPDF() {
-            const originalTitle = document.title;
+            if (typeof html2pdf === 'undefined') {
+                alert("مكتبة PDF لم يتم تحميلها بعد. يرجى الانتظار ثواني وتحديث الصفحة.");
+                return;
+            }
+            const sheetName = appState.sheets[appState.activeSheet].name;
+            document.getElementById('printTitle').innerText = currentLoc;
+            document.getElementById('printSubtitle').innerText = sheetName;
+            
             const dateStr = new Date().toLocaleDateString('ar-EG').replace(/\//g, '-');
-            // تغيير عنوان الصفحة عشان يطبع الملف بالاسم ده
-            document.title = `تقرير_جرد_${currentLoc}_${dateStr}`;
-            
-            preparePrint();
-            
-            // إرجاع الاسم الأصلي بعد ثانية
-            setTimeout(() => { document.title = originalTitle; }, 1000);
+            triggerDirectPDF(`جرد_${currentLoc}_${dateStr}.pdf`);
         }
 
         function downloadSettlementPDF() {
-            const originalTitle = document.title;
+            if (typeof html2pdf === 'undefined') {
+                alert("مكتبة PDF لم يتم تحميلها بعد. يرجى الانتظار ثواني وتحديث الصفحة.");
+                return;
+            }
+            const sheetName = appState.sheets[appState.activeSheet].name;
+            document.getElementById('printTitle').innerText = "تقرير التسويات العام";
+            document.getElementById('printSubtitle').innerText = sheetName;
+            
             const dateStr = new Date().toLocaleDateString('ar-EG').replace(/\//g, '-');
-            document.title = `تقرير_التسويات_العام_${dateStr}`;
-            
-            window.print();
-            
-            setTimeout(() => { document.title = originalTitle; }, 1000);
+            triggerDirectPDF(`تسويات_${dateStr}.pdf`);
         }
         // ==========================================
 
@@ -1274,7 +1348,6 @@
             document.getElementById('printTitle').innerText = currentLoc;
             document.getElementById('printSubtitle').innerText = sheetName;
             
-            // إضافة اسم المستخدم في أسفل التقرير
             const currentUserName = document.getElementById('userNameDisplay').innerText;
             document.getElementById('printUserName').innerText = currentUserName;
             
