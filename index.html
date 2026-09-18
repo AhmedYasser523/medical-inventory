@@ -10,34 +10,24 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-    <!-- مكتبات قايربيز (Firebase) السحابية والمصادقة -->
+    <!-- مكتبات فايربيز السحابية والمصادقة -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
         :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --sidebar-bg: #111827;
-            --sidebar-hover: #1f2937;
-            --sidebar-active: #374151;
-            --bg-color: #f3f4f6;
-            --card-bg: #ffffff;
-            --text-main: #1f2937;
-            --text-muted: #6b7280;
-            --border-color: #e5e7eb;
-            --danger: #ef4444;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --info: #0ea5e9;
+            --primary: #4f46e5; --primary-hover: #4338ca; --sidebar-bg: #111827; --sidebar-hover: #1f2937;
+            --sidebar-active: #374151; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #1f2937;
+            --text-muted: #6b7280; --border-color: #e5e7eb; --danger: #ef4444; --success: #10b981;
+            --warning: #f59e0b; --info: #0ea5e9;
         }
 
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
         body { background-color: var(--bg-color); color: var(--text-main); height: 100vh; overflow: hidden; }
 
-        /* شاشة تسجيل الدخول */
-        #loginScreen {
+        /* شاشات تسجيل الدخول وإعداد الاسم */
+        .auth-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(135deg, #111827 0%, #4f46e5 100%);
             display: flex; align-items: center; justify-content: center; z-index: 10000;
@@ -89,7 +79,6 @@
         .sheet-controls i { color: var(--primary); }
         .sheet-controls select { border: none; background: transparent; font-weight: 700; font-size: 14px; color: var(--primary); outline: none; cursor: pointer; max-width: 200px;}
         
-        /* تعديل شكل زر إضافة شيت جديد */
         .btn-sheet-add { background: transparent; color: var(--primary); border: 2px dashed var(--primary); width: 28px; height: 28px; border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 900; transition: 0.2s;}
         .btn-sheet-add:hover { background: var(--primary); color: white; transform: scale(1.05);}
         
@@ -98,11 +87,14 @@
         .btn-sheet-delete { background: #fee2e2; color: var(--danger); }
         .btn-sheet-delete:hover { background: #fecaca; }
 
+        .topbar-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;}
+        
+        .user-badge { background: #eef2ff; color: var(--primary); padding: 8px 15px; border-radius: 20px; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; border: 1px solid #c7d2fe; }
+        
         .search-container { position: relative; }
         .search-container i { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
-        .search-box { padding: 10px 15px 10px 40px; border: 1px solid var(--border-color); border-radius: 25px; width: 250px; outline: none; font-size: 14px; background-color: #f9fafb; }
+        .search-box { padding: 10px 15px 10px 40px; border: 1px solid var(--border-color); border-radius: 25px; width: 220px; outline: none; font-size: 14px; background-color: #f9fafb; }
         
-        /* شكل زر الخروج الجديد */
         .btn-logout { background: #fee2e2; color: var(--danger); border: none; padding: 8px 15px; border-radius: 8px; font-weight: 800; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
         .btn-logout:hover { background: #fecaca; transform: scale(1.05); }
 
@@ -166,7 +158,7 @@
             .main-wrapper, .content { padding: 0 !important; margin: 0 !important; overflow: visible; width: 100%; }
             .table-card, .settlement-section { border: none; box-shadow: none; border-radius: 0; margin:0; padding:0; }
             .table-responsive { overflow: visible !important; width: 100%; }
-            #loginScreen { display: none !important; }
+            .auth-screen { display: none !important; }
             #appContainer { display: flex !important; }
             
             .print-header { display: block !important; text-align: center; margin-bottom: 15px; }
@@ -190,7 +182,9 @@
             .sidebar-overlay.active { display: block; }
             .topbar { flex-direction: column; align-items: flex-start; }
             .topbar-left { width: 100%; justify-content: flex-start; }
-            .search-container, .search-box { width: 100%; }
+            .topbar-actions { width: 100%; justify-content: space-between; }
+            .search-container { flex-grow: 1;}
+            .search-box { width: 100%; }
             .stats-grid { grid-template-columns: 1fr; }
             .toolbar { justify-content: space-between; }
             .btn { flex-grow: 1; justify-content: center; }
@@ -207,8 +201,8 @@
 </head>
 <body>
 
-    <!-- شاشة تسجيل الدخول -->
-    <div id="loginScreen">
+    <!-- 1. شاشة تسجيل الدخول -->
+    <div id="loginScreen" class="auth-screen">
         <div class="login-box">
             <i class="fa-solid fa-shield-halved"></i>
             <h2>تسجيل الدخول</h2>
@@ -219,7 +213,19 @@
         </div>
     </div>
 
-    <!-- حاوية النظام تظهر فقط بعد تسجيل الدخول -->
+    <!-- 2. شاشة إعداد الاسم لأول مرة (تظهر فقط لو المستخدم ملوش اسم) -->
+    <div id="profileSetupScreen" class="auth-screen" style="display: none;">
+        <div class="login-box">
+            <i class="fa-solid fa-id-card"></i>
+            <h2>أهلاً بك لأول مرة!</h2>
+            <p style="color: #6b7280; font-size: 14px; margin-bottom: 20px;">يرجى كتابة اسمك الذي سيظهر لباقي الزملاء في السيستم</p>
+            <input type="text" id="actualNameInput" placeholder="الاسم (مثال: د. أحمد ياسر)">
+            <button onclick="saveDisplayName()">حفظ الدخول</button>
+            <div id="setupError" class="error-msg"></div>
+        </div>
+    </div>
+
+    <!-- 3. حاوية النظام تظهر فقط بعد المصادقة -->
     <div id="appContainer">
 
         <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
@@ -248,18 +254,24 @@
                         <div class="sheet-controls no-print" style="margin-top: 10px;">
                             <i class="fa-solid fa-file-excel"></i>
                             <select id="sheetSelect" onchange="switchSheet(this.value)"></select>
-                            <!-- تم تعديل زر إضافة الشيت ليكون علامة زائد فقط -->
                             <button class="btn-sheet-add" onclick="createNewSheet()" title="إضافة شيت جديد"><i class="fa-solid fa-plus"></i></button>
                             <button class="btn-sheet-action btn-sheet-delete" onclick="deleteCurrentSheet()" title="حذف الشيت الحالي"><i class="fa-solid fa-trash"></i></button>
                         </div>
                     </div>
                 </div>
-                <div class="search-container no-print" style="display:flex; align-items:center; gap:10px;">
-                    <div style="position: relative;">
+
+                <div class="topbar-actions no-print">
+                    <!-- اسم المستخدم الذي سيظهر هنا -->
+                    <div class="user-badge">
+                        <i class="fa-solid fa-user-doctor"></i> <span id="userNameDisplay">...</span>
+                    </div>
+
+                    <div class="search-container">
                         <i class="fa-solid fa-search"></i>
                         <input type="text" class="search-box" id="searchInput" placeholder="ابحث عن اسم الصنف..." onkeyup="filterSearch()">
                     </div>
-                    <!-- زر تسجيل الخروج بشكله الجديد (شكل الباب المفتوح) -->
+
+                    <!-- زر تسجيل الخروج بشكله الجديد -->
                     <button class="btn-logout" onclick="handleLogout()" title="تسجيل الخروج">
                         خروج <i class="fa-solid fa-door-open"></i>
                     </button>
@@ -351,7 +363,7 @@
 
     <script>
         // =====================================================================
-        // مفاتيح Firebase الخاصة بك
+        // مفاتيح Firebase
         // =====================================================================
         const firebaseConfig = {
             apiKey: "AIzaSyBDcJFivuL_grFOGCKoKvEXoVmKR3y6Vvc",
@@ -376,18 +388,31 @@
 
         let dataLoaded = false;
 
-        // نظام المصادقة (تسجيل الدخول باليوزر نيم الوهمي)
+        // نظام المصادقة الذكي
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
                 document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('appContainer').style.display = 'flex';
                 
-                if (!dataLoaded) {
-                    initDB();
-                    dataLoaded = true;
+                // هل المستخدم ده سجل اسمه الحقيقي قبل كده؟
+                if (!user.displayName) {
+                    // لو أول مرة، أظهرله شاشة الإعداد
+                    document.getElementById('profileSetupScreen').style.display = 'flex';
+                    document.getElementById('appContainer').style.display = 'none';
+                } else {
+                    // لو مسجل اسمه، دخله على السيستم على طول
+                    document.getElementById('profileSetupScreen').style.display = 'none';
+                    document.getElementById('appContainer').style.display = 'flex';
+                    document.getElementById('userNameDisplay').innerText = user.displayName;
+                    
+                    if (!dataLoaded) {
+                        initDB();
+                        dataLoaded = true;
+                    }
                 }
             } else {
+                // مش مسجل دخول، أظهر شاشة الدخول العادية
                 document.getElementById('loginScreen').style.display = 'flex';
+                document.getElementById('profileSetupScreen').style.display = 'none';
                 document.getElementById('appContainer').style.display = 'none';
                 dataLoaded = false;
             }
@@ -416,6 +441,35 @@
                 });
         }
 
+        // دالة حفظ الاسم لأول مرة
+        function saveDisplayName() {
+            const nameInput = document.getElementById('actualNameInput').value.trim();
+            const errorDiv = document.getElementById('setupError');
+            
+            if(!nameInput) {
+                errorDiv.innerText = "برجاء كتابة اسمك للمتابعة!";
+                return;
+            }
+            
+            errorDiv.innerText = "جاري الحفظ...";
+            const user = firebase.auth().currentUser;
+            
+            user.updateProfile({
+                displayName: nameInput
+            }).then(() => {
+                document.getElementById('profileSetupScreen').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'flex';
+                document.getElementById('userNameDisplay').innerText = nameInput;
+                
+                if (!dataLoaded) {
+                    initDB();
+                    dataLoaded = true;
+                }
+            }).catch((error) => {
+                errorDiv.innerText = "حدث خطأ أثناء الحفظ، حاول مرة أخرى.";
+            });
+        }
+
         function handleLogout() {
             if(confirm("هل أنت متأكد من تسجيل الخروج من السيستم؟")) {
                 firebase.auth().signOut();
@@ -435,8 +489,6 @@
         }
 
         const locations = ["رعاية الجراحة", "رعاية القسطرة", "الطوارئ", "الدور الرابع", "الدور الخامس"];
-        
-        // تم إزالة النقطة من ML لتجنب أخطاء الفايربيز
         const ivFluidsList = ["SODIUM CHLORIDE 3 %", "SODIUM CHLORIDE 45%", "جلوكوز 10 %", "جلوكوز 25 %", "جلوكوز 5 %", "رينجر", "مانيتول", "KIDMIN 250 ML"];
         
         let currentLoc = locations[0]; 
@@ -485,8 +537,8 @@
                 statusBadge.className = "cloud-badge";
                 statusBadge.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> متصل بالسحابة';
                 
-                localStorage.setItem('hospitalItemsList_v13', JSON.stringify(itemsList));
-                localStorage.setItem('hospitalState_v13', JSON.stringify(appState));
+                localStorage.setItem('hospitalItemsList_v15', JSON.stringify(itemsList));
+                localStorage.setItem('hospitalState_v15', JSON.stringify(appState));
 
             }).catch((error) => {
                 console.error(error);
@@ -496,8 +548,8 @@
         }
 
         function saveState() {
-            localStorage.setItem('hospitalItemsList_v13', JSON.stringify(itemsList));
-            localStorage.setItem('hospitalState_v13', JSON.stringify(appState));
+            localStorage.setItem('hospitalItemsList_v15', JSON.stringify(itemsList));
+            localStorage.setItem('hospitalState_v15', JSON.stringify(appState));
             updateStats();
 
             if (isCloudEnabled) {
@@ -515,7 +567,6 @@
                     statusBadge.className = "cloud-badge offline";
                     statusBadge.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> فشل الرفع';
                     console.error(err);
-                    alert("خطأ أثناء الرفع للسحابة: تأكد من اتصال الإنترنت.");
                 });
             }
         }
@@ -527,13 +578,13 @@
         }
 
         function loadLocalData() {
-            const savedItems = localStorage.getItem('hospitalItemsList_v13');
+            const savedItems = localStorage.getItem('hospitalItemsList_v15');
             if (savedItems) itemsList = JSON.parse(savedItems);
             else locations.forEach(loc => itemsList[loc] = []);
             
             locations.forEach(loc => { if(!itemsList[loc]) itemsList[loc] = []; });
 
-            const savedState = localStorage.getItem('hospitalState_v13');
+            const savedState = localStorage.getItem('hospitalState_v15');
             if (savedState) {
                 appState = JSON.parse(savedState);
                 ensureDataConsistency();
@@ -638,7 +689,6 @@
             const rawNewItem = input.value.trim();
             if (!rawNewItem) return alert('برجاء كتابة اسم الصنف أولاً.');
             
-            // تطبيق الفلتر لتنظيف الاسم قبل حفظه
             const newItem = sanitizeForFirebase(rawNewItem);
 
             if (itemsList[currentLoc].includes(newItem)) return alert('هذا الصنف موجود بالفعل في هذا القسم!');
@@ -880,7 +930,6 @@
                             if (qtyRaw !== undefined && qtyRaw !== null && nameRaw !== undefined && nameRaw !== null) {
                                 const qty = parseFloat(qtyRaw);
                                 
-                                // تطبيق الفلتر لتنظيف الاسم المأخوذ من الإكسيل
                                 const itemName = sanitizeForFirebase(String(nameRaw).replace(/[\r\n]+/g, ' ')); 
                                 
                                 if (!isNaN(qty) && itemName !== '' && itemName !== '0') {
