@@ -90,7 +90,9 @@
         .topbar-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;}
         
         .user-badge { background: #eef2ff; color: var(--primary); padding: 8px 15px; border-radius: 20px; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; border: 1px solid #c7d2fe; }
-        
+        .btn-edit-name { background: none; border: none; color: var(--primary); cursor: pointer; padding: 0 5px; font-size: 13px; opacity: 0.7; transition: 0.2s; }
+        .btn-edit-name:hover { opacity: 1; transform: scale(1.1); color: var(--primary-hover); }
+
         .search-container { position: relative; }
         .search-container i { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
         .search-box { padding: 10px 15px 10px 40px; border: 1px solid var(--border-color); border-radius: 25px; width: 220px; outline: none; font-size: 14px; background-color: #f9fafb; }
@@ -206,7 +208,6 @@
         <div class="login-box">
             <i class="fa-solid fa-shield-halved"></i>
             <h2>تسجيل الدخول</h2>
-            <!-- تم مسح الأمثلة من البوكسات -->
             <input type="text" id="loginUsername" placeholder="اسم المستخدم">
             <input type="password" id="loginPass" placeholder="كلمة المرور">
             <button onclick="handleLogin()">دخول النظام</button>
@@ -214,7 +215,7 @@
         </div>
     </div>
 
-    <!-- 2. شاشة إعداد الاسم لأول مرة -->
+    <!-- 2. شاشة إعداد الاسم لأول مرة (تظهر فقط لو المستخدم ملوش اسم) -->
     <div id="profileSetupScreen" class="auth-screen" style="display: none;">
         <div class="login-box">
             <i class="fa-solid fa-id-card"></i>
@@ -262,9 +263,13 @@
                 </div>
 
                 <div class="topbar-actions no-print">
-                    <!-- اسم المستخدم الذي سيظهر هنا -->
+                    <!-- اسم المستخدم مع زر التعديل -->
                     <div class="user-badge">
-                        <i class="fa-solid fa-user-doctor"></i> <span id="userNameDisplay">...</span>
+                        <i class="fa-solid fa-user-doctor"></i> 
+                        <span id="userNameDisplay">...</span>
+                        <button class="btn-edit-name" onclick="editDisplayName()" title="تعديل الاسم">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
                     </div>
 
                     <div class="search-container">
@@ -272,7 +277,7 @@
                         <input type="text" class="search-box" id="searchInput" placeholder="ابحث عن اسم الصنف..." onkeyup="filterSearch()">
                     </div>
 
-                    <!-- زر تسجيل الخروج بشكله الجديد -->
+                    <!-- زر تسجيل الخروج -->
                     <button class="btn-logout" onclick="handleLogout()" title="تسجيل الخروج">
                         خروج <i class="fa-solid fa-door-open"></i>
                     </button>
@@ -396,11 +401,9 @@
                 
                 // هل المستخدم ده سجل اسمه الحقيقي قبل كده؟
                 if (!user.displayName) {
-                    // لو أول مرة، أظهرله شاشة الإعداد
                     document.getElementById('profileSetupScreen').style.display = 'flex';
                     document.getElementById('appContainer').style.display = 'none';
                 } else {
-                    // لو مسجل اسمه، دخله على السيستم على طول
                     document.getElementById('profileSetupScreen').style.display = 'none';
                     document.getElementById('appContainer').style.display = 'flex';
                     document.getElementById('userNameDisplay').innerText = user.displayName;
@@ -411,7 +414,6 @@
                     }
                 }
             } else {
-                // مش مسجل دخول، أظهر شاشة الدخول العادية
                 document.getElementById('loginScreen').style.display = 'flex';
                 document.getElementById('profileSetupScreen').style.display = 'none';
                 document.getElementById('appContainer').style.display = 'none';
@@ -468,6 +470,26 @@
             }).catch((error) => {
                 errorDiv.innerText = "حدث خطأ أثناء الحفظ، حاول مرة أخرى.";
             });
+        }
+
+        // دالة تعديل الاسم في أي وقت
+        function editDisplayName() {
+            const currentName = document.getElementById('userNameDisplay').innerText;
+            const newName = prompt("أدخل اسمك الجديد:", currentName);
+            
+            if (newName && newName.trim() !== "" && newName !== currentName) {
+                const user = firebase.auth().currentUser;
+                if (user) {
+                    user.updateProfile({
+                        displayName: newName.trim()
+                    }).then(() => {
+                        document.getElementById('userNameDisplay').innerText = newName.trim();
+                        alert("تم تحديث الاسم بنجاح!");
+                    }).catch((error) => {
+                        alert("حدث خطأ أثناء تحديث الاسم، يرجى المحاولة لاحقاً.");
+                    });
+                }
+            }
         }
 
         function handleLogout() {
