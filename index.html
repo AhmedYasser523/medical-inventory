@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم المخازن الطبية - النظام السحابي</title>
+    <title>لوحة تحكم المخازن الطبية - النظام المحمي</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-    <!-- مكتبات قايربيز (Firebase) السحابية -->
+    <!-- مكتبات قايربيز (Firebase) السحابية والمصادقة -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -88,6 +88,11 @@
         .sheet-controls { display: flex; align-items: center; gap: 8px; background: #eef2ff; padding: 5px 10px; border-radius: 8px; border: 1px solid #c7d2fe; flex-wrap: wrap;}
         .sheet-controls i { color: var(--primary); }
         .sheet-controls select { border: none; background: transparent; font-weight: 700; font-size: 14px; color: var(--primary); outline: none; cursor: pointer; max-width: 200px;}
+        
+        /* تعديل شكل زر إضافة شيت جديد */
+        .btn-sheet-add { background: transparent; color: var(--primary); border: 2px dashed var(--primary); width: 28px; height: 28px; border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 900; transition: 0.2s;}
+        .btn-sheet-add:hover { background: var(--primary); color: white; transform: scale(1.05);}
+        
         .btn-sheet-action { background: var(--primary); color: white; border: none; width: 28px; height: 28px; border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;}
         .btn-sheet-action:hover { background: var(--primary-hover); transform: scale(1.05);}
         .btn-sheet-delete { background: #fee2e2; color: var(--danger); }
@@ -97,6 +102,10 @@
         .search-container i { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
         .search-box { padding: 10px 15px 10px 40px; border: 1px solid var(--border-color); border-radius: 25px; width: 250px; outline: none; font-size: 14px; background-color: #f9fafb; }
         
+        /* شكل زر الخروج الجديد */
+        .btn-logout { background: #fee2e2; color: var(--danger); border: none; padding: 8px 15px; border-radius: 8px; font-weight: 800; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .btn-logout:hover { background: #fecaca; transform: scale(1.05); }
+
         .content { padding: 20px; overflow-y: auto; flex-grow: 1; }
 
         .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
@@ -212,6 +221,7 @@
 
     <!-- حاوية النظام تظهر فقط بعد تسجيل الدخول -->
     <div id="appContainer">
+
         <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
         <aside class="sidebar" id="sidebar">
@@ -238,7 +248,8 @@
                         <div class="sheet-controls no-print" style="margin-top: 10px;">
                             <i class="fa-solid fa-file-excel"></i>
                             <select id="sheetSelect" onchange="switchSheet(this.value)"></select>
-                            <button class="btn-sheet-action" onclick="createNewSheet()" title="إنشاء شيت جرد جديد"><i class="fa-solid fa-plus"></i></button>
+                            <!-- تم تعديل زر إضافة الشيت ليكون علامة زائد فقط -->
+                            <button class="btn-sheet-add" onclick="createNewSheet()" title="إضافة شيت جديد"><i class="fa-solid fa-plus"></i></button>
                             <button class="btn-sheet-action btn-sheet-delete" onclick="deleteCurrentSheet()" title="حذف الشيت الحالي"><i class="fa-solid fa-trash"></i></button>
                         </div>
                     </div>
@@ -248,8 +259,10 @@
                         <i class="fa-solid fa-search"></i>
                         <input type="text" class="search-box" id="searchInput" placeholder="ابحث عن اسم الصنف..." onkeyup="filterSearch()">
                     </div>
-                    <!-- زر تسجيل الخروج -->
-                    <button class="btn btn-danger-light" onclick="handleLogout()" title="تسجيل الخروج"><i class="fa-solid fa-power-off"></i></button>
+                    <!-- زر تسجيل الخروج بشكله الجديد (شكل الباب المفتوح) -->
+                    <button class="btn-logout" onclick="handleLogout()" title="تسجيل الخروج">
+                        خروج <i class="fa-solid fa-door-open"></i>
+                    </button>
                 </div>
             </header>
 
@@ -338,7 +351,7 @@
 
     <script>
         // =====================================================================
-        // مفاتيح Firebase (تم الإضافة بنجاح)
+        // مفاتيح Firebase الخاصة بك
         // =====================================================================
         const firebaseConfig = {
             apiKey: "AIzaSyBDcJFivuL_grFOGCKoKvEXoVmKR3y6Vvc",
@@ -353,7 +366,6 @@
         
         let database;
         let isCloudEnabled = false;
-
         try {
             firebase.initializeApp(firebaseConfig);
             database = firebase.database();
@@ -423,6 +435,8 @@
         }
 
         const locations = ["رعاية الجراحة", "رعاية القسطرة", "الطوارئ", "الدور الرابع", "الدور الخامس"];
+        
+        // تم إزالة النقطة من ML لتجنب أخطاء الفايربيز
         const ivFluidsList = ["SODIUM CHLORIDE 3 %", "SODIUM CHLORIDE 45%", "جلوكوز 10 %", "جلوكوز 25 %", "جلوكوز 5 %", "رينجر", "مانيتول", "KIDMIN 250 ML"];
         
         let currentLoc = locations[0]; 
@@ -430,6 +444,7 @@
         let appState = { activeSheet: 'default', sheets: {} };
         let db = {}; 
 
+        // دالة الفلترة الذكية (تقوم بتبديل الرموز الممنوعة في فايربيز إلى شرطة)
         function sanitizeForFirebase(str) {
             if(!str) return "";
             return String(str).replace(/[.#$\[\]\/]/g, '-').trim();
@@ -500,7 +515,7 @@
                     statusBadge.className = "cloud-badge offline";
                     statusBadge.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> فشل الرفع';
                     console.error(err);
-                    alert("خطأ أثناء الرفع للسحابة: تأكد من اتصال الإنترنت أو الصلاحيات.");
+                    alert("خطأ أثناء الرفع للسحابة: تأكد من اتصال الإنترنت.");
                 });
             }
         }
@@ -623,6 +638,7 @@
             const rawNewItem = input.value.trim();
             if (!rawNewItem) return alert('برجاء كتابة اسم الصنف أولاً.');
             
+            // تطبيق الفلتر لتنظيف الاسم قبل حفظه
             const newItem = sanitizeForFirebase(rawNewItem);
 
             if (itemsList[currentLoc].includes(newItem)) return alert('هذا الصنف موجود بالفعل في هذا القسم!');
@@ -864,6 +880,7 @@
                             if (qtyRaw !== undefined && qtyRaw !== null && nameRaw !== undefined && nameRaw !== null) {
                                 const qty = parseFloat(qtyRaw);
                                 
+                                // تطبيق الفلتر لتنظيف الاسم المأخوذ من الإكسيل
                                 const itemName = sanitizeForFirebase(String(nameRaw).replace(/[\r\n]+/g, ' ')); 
                                 
                                 if (!isNaN(qty) && itemName !== '' && itemName !== '0') {
