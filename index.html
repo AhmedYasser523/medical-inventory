@@ -289,7 +289,7 @@
 
     <script>
         // =====================================================================
-        // مفاتيح Firebase الخاصة بك
+        // مفاتيح Firebase
         // =====================================================================
         const firebaseConfig = {
             apiKey: "AIzaSyBDcJFivuL_grFOGCKoKvEXoVmKR3y6Vvc",
@@ -302,7 +302,6 @@
             measurementId: "G-JYHJC8KHSD"
         };
         
-        // تهيئة الفايربيز
         let database;
         let isCloudEnabled = false;
         try {
@@ -310,7 +309,7 @@
             database = firebase.database();
             isCloudEnabled = true;
         } catch(e) {
-            console.warn("حدث خطأ في تحميل مفاتيح الفايربيز. السيستم سيعمل محلياً فقط.");
+            console.warn("حدث خطأ في تحميل مفاتيح الفايربيز.");
         }
         // =====================================================================
 
@@ -326,12 +325,20 @@
         }
 
         const locations = ["رعاية الجراحة", "رعاية القسطرة", "الطوارئ", "الدور الرابع", "الدور الخامس"];
-        const ivFluidsList = ["SODIUM CHLORIDE 3 %", "SODIUM CHLORIDE 45%", "جلوكوز 10 %", "جلوكوز 25 %", "جلوكوز 5 %", "رينجر", "مانيتول", "KIDMIN 250 ML."];
+        
+        // تم إزالة النقطة من ML لتجنب أخطاء الفايربيز
+        const ivFluidsList = ["SODIUM CHLORIDE 3 %", "SODIUM CHLORIDE 45%", "جلوكوز 10 %", "جلوكوز 25 %", "جلوكوز 5 %", "رينجر", "مانيتول", "KIDMIN 250 ML"];
         
         let currentLoc = locations[0]; 
         let itemsList = {}; 
         let appState = { activeSheet: 'default', sheets: {} };
         let db = {}; 
+
+        // دالة الفلترة الذكية (تقوم بتبديل الرموز الممنوعة في فايربيز إلى شرطة)
+        function sanitizeForFirebase(str) {
+            if(!str) return "";
+            return String(str).replace(/[.#$\[\]\/]/g, '-').trim();
+        }
 
         function initDB() {
             if (isCloudEnabled) {
@@ -368,20 +375,19 @@
                 statusBadge.className = "cloud-badge";
                 statusBadge.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> متصل بالسحابة';
                 
-                localStorage.setItem('hospitalItemsList_v12', JSON.stringify(itemsList));
-                localStorage.setItem('hospitalState_v12', JSON.stringify(appState));
+                localStorage.setItem('hospitalItemsList_v13', JSON.stringify(itemsList));
+                localStorage.setItem('hospitalState_v13', JSON.stringify(appState));
 
             }).catch((error) => {
                 console.error(error);
                 setOfflineMode();
                 loadLocalData();
-                alert("تعذر الاتصال بالسحابة (قد لا تكون قاعدة البيانات مفعلة بعد)، تم تشغيل النسخة المحلية.");
             });
         }
 
         function saveState() {
-            localStorage.setItem('hospitalItemsList_v12', JSON.stringify(itemsList));
-            localStorage.setItem('hospitalState_v12', JSON.stringify(appState));
+            localStorage.setItem('hospitalItemsList_v13', JSON.stringify(itemsList));
+            localStorage.setItem('hospitalState_v13', JSON.stringify(appState));
             updateStats();
 
             if (isCloudEnabled) {
@@ -397,8 +403,9 @@
                     statusBadge.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> تم الحفظ بالسحابة';
                 }).catch(err => {
                     statusBadge.className = "cloud-badge offline";
-                    statusBadge.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> فشل الرفع للسحابة';
+                    statusBadge.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> فشل الرفع';
                     console.error(err);
+                    alert("خطأ أثناء الرفع للسحابة: تأكد من اتصال الإنترنت.");
                 });
             }
         }
@@ -410,13 +417,13 @@
         }
 
         function loadLocalData() {
-            const savedItems = localStorage.getItem('hospitalItemsList_v12');
+            const savedItems = localStorage.getItem('hospitalItemsList_v13');
             if (savedItems) itemsList = JSON.parse(savedItems);
             else locations.forEach(loc => itemsList[loc] = []);
             
             locations.forEach(loc => { if(!itemsList[loc]) itemsList[loc] = []; });
 
-            const savedState = localStorage.getItem('hospitalState_v12');
+            const savedState = localStorage.getItem('hospitalState_v13');
             if (savedState) {
                 appState = JSON.parse(savedState);
                 ensureDataConsistency();
@@ -518,8 +525,12 @@
 
         function addNewItem() {
             const input = document.getElementById('newItemName');
-            const newItem = input.value.trim();
-            if (!newItem) return alert('برجاء كتابة اسم الصنف أولاً.');
+            const rawNewItem = input.value.trim();
+            if (!rawNewItem) return alert('برجاء كتابة اسم الصنف أولاً.');
+            
+            // تطبيق الفلتر لتنظيف الاسم قبل حفظه
+            const newItem = sanitizeForFirebase(rawNewItem);
+
             if (itemsList[currentLoc].includes(newItem)) return alert('هذا الصنف موجود بالفعل في هذا القسم!');
 
             insertRegularItem(newItem);
@@ -758,7 +769,9 @@
                             
                             if (qtyRaw !== undefined && qtyRaw !== null && nameRaw !== undefined && nameRaw !== null) {
                                 const qty = parseFloat(qtyRaw);
-                                const itemName = String(nameRaw).replace(/[\r\n]+/g, ' ').trim(); 
+                                
+                                // تطبيق الفلتر لتنظيف الاسم المأخوذ من الإكسيل
+                                const itemName = sanitizeForFirebase(String(nameRaw).replace(/[\r\n]+/g, ' ')); 
                                 
                                 if (!isNaN(qty) && itemName !== '' && itemName !== '0') {
                                     if (!excelMap[itemName]) excelMap[itemName] = 0;
