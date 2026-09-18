@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم المخازن الطبية - النظام السحابي</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <!-- مكتبات قايربيز (Firebase) السحابية -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --sidebar-bg: #111827;
+            --sidebar-hover: #1f2937;
+            --sidebar-active: #374151;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --info: #0ea5e9;
+        }
+
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
+        body { display: flex; height: 100vh; background-color: var(--bg-color); color: var(--text-main); overflow: hidden; }
+
+        .sidebar { width: 260px; min-width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; transition: all 0.3s ease; box-shadow: 4px 0 10px rgba(0,0,0,0.1); z-index: 1000; }
+        .sidebar.collapsed { margin-right: -260px; }
+        .brand { padding: 25px 20px; font-size: 22px; font-weight: 800; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .brand i { color: var(--primary); font-size: 26px; }
+        .nav-menu { flex-grow: 1; padding: 20px 0; overflow-y: auto; }
+        .nav-title { padding: 0 25px 10px; font-size: 13px; color: #9ca3af; text-transform: uppercase; font-weight: 700; }
+        .nav-btn { background: none; border: none; color: #d1d5db; width: calc(100% - 30px); margin: 5px 15px; padding: 12px 20px; text-align: right; font-size: 15px; font-weight: 600; cursor: pointer; border-radius: 8px; display: flex; align-items: center; gap: 12px; transition: all 0.2s ease; }
+        .nav-btn:hover { background-color: var(--sidebar-hover); color: white; }
+        .nav-btn.active { background-color: var(--primary); color: white; box-shadow: 0 4px 6px rgba(79, 70, 229, 0.3); }
+        .settlement-btn { margin: 20px 15px; background-color: var(--warning); color: white; padding: 15px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.3s; }
+
+        .main-wrapper { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; transition: all 0.3s ease; }
+        .topbar { background: var(--card-bg); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); z-index: 50; flex-wrap: wrap; gap: 15px;}
+        .topbar-left { display: flex; align-items: flex-start; gap: 15px; }
+        .menu-toggle-btn { background: none; border: none; font-size: 24px; color: var(--text-main); cursor: pointer; padding: 5px; margin-top: 2px;}
+        
+        .print-header { display: none; text-align: center; margin-bottom: 20px; }
+        .topbar-title h2 { font-size: 20px; font-weight: 700; margin: 0 0 8px 0; }
+        .cloud-badge { background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; margin-top: 5px;}
+        .cloud-badge.offline { background: #fee2e2; color: #b91c1c; }
+        .cloud-badge.syncing { background: #e0e7ff; color: #4338ca; }
+        
+        .sheet-controls { display: flex; align-items: center; gap: 8px; background: #eef2ff; padding: 5px 10px; border-radius: 8px; border: 1px solid #c7d2fe; flex-wrap: wrap;}
+        .sheet-controls i { color: var(--primary); }
+        .sheet-controls select { border: none; background: transparent; font-weight: 700; font-size: 14px; color: var(--primary); outline: none; cursor: pointer; max-width: 200px;}
+        .btn-sheet-action { background: var(--primary); color: white; border: none; width: 28px; height: 28px; border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;}
+        .btn-sheet-action:hover { background: var(--primary-hover); transform: scale(1.05);}
+        .btn-sheet-delete { background: #fee2e2; color: var(--danger); }
+        .btn-sheet-delete:hover { background: #fecaca; }
+
+        .search-container { position: relative; }
+        .search-container i { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+        .search-box { padding: 10px 15px 10px 40px; border: 1px solid var(--border-color); border-radius: 25px; width: 250px; outline: none; font-size: 14px; background-color: #f9fafb; }
+        
+        .content { padding: 20px; overflow-y: auto; flex-grow: 1; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: var(--card-bg); padding: 15px; border-radius: 12px; display: flex; align-items: center; gap: 15px; border: 1px solid var(--border-color); }
+        .stat-icon { width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+        .icon-blue { background: #e0e7ff; color: var(--primary); }
+        .icon-red { background: #fee2e2; color: var(--danger); }
+        .icon-green { background: #d1fae5; color: var(--success); }
+        .stat-info h4 { font-size: 13px; color: var(--text-muted); margin-bottom: 5px; }
+        .stat-info span { font-size: 20px; font-weight: 800; }
+
+        .toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); align-items: center; }
+        .btn { padding: 8px 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .btn:hover { opacity: 0.8; }
+        .btn-outline { background: white; border: 1px solid var(--border-color); color: var(--text-main); }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-info { background: var(--info); color: white; }
+        .btn-danger-light { background: #fee2e2; color: var(--danger); }
+        .btn-success-light { background: #d1fae5; color: var(--success); }
+        
+        .action-btn { background: none; border: none; cursor: pointer; font-size: 16px; padding: 5px; color: #9ca3af; transition: 0.2s; }
+        .action-btn:hover { color: var(--danger); transform: scale(1.1); }
+
+        .table-card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow: hidden; }
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; min-width: 850px; }
+        thead { background-color: #f8fafc; border-bottom: 2px solid var(--border-color); }
+        th { padding: 12px 15px; text-align: right; font-weight: 700; color: var(--text-muted); font-size: 13px; white-space: nowrap; }
+        td { padding: 10px 15px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+        .item-name { font-weight: 700; font-size: 14px; white-space: nowrap; }
+        .item-fluid { color: var(--info); }
+
+        input[type="number"] { width: 70px; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; text-align: center; font-weight: 600; font-size: 14px; background-color: #f8fafc; transition: 0.1s; }
+        input[type="number"]:focus { outline: none; border-color: var(--primary); background: #eef2ff; box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2); }
+
+        .badge { padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 13px; display: inline-block; min-width: 40px; text-align: center; }
+        .badge-gray { background: #f1f5f9; color: #64748b; }
+        .badge-red { background: #fee2e2; color: var(--danger); }
+        .badge-green { background: #d1fae5; color: var(--success); }
+
+        .row-deficit td { background-color: #fff5f5; }
+        .row-surplus td { background-color: #f0fdf4; }
+
+        #settlementView { display: none; }
+        .settlement-section { background: white; border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+        .settlement-section h3 { margin-bottom: 15px; font-size: 18px; display: flex; align-items: center; gap: 10px;}
+        .settlement-list { list-style: none; padding: 0; }
+        .settlement-list li { padding: 10px; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between; font-weight: 600;}
+        .settlement-list li:last-child { border-bottom: none; }
+
+        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; }
+
+        @media print {
+            @page { size: A4 portrait; margin: 10mm; }
+            body { background: white; }
+            .sidebar, .topbar, .toolbar, .menu-toggle-btn, .sidebar-overlay, .no-print, .stats-grid, .sheet-controls { display: none !important; }
+            .main-wrapper, .content { padding: 0 !important; margin: 0 !important; overflow: visible; width: 100%; }
+            .table-card, .settlement-section { border: none; box-shadow: none; border-radius: 0; margin:0; padding:0; }
+            .table-responsive { overflow: visible !important; width: 100%; }
+            
+            .print-header { display: block !important; text-align: center; margin-bottom: 15px; }
+            .print-header h2 { font-size: 18px; margin: 0 0 5px 0; }
+            .print-header p { font-size: 14px; color: #555; margin: 0; }
+
+            table { border: 1px solid #000; width: 100% !important; min-width: 100% !important; table-layout: fixed; }
+            th:nth-child(1) { width: 5%; } 
+            th:nth-child(2) { width: 45%; } 
+            th:nth-child(3), th:nth-child(4), th:nth-child(5), th:nth-child(6), th:nth-child(7) { width: 10%; } 
+            
+            th, td { border: 1px solid #000 !important; padding: 4px 2px !important; font-size: 11px !important; white-space: normal !important; word-wrap: break-word; text-align: center !important; }
+            .item-name { font-size: 12px !important; white-space: normal !important; text-align: right !important; }
+            input[type="number"] { border: none !important; background: transparent !important; padding: 0 !important; width: 100% !important; font-size: 11px !important; font-weight: bold; text-align: center; }
+            .badge { padding: 0 !important; border-radius: 0 !important; font-size: 11px !important; background: transparent !important; color: black !important; font-weight: bold; }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { position: fixed; right: -260px; top: 0; bottom: 0; }
+            .sidebar.mobile-open { right: 0; }
+            .sidebar-overlay.active { display: block; }
+            .topbar { flex-direction: column; align-items: flex-start; }
+            .topbar-left { width: 100%; justify-content: flex-start; }
+            .search-container, .search-box { width: 100%; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .toolbar { justify-content: space-between; }
+            .btn { flex-grow: 1; justify-content: center; }
+            .add-item-group { width: 100%; display: flex; margin-bottom: 10px; }
+            .add-item-group input { flex-grow: 1; border-radius: 0 8px 8px 0; border: 1px solid var(--border-color); padding: 8px 15px;}
+            .add-item-group button { border-radius: 8px 0 0 8px; }
+        }
+        @media (min-width: 769px) {
+            .add-item-group { display: flex; align-items: center; }
+            .add-item-group input { border-radius: 0 8px 8px 0; border: 1px solid var(--border-color); padding: 8px 15px; outline: none; border-left: none; width: 180px;}
+            .add-item-group button { border-radius: 8px 0 0 8px; height: 100%; padding: 8.5px 15px;}
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="brand">
+            <i class="fa-solid fa-cloud"></i> مخازن كلاود
+        </div>
+        <div class="nav-menu">
+            <div class="nav-title">أقسام المستشفى</div>
+            <div id="locationsList"></div>
+        </div>
+        <button class="settlement-btn" onclick="showSettlement()">
+            <i class="fa-solid fa-code-compare"></i> تقرير التسويات العام
+        </button>
+    </aside>
+
+    <main class="main-wrapper">
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="menu-toggle-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+                <div class="topbar-title">
+                    <h2 id="currentLocationTitle">رعاية الجراحة</h2>
+                    <div id="cloudStatus" class="cloud-badge offline"><i class="fa-solid fa-circle-notch fa-spin"></i> جاري الاتصال بالسحابة...</div>
+                    
+                    <div class="sheet-controls no-print" style="margin-top: 10px;">
+                        <i class="fa-solid fa-file-excel"></i>
+                        <select id="sheetSelect" onchange="switchSheet(this.value)"></select>
+                        <button class="btn-sheet-action" onclick="createNewSheet()" title="إنشاء شيت جرد جديد"><i class="fa-solid fa-plus"></i></button>
+                        <button class="btn-sheet-action btn-sheet-delete" onclick="deleteCurrentSheet()" title="حذف الشيت الحالي"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="search-container no-print">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" class="search-box" id="searchInput" placeholder="ابحث عن اسم الصنف..." onkeyup="filterSearch()">
+            </div>
+        </header>
+
+        <div class="content">
+            
+            <div class="print-header" id="printHeader">
+                <h2 id="printTitle">رعاية الجراحة</h2>
+                <p id="printSubtitle">تقرير جرد المخازن</p>
+            </div>
+
+            <div id="inventoryView">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon icon-blue"><i class="fa-solid fa-boxes-stacked"></i></div>
+                        <div class="stat-info"><h4>أصناف القسم</h4><span id="stat-total">0</span></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon icon-red"><i class="fa-solid fa-arrow-trend-down"></i></div>
+                        <div class="stat-info"><h4>أصناف بها عجز</h4><span id="stat-deficit">0</span></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon icon-green"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                        <div class="stat-info"><h4>أصناف بها زيادة</h4><span id="stat-surplus">0</span></div>
+                    </div>
+                </div>
+
+                <div class="toolbar">
+                    <button class="btn btn-outline no-print" onclick="fetchCloudData()" style="color: var(--primary);" title="تحديث البيانات من السحابة"><i class="fa-solid fa-rotate"></i> جلب التحديثات</button>
+
+                    <div class="add-item-group no-print" style="margin-right:10px;">
+                        <input type="text" id="newItemName" placeholder="اسم صنف جديد...">
+                        <button class="btn btn-primary" onclick="addNewItem()"><i class="fa-solid fa-plus"></i> إضافة</button>
+                    </div>
+                    
+                    <button class="btn btn-info no-print" onclick="addIVFluids()"><i class="fa-solid fa-droplet"></i> إضافة المحاليل</button>
+
+                    <div style="flex-grow: 1;"></div> 
+
+                    <input type="file" id="excelUpload" accept=".xlsx, .xls" style="display: none;" onchange="handleExcelUpload(event)">
+                    <button class="btn btn-success" onclick="document.getElementById('excelUpload').click()">
+                        <i class="fa-solid fa-file-import"></i> استيراد من الإكسيل
+                    </button>
+
+                    <button class="btn btn-outline" onclick="filterTable('all')"><i class="fa-solid fa-list"></i> الكل</button>
+                    <button class="btn btn-danger-light" onclick="filterTable('deficit')"><i class="fa-solid fa-minus-circle"></i> العجز</button>
+                    <button class="btn btn-success-light" onclick="filterTable('surplus')"><i class="fa-solid fa-plus-circle"></i> الزيادة</button>
+                    <button class="btn btn-primary" onclick="preparePrint()"><i class="fa-solid fa-print"></i> طباعة</button>
+                    
+                    <button class="btn btn-outline no-print" onclick="clearCurrentLocationNumbers()" style="color: var(--warning);" title="تصفير الأرقام فقط في هذا القسم"><i class="fa-solid fa-eraser"></i> تصفير الأرقام</button>
+                    <button class="btn btn-outline no-print" onclick="deleteAllItems()" style="color: var(--danger);" title="حذف كل أصناف هذا القسم والبدء من الصفر"><i class="fa-solid fa-trash-can"></i> مسح أصناف القسم</button>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-responsive">
+                        <table id="inventoryTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>اسم الصنف الطبي</th>
+                                    <th>السيستم</th>
+                                    <th>المصروف</th>
+                                    <th>الفعلي</th>
+                                    <th>العجز</th>
+                                    <th>الزيادة</th>
+                                    <th class="no-print"><i class="fa-solid fa-gear"></i></th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryBody">
+                                <!-- سيتم توليد الجدول هنا -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="settlementView">
+                <div class="toolbar" style="margin-bottom: 25px;">
+                    <button class="btn btn-primary" onclick="hideSettlement()"><i class="fa-solid fa-arrow-right"></i> العودة للجرد</button>
+                    <button class="btn btn-outline" onclick="window.print()"><i class="fa-solid fa-print"></i> طباعة تقرير التسويات</button>
+                </div>
+                <div id="settlementResults"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // =====================================================================
+        // مفاتيح Firebase الخاصة بك
+        // =====================================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBDcJFivuL_grFOGCKoKvEXoVmKR3y6Vvc",
+            authDomain: "golden-heart-system.firebaseapp.com",
+            databaseURL: "https://golden-heart-system-default-rtdb.firebaseio.com",
+            projectId: "golden-heart-system",
+            storageBucket: "golden-heart-system.firebasestorage.app",
+            messagingSenderId: "759838000701",
+            appId: "1:759838000701:web:a6a7d2539b6a7bd8fb0c54",
+            measurementId: "G-JYHJC8KHSD"
+        };
+        
+        // تهيئة الفايربيز
+        let database;
+        let isCloudEnabled = false;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            database = firebase.database();
+            isCloudEnabled = true;
+        } catch(e) {
+            console.warn("حدث خطأ في تحميل مفاتيح الفايربيز. السيستم سيعمل محلياً فقط.");
+        }
+        // =====================================================================
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('mobile-open');
+                overlay.classList.toggle('active');
+            } else {
+                sidebar.classList.toggle('collapsed');
+            }
+        }
+
+        const locations = ["رعاية الجراحة", "رعاية القسطرة", "الطوارئ", "الدور الرابع", "الدور الخامس"];
+        const ivFluidsList = ["SODIUM CHLORIDE 3 %", "SODIUM CHLORIDE 45%", "جلوكوز 10 %", "جلوكوز 25 %", "جلوكوز 5 %", "رينجر", "مانيتول", "KIDMIN 250 ML."];
+        
+        let currentLoc = locations[0]; 
+        let itemsList = {}; 
+        let appState = { activeSheet: 'default', sheets: {} };
+        let db = {}; 
+
+        function initDB() {
+            if (isCloudEnabled) {
+                fetchCloudData();
+            } else {
+                setOfflineMode();
+                loadLocalData();
+            }
+        }
+
+        function fetchCloudData() {
+            const statusBadge = document.getElementById('cloudStatus');
+            statusBadge.className = "cloud-badge syncing";
+            statusBadge.innerHTML = '<i class="fa-solid fa-arrows-rotate fa-spin"></i> جاري المزامنة...';
+
+            database.ref('medical_inventory').get().then((snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    itemsList = data.itemsList || {};
+                    appState = data.appState || { activeSheet: 'default', sheets: {} };
+                    
+                    locations.forEach(loc => { if(!itemsList[loc]) itemsList[loc] = []; });
+                    ensureDataConsistency();
+                } else {
+                    locations.forEach(loc => itemsList[loc] = []);
+                    createNewSheet("جرد البداية", 'default', false);
+                }
+                
+                db = appState.sheets[appState.activeSheet].data;
+                updateSheetSelectUI();
+                renderSidebar();
+                loadLocation(currentLoc);
+
+                statusBadge.className = "cloud-badge";
+                statusBadge.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> متصل بالسحابة';
+                
+                localStorage.setItem('hospitalItemsList_v12', JSON.stringify(itemsList));
+                localStorage.setItem('hospitalState_v12', JSON.stringify(appState));
+
+            }).catch((error) => {
+                console.error(error);
+                setOfflineMode();
+                loadLocalData();
+                alert("تعذر الاتصال بالسحابة (قد لا تكون قاعدة البيانات مفعلة بعد)، تم تشغيل النسخة المحلية.");
+            });
+        }
+
+        function saveState() {
+            localStorage.setItem('hospitalItemsList_v12', JSON.stringify(itemsList));
+            localStorage.setItem('hospitalState_v12', JSON.stringify(appState));
+            updateStats();
+
+            if (isCloudEnabled) {
+                const statusBadge = document.getElementById('cloudStatus');
+                statusBadge.className = "cloud-badge syncing";
+                statusBadge.innerHTML = '<i class="fa-solid fa-arrows-rotate fa-spin"></i> جاري الرفع...';
+
+                database.ref('medical_inventory').set({
+                    itemsList: itemsList,
+                    appState: appState
+                }).then(() => {
+                    statusBadge.className = "cloud-badge";
+                    statusBadge.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> تم الحفظ بالسحابة';
+                }).catch(err => {
+                    statusBadge.className = "cloud-badge offline";
+                    statusBadge.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> فشل الرفع للسحابة';
+                    console.error(err);
+                });
+            }
+        }
+
+        function setOfflineMode() {
+            const statusBadge = document.getElementById('cloudStatus');
+            statusBadge.className = "cloud-badge offline";
+            statusBadge.innerHTML = '<i class="fa-solid fa-hard-drive"></i> يعمل أوفلاين';
+        }
+
+        function loadLocalData() {
+            const savedItems = localStorage.getItem('hospitalItemsList_v12');
+            if (savedItems) itemsList = JSON.parse(savedItems);
+            else locations.forEach(loc => itemsList[loc] = []);
+            
+            locations.forEach(loc => { if(!itemsList[loc]) itemsList[loc] = []; });
+
+            const savedState = localStorage.getItem('hospitalState_v12');
+            if (savedState) {
+                appState = JSON.parse(savedState);
+                ensureDataConsistency();
+            } else {
+                createNewSheet(null, 'default', false);
+            }
+            
+            updateSheetSelectUI();
+            db = appState.sheets[appState.activeSheet].data;
+            renderSidebar();
+            loadLocation(currentLoc);
+        }
+
+        function createNewSheet(customName = null, forceId = null, shouldSave = true) {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('ar-EG', { year: 'numeric', month: 'numeric', day: 'numeric' });
+            const timeStr = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+            const autoSuggestedName = `جرد يوم ${dateStr} (${timeStr})`;
+
+            const sheetName = customName || prompt("أدخل اسماً للجرد الجديد:", autoSuggestedName);
+            if (!sheetName) return; 
+
+            const sheetId = forceId || 'sheet_' + Date.now();
+            
+            let newDb = {};
+            locations.forEach(loc => {
+                newDb[loc] = {};
+                itemsList[loc].forEach(item => {
+                    newDb[loc][item] = { sys: '', bills: '', actual: '' };
+                });
+            });
+
+            appState.sheets[sheetId] = { id: sheetId, name: sheetName, data: newDb };
+            appState.activeSheet = sheetId;
+            db = appState.sheets[sheetId].data; 
+            
+            if(shouldSave) saveState();
+            updateSheetSelectUI();
+            loadLocation(currentLoc);
+        }
+
+        function switchSheet(sheetId) {
+            appState.activeSheet = sheetId;
+            db = appState.sheets[sheetId].data; 
+            saveState();
+            loadLocation(currentLoc);
+        }
+
+        function deleteCurrentSheet() {
+            const keys = Object.keys(appState.sheets);
+            if (keys.length <= 1) {
+                alert("لا يمكنك حذف هذا الشيت لأنه الوحيد المتبقي. قم بإنشاء جرد جديد أولاً.");
+                return;
+            }
+            if(confirm(`هل أنت متأكد من حذف شيت "${appState.sheets[appState.activeSheet].name}" نهائياً؟`)) {
+                delete appState.sheets[appState.activeSheet];
+                appState.activeSheet = Object.keys(appState.sheets)[0]; 
+                db = appState.sheets[appState.activeSheet].data;
+                saveState();
+                updateSheetSelectUI();
+                loadLocation(currentLoc);
+            }
+        }
+
+        function updateSheetSelectUI() {
+            const select = document.getElementById('sheetSelect');
+            select.innerHTML = '';
+            for (let key in appState.sheets) {
+                const opt = document.createElement('option');
+                opt.value = key;
+                opt.text = appState.sheets[key].name;
+                if (key === appState.activeSheet) opt.selected = true;
+                select.appendChild(opt);
+            }
+        }
+
+        function ensureDataConsistency() {
+            for (let sheet in appState.sheets) {
+                locations.forEach(loc => {
+                    if (!appState.sheets[sheet].data[loc]) appState.sheets[sheet].data[loc] = {};
+                    itemsList[loc].forEach(item => {
+                        if (!appState.sheets[sheet].data[loc][item]) {
+                            appState.sheets[sheet].data[loc][item] = { sys: '', bills: '', actual: '' };
+                        }
+                    });
+                });
+            }
+        }
+
+        function insertRegularItem(itemName) {
+            if (itemsList[currentLoc].includes(itemName)) return;
+            let firstFluidIndex = itemsList[currentLoc].findIndex(i => ivFluidsList.includes(i));
+            if (firstFluidIndex !== -1) {
+                itemsList[currentLoc].splice(firstFluidIndex, 0, itemName);
+            } else {
+                itemsList[currentLoc].push(itemName);
+            }
+        }
+
+        function addNewItem() {
+            const input = document.getElementById('newItemName');
+            const newItem = input.value.trim();
+            if (!newItem) return alert('برجاء كتابة اسم الصنف أولاً.');
+            if (itemsList[currentLoc].includes(newItem)) return alert('هذا الصنف موجود بالفعل في هذا القسم!');
+
+            insertRegularItem(newItem);
+            ensureDataConsistency(); 
+            saveState();
+
+            input.value = '';
+            loadLocation(currentLoc);
+        }
+
+        function addIVFluids() {
+            let added = false;
+            ivFluidsList.forEach(fluid => {
+                if (!itemsList[currentLoc].includes(fluid)) {
+                    itemsList[currentLoc].push(fluid); 
+                    added = true;
+                }
+            });
+            
+            if(added) {
+                ensureDataConsistency();
+                saveState();
+                loadLocation(currentLoc);
+                alert(`✅ تم إضافة قائمة المحاليل في أسفل الجدول لقسم (${currentLoc}) بنجاح.`);
+            } else {
+                alert("المحاليل موجودة بالفعل في هذا القسم.");
+            }
+        }
+
+        function deleteItem(itemName) {
+            if (confirm(`هل أنت متأكد من حذف "${itemName}" نهائياً من قسم (${currentLoc})؟`)) {
+                itemsList[currentLoc] = itemsList[currentLoc].filter(i => i !== itemName);
+                for (let sheet in appState.sheets) {
+                    if(appState.sheets[sheet].data[currentLoc][itemName]) {
+                        delete appState.sheets[sheet].data[currentLoc][itemName]; 
+                    }
+                }
+                saveState();
+                loadLocation(currentLoc);
+            }
+        }
+
+        function clearCurrentLocationNumbers() {
+            if(confirm(`هل أنت متأكد من تصفير الأرقام في قسم (${currentLoc}) فقط؟ (لن تُحذف الأصناف)`)) {
+                itemsList[currentLoc].forEach(item => {
+                    db[currentLoc][item] = { sys: '', bills: '', actual: '' };
+                });
+                saveState();
+                loadLocation(currentLoc);
+            }
+        }
+
+        function deleteAllItems() {
+            if(confirm(`تحذير شديد: هل أنت متأكد من مسح جميع الأصناف من قسم (${currentLoc}) بالكامل؟ ستعود الشاشة فارغة لتبدأ من الصفر.`)) {
+                itemsList[currentLoc] = [];
+                for (let sheet in appState.sheets) {
+                    appState.sheets[sheet].data[currentLoc] = {}; 
+                }
+                saveState();
+                loadLocation(currentLoc);
+            }
+        }
+
+        function renderSidebar() {
+            const list = document.getElementById('locationsList');
+            list.innerHTML = '';
+            locations.forEach(loc => {
+                const btn = document.createElement('button');
+                btn.className = `nav-btn ${loc === currentLoc ? 'active' : ''}`;
+                btn.innerHTML = `<i class="fa-solid fa-hospital-user"></i> ${loc}`;
+                btn.onclick = () => {
+                    loadLocation(loc);
+                    if(window.innerWidth <= 768) toggleSidebar(); 
+                };
+                list.appendChild(btn);
+            });
+        }
+
+        function loadLocation(loc) {
+            currentLoc = loc;
+            document.getElementById('currentLocationTitle').innerText = loc;
+            document.getElementById('stat-total').innerText = itemsList[loc].length;
+            renderSidebar();
+
+            const tbody = document.getElementById('inventoryBody');
+            tbody.innerHTML = '';
+            
+            if (itemsList[loc].length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" style="padding:40px; text-align:center; color:#6b7280; font-size:16px;">
+                    لا توجد أصناف حالياً في قسم (${loc}). استخدم الأزرار بالأعلى لإضافة الأصناف أو استيرادها.
+                </td></tr>`;
+            }
+
+            itemsList[loc].forEach((item, index) => {
+                const data = db[loc][item] || { sys: '', bills: '', actual: '' };
+                const tr = document.createElement('tr');
+                tr.setAttribute('data-item', item);
+                
+                const isFluid = ivFluidsList.includes(item);
+                const nameClass = isFluid ? "item-name item-fluid" : "item-name";
+                
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td class="${nameClass}">${item}</td>
+                    <td><input type="number" class="sys-input" value="${data.sys}" oninput="updateData(this, 'sys')"></td>
+                    <td><input type="number" class="bills-input" value="${data.bills}" oninput="updateData(this, 'bills')"></td>
+                    <td><input type="number" class="actual-input" value="${data.actual}" oninput="updateData(this, 'actual')"></td>
+                    <td class="deficit-calc"><span class="badge badge-gray">-</span></td>
+                    <td class="surplus-calc"><span class="badge badge-gray">-</span></td>
+                    <td class="no-print">
+                        <button class="action-btn" onclick="deleteItem('${item}')" title="حذف الصنف"><i class="fa-solid fa-trash-can"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+                calculateRow(tr, false); 
+            });
+            updateStats();
+            filterTable('all'); 
+        }
+
+        function updateData(input, field) {
+            const tr = input.closest('tr');
+            const item = tr.getAttribute('data-item');
+            if(input.value < 0) input.value = 0;
+            if(!db[currentLoc][item]) db[currentLoc][item] = { sys: '', bills: '', actual: '' };
+            db[currentLoc][item][field] = input.value;
+            saveState();
+            calculateRow(tr, true);
+        }
+
+        function calculateRow(tr, isUpdate) {
+            const sysVal = tr.querySelector('.sys-input').value;
+            const billsVal = tr.querySelector('.bills-input').value;
+            const actualVal = tr.querySelector('.actual-input').value;
+
+            const deficitTd = tr.querySelector('.deficit-calc');
+            const surplusTd = tr.querySelector('.surplus-calc');
+
+            tr.classList.remove('row-deficit', 'row-surplus');
+            tr.removeAttribute('data-status');
+
+            if (sysVal !== '' || billsVal !== '') {
+                const expected = (parseFloat(sysVal) || 0) - (parseFloat(billsVal) || 0);
+
+                if (actualVal !== '') {
+                    const actual = parseFloat(actualVal);
+                    if (actual < expected) {
+                        const def = expected - actual;
+                        deficitTd.innerHTML = `<span class="badge badge-red">${def}</span>`;
+                        surplusTd.innerHTML = `<span class="badge badge-gray">0</span>`;
+                        tr.classList.add('row-deficit');
+                        tr.setAttribute('data-status', 'deficit');
+                    } else if (actual > expected) {
+                        const sur = actual - expected;
+                        surplusTd.innerHTML = `<span class="badge badge-green">${sur}</span>`;
+                        deficitTd.innerHTML = `<span class="badge badge-gray">0</span>`;
+                        tr.classList.add('row-surplus');
+                        tr.setAttribute('data-status', 'surplus');
+                    } else {
+                        deficitTd.innerHTML = `<span class="badge badge-gray">0</span>`;
+                        surplusTd.innerHTML = `<span class="badge badge-gray">0</span>`;
+                        tr.setAttribute('data-status', 'ok');
+                    }
+                } else {
+                    deficitTd.innerHTML = `<span class="badge badge-gray">-</span>`;
+                    surplusTd.innerHTML = `<span class="badge badge-gray">-</span>`;
+                }
+            } else {
+                deficitTd.innerHTML = `<span class="badge badge-gray">-</span>`;
+                surplusTd.innerHTML = `<span class="badge badge-gray">-</span>`;
+            }
+
+            if(isUpdate) updateStats();
+        }
+
+        function updateStats() {
+            const rows = document.querySelectorAll('#inventoryBody tr');
+            let defCount = 0; let surCount = 0;
+            rows.forEach(row => {
+                if(row.getAttribute('data-status') === 'deficit') defCount++;
+                if(row.getAttribute('data-status') === 'surplus') surCount++;
+            });
+            document.getElementById('stat-deficit').innerText = defCount;
+            document.getElementById('stat-surplus').innerText = surCount;
+        }
+
+        function filterTable(type) {
+            const rows = document.querySelectorAll('#inventoryBody tr');
+            rows.forEach(row => {
+                if (type === 'all') row.style.display = '';
+                else if (type === 'deficit') row.style.display = row.getAttribute('data-status') === 'deficit' ? '' : 'none';
+                else if (type === 'surplus') row.style.display = row.getAttribute('data-status') === 'surplus' ? '' : 'none';
+            });
+        }
+
+        function filterSearch() {
+            const text = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#inventoryBody tr');
+            rows.forEach(row => {
+                const itemName = row.querySelector('.item-name').innerText.toLowerCase();
+                row.style.display = itemName.includes(text) ? '' : 'none';
+            });
+        }
+
+        function handleExcelUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (typeof XLSX === 'undefined') {
+                alert("❌ مكتبة قراءة الإكسيل لم يتم تحميلها بعد. يرجى التأكد من اتصالك بالإنترنت وتحديث الصفحة.");
+                return;
+            }
+
+            const oldTitle = document.getElementById('currentLocationTitle').innerText;
+            document.getElementById('currentLocationTitle').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري استيراد وبناء الأصناف...';
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const json = XLSX.utils.sheet_to_json(firstSheet, {header: 1, defval: null});
+
+                    let excelMap = {};
+                    
+                    for (let i = 0; i < json.length - 1; i++) {
+                        try {
+                            const rowA = json[i];
+                            const rowB = json[i+1];
+                            
+                            if (!rowA || !rowB) continue;
+                            
+                            const qtyRaw = rowA[21];
+                            const nameRaw = rowB[31];
+                            
+                            if (qtyRaw !== undefined && qtyRaw !== null && nameRaw !== undefined && nameRaw !== null) {
+                                const qty = parseFloat(qtyRaw);
+                                const itemName = String(nameRaw).replace(/[\r\n]+/g, ' ').trim(); 
+                                
+                                if (!isNaN(qty) && itemName !== '' && itemName !== '0') {
+                                    if (!excelMap[itemName]) excelMap[itemName] = 0;
+                                    excelMap[itemName] += qty;
+                                }
+                            }
+                        } catch (errRow) {
+                            console.warn("تم تخطي سطر غير صالح");
+                        }
+                    }
+
+                    Object.keys(excelMap).forEach(exName => {
+                        insertRegularItem(exName);
+                    });
+                    
+                    ensureDataConsistency();
+
+                    let updatedCount = 0;
+                    Object.keys(excelMap).forEach(exName => {
+                        if (!db[currentLoc]) db[currentLoc] = {};
+                        if (!db[currentLoc][exName]) db[currentLoc][exName] = { sys: '', bills: '', actual: '' };
+                        
+                        db[currentLoc][exName].sys = excelMap[exName];
+                        updatedCount++;
+                    });
+
+                    saveState();
+                    loadLocation(currentLoc); 
+                    
+                    alert(`✅ اكتملت العملية بنجاح!\nتم استيراد وإضافة (${updatedCount}) صنف في قسم (${currentLoc}).`);
+
+                } catch (error) {
+                    alert("❌ حدث خطأ برمجي أثناء قراءة الملف:\n\n" + error.message);
+                    console.error(error);
+                } finally {
+                    document.getElementById('currentLocationTitle').innerText = oldTitle;
+                    event.target.value = ''; 
+                }
+            };
+            
+            reader.onerror = function() {
+                alert("❌ فشل المتصفح في قراءة الملف.");
+                document.getElementById('currentLocationTitle').innerText = oldTitle;
+                event.target.value = '';
+            };
+
+            reader.readAsArrayBuffer(file);
+        }
+
+        function showSettlement() {
+            document.getElementById('inventoryView').style.display = 'none';
+            document.getElementById('settlementView').style.display = 'block';
+            
+            const container = document.getElementById('settlementResults');
+            container.innerHTML = '';
+            
+            let hasSuggestions = false;
+            let transfersHTML = '';
+            let uncoveredDeficitsHTML = '';
+            let unreturnedSurplusesHTML = '';
+
+            let allUniqueItems = new Set();
+            locations.forEach(loc => itemsList[loc].forEach(item => allUniqueItems.add(item)));
+
+            allUniqueItems.forEach(item => {
+                let deficits = []; let surpluses = [];
+                
+                locations.forEach(loc => {
+                    if(!db[loc] || !db[loc][item] || !itemsList[loc].includes(item)) return;
+                    
+                    const data = db[loc][item];
+                    if (data.actual === '') return;
+                    
+                    const sys = parseFloat(data.sys) || 0;
+                    const bills = parseFloat(data.bills) || 0;
+                    const actual = parseFloat(data.actual);
+                    const expected = sys - bills;
+                    
+                    if (actual < expected) deficits.push({ loc, amount: expected - actual });
+                    if (actual > expected) surpluses.push({ loc, amount: actual - expected });
+                });
+
+                let dIdx = 0, sIdx = 0;
+                
+                while (dIdx < deficits.length && sIdx < surpluses.length) {
+                    let d = deficits[dIdx]; let s = surpluses[sIdx];
+                    let transferAmount = Math.min(d.amount, s.amount);
+                    if (transferAmount > 0) {
+                        hasSuggestions = true;
+                        transfersHTML += `
+                            <div style="background: white; border: 1px solid #e5e7eb; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-right: 5px solid var(--warning);">
+                                نقل <strong style="color:var(--primary); font-size:16px;">${transferAmount}</strong> وحدة من <strong>[${item}]</strong><br>
+                                من <span style="color:var(--success); font-weight:bold;">${s.loc}</span> (بها زيادة) ⬅️ إلى <span style="color:var(--danger); font-weight:bold;">${d.loc}</span> (بها عجز)
+                            </div>`;
+                    }
+                    d.amount -= transferAmount; s.amount -= transferAmount;
+                    if (d.amount === 0) dIdx++;
+                    if (s.amount === 0) sIdx++;
+                }
+
+                while (dIdx < deficits.length) {
+                    if(deficits[dIdx].amount > 0) {
+                        uncoveredDeficitsHTML += `<li><span>${item}</span> <span><span style="color:var(--text-muted); font-size:12px;">(${deficits[dIdx].loc})</span> <span class="badge badge-red">${deficits[dIdx].amount}</span></span></li>`;
+                    }
+                    dIdx++;
+                }
+
+                while (sIdx < surpluses.length) {
+                    if(surpluses[sIdx].amount > 0) {
+                        unreturnedSurplusesHTML += `<li><span>${item}</span> <span><span style="color:var(--text-muted); font-size:12px;">(${surpluses[sIdx].loc})</span> <span class="badge badge-green">${surpluses[sIdx].amount}</span></span></li>`;
+                    }
+                    sIdx++;
+                }
+            });
+
+            if (hasSuggestions) {
+                container.innerHTML += `<div class="settlement-section"><h3 style="color:var(--warning);"><i class="fa-solid fa-truck-fast"></i> حركات النقل المقترحة بين الأقسام</h3>${transfersHTML}</div>`;
+            } else {
+                container.innerHTML += `<div class="settlement-section"><h3><i class="fa-solid fa-truck-fast"></i> حركات النقل المقترحة</h3><div style="text-align:center; color:#6b7280;">لا توجد حركات نقل متطابقة بين الأقسام.</div></div>`;
+            }
+
+            if (uncoveredDeficitsHTML !== '') {
+                container.innerHTML += `<div class="settlement-section"><h3 style="color:var(--danger);"><i class="fa-solid fa-triangle-exclamation"></i> عجز كلي (نواقص تحتاج لطلب من المخزن الرئيسي)</h3><ul class="settlement-list">${uncoveredDeficitsHTML}</ul></div>`;
+            }
+
+            if (unreturnedSurplusesHTML !== '') {
+                container.innerHTML += `<div class="settlement-section"><h3 style="color:var(--success);"><i class="fa-solid fa-box-open"></i> زيادات كلية (رواكد جاهزة للإرجاع للمخزن الرئيسي)</h3><ul class="settlement-list">${unreturnedSurplusesHTML}</ul></div>`;
+            }
+            
+            if(!hasSuggestions && uncoveredDeficitsHTML === '' && unreturnedSurplusesHTML === '') {
+                container.innerHTML = '<div style="padding: 40px; text-align:center; background:#f3f4f6; border-radius:8px;"><h3>التقرير فارغ</h3>يرجى إدخال الرصيد الفعلي في الجدول لتوليد تقارير التسوية.</div>';
+            }
+        }
+
+        function hideSettlement() {
+            document.getElementById('inventoryView').style.display = 'block';
+            document.getElementById('settlementView').style.display = 'none';
+        }
+
+        function preparePrint() {
+            const sheetName = appState.sheets[appState.activeSheet].name;
+            document.getElementById('printTitle').innerText = currentLoc;
+            document.getElementById('printSubtitle').innerText = sheetName;
+            window.print();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const table = document.getElementById('inventoryTable');
+            
+            table.addEventListener('focusin', function(e) {
+                if (e.target.tagName === 'INPUT' && e.target.type === 'number') {
+                    e.target.select();
+                }
+            });
+
+            table.addEventListener('keydown', function(e) {
+                if (e.target.tagName === 'INPUT' && e.target.type === 'number') {
+                    const currentInput = e.target;
+                    const currentRow = currentInput.closest('tr');
+                    const cellIndex = currentInput.closest('td').cellIndex;
+                    let targetRow = null;
+
+                    if (e.key === 'ArrowDown' || e.key === 'Enter') {
+                        e.preventDefault(); 
+                        targetRow = currentRow.nextElementSibling;
+                    } 
+                    else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        targetRow = currentRow.previousElementSibling;
+                    }
+
+                    if (targetRow) {
+                        const targetInput = targetRow.cells[cellIndex].querySelector('input');
+                        if (targetInput) {
+                            targetInput.focus();
+                            setTimeout(() => { targetInput.select(); }, 10);
+                        }
+                    }
+                }
+            });
+        });
+
+        window.onload = initDB;
+    </script>
+</body>
+</html>
