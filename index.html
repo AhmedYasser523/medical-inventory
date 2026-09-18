@@ -206,20 +206,21 @@
         <div class="login-box">
             <i class="fa-solid fa-shield-halved"></i>
             <h2>تسجيل الدخول</h2>
-            <input type="text" id="loginUsername" placeholder="اسم المستخدم (مثال: ahmed)">
+            <!-- تم مسح الأمثلة من البوكسات -->
+            <input type="text" id="loginUsername" placeholder="اسم المستخدم">
             <input type="password" id="loginPass" placeholder="كلمة المرور">
             <button onclick="handleLogin()">دخول النظام</button>
             <div id="loginError" class="error-msg"></div>
         </div>
     </div>
 
-    <!-- 2. شاشة إعداد الاسم لأول مرة (تظهر فقط لو المستخدم ملوش اسم) -->
+    <!-- 2. شاشة إعداد الاسم لأول مرة -->
     <div id="profileSetupScreen" class="auth-screen" style="display: none;">
         <div class="login-box">
             <i class="fa-solid fa-id-card"></i>
             <h2>أهلاً بك لأول مرة!</h2>
             <p style="color: #6b7280; font-size: 14px; margin-bottom: 20px;">يرجى كتابة اسمك الذي سيظهر لباقي الزملاء في السيستم</p>
-            <input type="text" id="actualNameInput" placeholder="الاسم (مثال: د. أحمد ياسر)">
+            <input type="text" id="actualNameInput" placeholder="اكتب اسمك هنا...">
             <button onclick="saveDisplayName()">حفظ الدخول</button>
             <div id="setupError" class="error-msg"></div>
         </div>
@@ -428,7 +429,6 @@
                 return;
             }
             
-            // الفلتر الذكي: تحويل اليوزر نيم لإيميل في الخلفية ليتوافق مع فايربيز
             let email = username;
             if(!email.includes('@')) {
                 email = username + "@system.com";
@@ -496,7 +496,6 @@
         let appState = { activeSheet: 'default', sheets: {} };
         let db = {}; 
 
-        // دالة الفلترة الذكية (تقوم بتبديل الرموز الممنوعة في فايربيز إلى شرطة)
         function sanitizeForFirebase(str) {
             if(!str) return "";
             return String(str).replace(/[.#$\[\]\/]/g, '-').trim();
