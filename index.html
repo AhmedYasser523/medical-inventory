@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة تحكم المخازن الطبية - النظام المحمي</title>
     
-    <!-- الأيقونة اللي رفعتها على جيت هب -->
+    <!-- ربط الأيقونة وملف التعريف للديسكتوب -->
     <link rel="icon" type="image/png" href="icon.png">
     <link rel="apple-touch-icon" href="icon.png">
+    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4f46e5">
     
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -1175,9 +1176,6 @@
             reader.readAsArrayBuffer(file);
         }
 
-        // ==========================================
-        // دوال التصدير للإكسيل 
-        // ==========================================
         function exportToExcel() {
             initAudio();
             if (typeof XLSX === 'undefined') {
@@ -1216,7 +1214,6 @@
             });
 
             const ws = XLSX.utils.aoa_to_sheet(exportData);
-            
             if(!ws['!views']) ws['!views'] = [];
             ws['!views'].push({ rightToLeft: true });
 
@@ -1307,9 +1304,6 @@
             XLSX.writeFile(wb, fileName);
         }
 
-        // ==========================================
-        // الطباعة وتوليد PDF المباشر
-        // ==========================================
         function downloadPDF() {
             initAudio();
             const originalTitle = document.title;
@@ -1356,8 +1350,6 @@
             
             window.print();
         }
-
-        // ==========================================
 
         function showSettlement() {
             document.getElementById('inventoryView').style.display = 'none';
