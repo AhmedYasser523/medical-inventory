@@ -154,15 +154,23 @@
 
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; }
 
-        /* تنسيقات تذييل الطباعة */
         .print-footer { display: none; }
         
+        /* ==========================================
+           تحديثات الطباعة للحفاظ على الألوان الأصلية
+           ========================================== */
         @media print {
+            * { 
+                -webkit-print-color-adjust: exact !important; 
+                print-color-adjust: exact !important; 
+                color-adjust: exact !important; 
+            }
             @page { size: A4 portrait; margin: 10mm; }
             body { background: white; }
             .sidebar, .topbar, .toolbar, .menu-toggle-btn, .sidebar-overlay, .no-print, .stats-grid, .sheet-controls { display: none !important; }
             .main-wrapper, .content { padding: 0 !important; margin: 0 !important; overflow: visible; width: 100%; }
-            .table-card, .settlement-section { border: none; box-shadow: none; border-radius: 0; margin:0; padding:0; }
+            .table-card { border: none; box-shadow: none; border-radius: 0; margin:0; padding:0; }
+            .settlement-section { border: 1px solid var(--border-color); box-shadow: none; margin-bottom: 20px; page-break-inside: avoid; }
             .table-responsive { overflow: visible !important; width: 100%; }
             .auth-screen { display: none !important; }
             #appContainer { display: flex !important; }
@@ -171,15 +179,15 @@
             .print-header h2 { font-size: 18px; margin: 0 0 5px 0; }
             .print-header p { font-size: 14px; color: #555; margin: 0; }
 
-            table { border: 1px solid #000; width: 100% !important; min-width: 100% !important; table-layout: fixed; }
+            table { border: 1px solid var(--border-color); width: 100% !important; min-width: 100% !important; table-layout: fixed; }
             th:nth-child(1) { width: 5%; } 
             th:nth-child(2) { width: 45%; } 
             th:nth-child(3), th:nth-child(4), th:nth-child(5), th:nth-child(6), th:nth-child(7) { width: 10%; } 
             
-            th, td { border: 1px solid #000 !important; padding: 4px 2px !important; font-size: 11px !important; white-space: normal !important; word-wrap: break-word; text-align: center !important; }
-            .item-name { font-size: 12px !important; white-space: normal !important; text-align: right !important; }
-            input[type="number"] { border: none !important; background: transparent !important; padding: 0 !important; width: 100% !important; font-size: 11px !important; font-weight: bold; text-align: center; }
-            .badge { padding: 0 !important; border-radius: 0 !important; font-size: 11px !important; background: transparent !important; color: black !important; font-weight: bold; }
+            th, td { border: 1px solid var(--border-color) !important; padding: 6px 4px !important; font-size: 12px !important; white-space: normal !important; word-wrap: break-word; text-align: center !important; }
+            .item-name { font-size: 13px !important; white-space: normal !important; text-align: right !important; }
+            input[type="number"] { border: 1px solid var(--border-color) !important; background: #f8fafc !important; padding: 4px !important; width: 100% !important; font-size: 12px !important; font-weight: bold; text-align: center; border-radius: 4px !important; }
+            .badge { padding: 4px 8px !important; border-radius: 12px !important; font-size: 12px !important; font-weight: bold; }
             
             /* تفعيل تذييل الطباعة */
             .print-footer { display: flex !important; justify-content: space-between; margin-top: 40px; padding-top: 15px; border-top: 2px solid #000; font-weight: bold; font-size: 14px; page-break-inside: avoid; }
