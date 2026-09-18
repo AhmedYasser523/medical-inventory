@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- مكتبة الإكسيل (تُستخدم في الاستيراد والتصدير) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <!-- مكتبات فايربيز السحابية والمصادقة -->
@@ -153,6 +154,9 @@
 
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; }
 
+        /* تنسيقات تذييل الطباعة */
+        .print-footer { display: none; }
+        
         @media print {
             @page { size: A4 portrait; margin: 10mm; }
             body { background: white; }
@@ -176,6 +180,9 @@
             .item-name { font-size: 12px !important; white-space: normal !important; text-align: right !important; }
             input[type="number"] { border: none !important; background: transparent !important; padding: 0 !important; width: 100% !important; font-size: 11px !important; font-weight: bold; text-align: center; }
             .badge { padding: 0 !important; border-radius: 0 !important; font-size: 11px !important; background: transparent !important; color: black !important; font-weight: bold; }
+            
+            /* تفعيل تذييل الطباعة */
+            .print-footer { display: flex !important; justify-content: space-between; margin-top: 40px; padding-top: 15px; border-top: 2px solid #000; font-weight: bold; font-size: 14px; page-break-inside: avoid; }
         }
 
         @media (max-width: 768px) {
@@ -198,10 +205,6 @@
             .add-item-group { display: flex; align-items: center; }
             .add-item-group input { border-radius: 0 8px 8px 0; border: 1px solid var(--border-color); padding: 8px 15px; outline: none; border-left: none; width: 180px;}
             .add-item-group button { border-radius: 8px 0 0 8px; height: 100%; padding: 8.5px 15px;}
-        }
-        .print-footer { display: none; }
-        @media print {
-            .print-footer { display: flex !important; justify-content: space-between; margin-top: 40px; padding-top: 15px; border-top: 2px solid #000; font-weight: bold; font-size: 14px; page-break-inside: avoid; }
         }
     </style>
 </head>
@@ -325,12 +328,16 @@
 
                         <input type="file" id="excelUpload" accept=".xlsx, .xls" style="display: none;" onchange="handleExcelUpload(event)">
                         <button class="btn btn-success" onclick="document.getElementById('excelUpload').click()">
-                            <i class="fa-solid fa-file-import"></i> استيراد من الإكسيل
+                            <i class="fa-solid fa-file-import"></i> استيراد
                         </button>
 
                         <button class="btn btn-outline" onclick="filterTable('all')"><i class="fa-solid fa-list"></i> الكل</button>
                         <button class="btn btn-danger-light" onclick="filterTable('deficit')"><i class="fa-solid fa-minus-circle"></i> العجز</button>
                         <button class="btn btn-success-light" onclick="filterTable('surplus')"><i class="fa-solid fa-plus-circle"></i> الزيادة</button>
+                        
+                        <!-- زر تصدير الإكسيل الجديد لشاشة الجرد -->
+                        <button class="btn btn-success-light no-print" onclick="exportToExcel()"><i class="fa-solid fa-file-export"></i> تصدير إكسيل</button>
+                        
                         <button class="btn btn-primary" onclick="preparePrint()"><i class="fa-solid fa-print"></i> طباعة</button>
                         
                         <button class="btn btn-outline no-print" onclick="clearCurrentLocationNumbers()" style="color: var(--warning);" title="تصفير الأرقام فقط في هذا القسم"><i class="fa-solid fa-eraser"></i> تصفير الأرقام</button>
@@ -363,6 +370,10 @@
                 <div id="settlementView">
                     <div class="toolbar" style="margin-bottom: 25px;">
                         <button class="btn btn-primary" onclick="hideSettlement()"><i class="fa-solid fa-arrow-right"></i> العودة للجرد</button>
+                        
+                        <!-- زر تصدير الإكسيل الجديد لتقرير التسويات -->
+                        <button class="btn btn-success-light" onclick="exportSettlementToExcel()"><i class="fa-solid fa-file-export"></i> تصدير إكسيل للتسويات</button>
+                        
                         <button class="btn btn-outline" onclick="window.print()"><i class="fa-solid fa-print"></i> طباعة تقرير التسويات</button>
                     </div>
                     <div id="settlementResults"></div>
@@ -409,7 +420,6 @@
             if (user) {
                 document.getElementById('loginScreen').style.display = 'none';
                 
-                // هل المستخدم ده سجل اسمه الحقيقي قبل كده؟
                 if (!user.displayName) {
                     document.getElementById('profileSetupScreen').style.display = 'flex';
                     document.getElementById('appContainer').style.display = 'none';
@@ -453,7 +463,6 @@
                 });
         }
 
-        // دالة حفظ الاسم لأول مرة
         function saveDisplayName() {
             const nameInput = document.getElementById('actualNameInput').value.trim();
             const errorDiv = document.getElementById('setupError');
@@ -482,7 +491,6 @@
             });
         }
 
-        // دالة تعديل الاسم في أي وقت
         function editDisplayName() {
             const currentName = document.getElementById('userNameDisplay').innerText;
             const newName = prompt("أدخل اسمك الجديد:", currentName);
@@ -1010,6 +1018,136 @@
 
             reader.readAsArrayBuffer(file);
         }
+
+        // ==========================================
+        // دوال التصدير للإكسيل الجديدة
+        // ==========================================
+        function exportToExcel() {
+            if (typeof XLSX === 'undefined') {
+                alert("مكتبة الإكسيل لم يتم تحميلها بعد. يرجى الانتظار وتحديث الصفحة.");
+                return;
+            }
+
+            let exportData = [];
+            exportData.push(['#', 'اسم الصنف الطبي', 'السيستم', 'المصروف', 'الفعلي', 'العجز', 'الزيادة']);
+
+            itemsList[currentLoc].forEach((item, index) => {
+                const data = db[currentLoc][item] || { sys: '', bills: '', actual: '' };
+                const sysVal = parseFloat(data.sys) || 0;
+                const billsVal = parseFloat(data.bills) || 0;
+                const actualVal = data.actual !== '' ? parseFloat(data.actual) : '';
+                
+                const expected = sysVal - billsVal;
+                let deficit = 0;
+                let surplus = 0;
+
+                if (actualVal !== '') {
+                    if (actualVal < expected) deficit = expected - actualVal;
+                    if (actualVal > expected) surplus = actualVal - expected;
+                }
+
+                exportData.push([
+                    index + 1,
+                    item,
+                    data.sys,
+                    data.bills,
+                    data.actual,
+                    deficit > 0 ? deficit : 0,
+                    surplus > 0 ? surplus : 0
+                ]);
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(exportData);
+            
+            if(!ws['!views']) ws['!views'] = [];
+            ws['!views'].push({ rightToLeft: true });
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "جرد " + currentLoc);
+
+            const dateStr = new Date().toLocaleDateString('ar-EG').replace(/\//g, '-');
+            const fileName = `جرد_${currentLoc}_${dateStr}.xlsx`;
+
+            XLSX.writeFile(wb, fileName);
+        }
+
+        function exportSettlementToExcel() {
+            if (typeof XLSX === 'undefined') {
+                alert("مكتبة الإكسيل لم يتم تحميلها بعد.");
+                return;
+            }
+
+            let exportData = [];
+            exportData.push(['النوع', 'الصنف', 'الكمية', 'من (يوجد به زيادة)', 'إلى (يوجد به عجز)']);
+
+            let allUniqueItems = new Set();
+            locations.forEach(loc => itemsList[loc].forEach(item => allUniqueItems.add(item)));
+
+            allUniqueItems.forEach(item => {
+                let deficits = []; let surpluses = [];
+                
+                locations.forEach(loc => {
+                    if(!db[loc] || !db[loc][item] || !itemsList[loc].includes(item)) return;
+                    const data = db[loc][item];
+                    if (data.actual === '') return;
+                    
+                    const sys = parseFloat(data.sys) || 0;
+                    const bills = parseFloat(data.bills) || 0;
+                    const actual = parseFloat(data.actual);
+                    const expected = sys - bills;
+                    
+                    if (actual < expected) deficits.push({ loc, amount: expected - actual });
+                    if (actual > expected) surpluses.push({ loc, amount: actual - expected });
+                });
+
+                let dIdx = 0, sIdx = 0;
+                
+                // حركات النقل
+                while (dIdx < deficits.length && sIdx < surpluses.length) {
+                    let d = deficits[dIdx]; let s = surpluses[sIdx];
+                    let transferAmount = Math.min(d.amount, s.amount);
+                    if (transferAmount > 0) {
+                        exportData.push(['نقل مقترح', item, transferAmount, s.loc, d.loc]);
+                    }
+                    d.amount -= transferAmount; s.amount -= transferAmount;
+                    if (d.amount === 0) dIdx++;
+                    if (s.amount === 0) sIdx++;
+                }
+
+                // نواقص تحتاج طلب
+                while (dIdx < deficits.length) {
+                    if(deficits[dIdx].amount > 0) {
+                        exportData.push(['عجز كلي (نواقص)', item, deficits[dIdx].amount, '-', deficits[dIdx].loc]);
+                    }
+                    dIdx++;
+                }
+
+                // رواكد جاهزة للإرجاع
+                while (sIdx < surpluses.length) {
+                    if(surpluses[sIdx].amount > 0) {
+                        exportData.push(['زيادة كلية (رواكد)', item, surpluses[sIdx].amount, surpluses[sIdx].loc, '-']);
+                    }
+                    sIdx++;
+                }
+            });
+
+            if (exportData.length === 1) {
+                exportData.push(['التقرير فارغ', '', '', '', '']);
+            }
+
+            const ws = XLSX.utils.aoa_to_sheet(exportData);
+            if(!ws['!views']) ws['!views'] = [];
+            ws['!views'].push({ rightToLeft: true });
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "تقرير التسويات العام");
+
+            const dateStr = new Date().toLocaleDateString('ar-EG').replace(/\//g, '-');
+            const fileName = `تقرير_التسويات_${dateStr}.xlsx`;
+
+            XLSX.writeFile(wb, fileName);
+        }
+        // ==========================================
 
         function showSettlement() {
             document.getElementById('inventoryView').style.display = 'none';
