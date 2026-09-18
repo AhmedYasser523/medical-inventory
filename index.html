@@ -199,6 +199,10 @@
             .add-item-group input { border-radius: 0 8px 8px 0; border: 1px solid var(--border-color); padding: 8px 15px; outline: none; border-left: none; width: 180px;}
             .add-item-group button { border-radius: 8px 0 0 8px; height: 100%; padding: 8.5px 15px;}
         }
+        .print-footer { display: none; }
+        @media print {
+            .print-footer { display: flex !important; justify-content: space-between; margin-top: 40px; padding-top: 15px; border-top: 2px solid #000; font-weight: bold; font-size: 14px; page-break-inside: avoid; }
+        }
     </style>
 </head>
 <body>
@@ -362,6 +366,12 @@
                         <button class="btn btn-outline" onclick="window.print()"><i class="fa-solid fa-print"></i> طباعة تقرير التسويات</button>
                     </div>
                     <div id="settlementResults"></div>
+                </div>
+
+                <!-- تذييل الطباعة (يظهر فقط في الطباعة) -->
+                <div class="print-footer" id="printFooter">
+                    <div>توقيع رئيس القسم: ..........................</div>
+                    <div>القائم بالجرد: <span id="printUserName"></span></div>
                 </div>
             </div>
         </main>
@@ -1095,6 +1105,11 @@
             const sheetName = appState.sheets[appState.activeSheet].name;
             document.getElementById('printTitle').innerText = currentLoc;
             document.getElementById('printSubtitle').innerText = sheetName;
+            
+            // إضافة اسم المستخدم في أسفل التقرير
+            const currentUserName = document.getElementById('userNameDisplay').innerText;
+            document.getElementById('printUserName').innerText = currentUserName;
+            
             window.print();
         }
 
