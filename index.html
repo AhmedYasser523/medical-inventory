@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة تحكم المخازن الطبية - النظام المحمي</title>
     
+    <!-- لوجو السيستم المبرمج (يظهر كأيقونة للتطبيق على الديسكتوب والموبايل) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%234f46e5'/><rect x='42' y='28' width='16' height='44' rx='4' fill='%23ffffff'/><rect x='28' y='42' width='44' height='16' rx='4' fill='%23ffffff'/></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%234f46e5'/><rect x='42' y='28' width='16' height='44' rx='4' fill='%23ffffff'/><rect x='28' y='42' width='44' height='16' rx='4' fill='%23ffffff'/></svg>">
+    <meta name="theme-color" content="#4f46e5">
+    
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -445,7 +450,7 @@
 
     <script>
         // ==========================================
-        // المؤثرات الصوتية (بدون ملفات خارجية)
+        // المؤثرات الصوتية
         // ==========================================
         let audioCtx = null;
         function initAudio() {
@@ -1167,9 +1172,6 @@
             reader.readAsArrayBuffer(file);
         }
 
-        // ==========================================
-        // دوال التصدير للإكسيل 
-        // ==========================================
         function exportToExcel() {
             initAudio();
             if (typeof XLSX === 'undefined') {
@@ -1208,7 +1210,6 @@
             });
 
             const ws = XLSX.utils.aoa_to_sheet(exportData);
-            
             if(!ws['!views']) ws['!views'] = [];
             ws['!views'].push({ rightToLeft: true });
 
@@ -1299,9 +1300,6 @@
             XLSX.writeFile(wb, fileName);
         }
 
-        // ==========================================
-        // الطباعة وتوليد PDF المباشر
-        // ==========================================
         function downloadPDF() {
             initAudio();
             const originalTitle = document.title;
@@ -1348,8 +1346,6 @@
             
             window.print();
         }
-
-        // ==========================================
 
         function showSettlement() {
             document.getElementById('inventoryView').style.display = 'none';
