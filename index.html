@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم المخازن الطبية - النظام السحابي</title>
+    <title>لوحة تحكم المخازن الطبية - النظام المحمي</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-    <!-- مكتبات قايربيز (Firebase) السحابية -->
+    <!-- مكتبات قايربيز (Firebase) السحابية والمصادقة -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
@@ -33,7 +34,34 @@
         }
 
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
-        body { display: flex; height: 100vh; background-color: var(--bg-color); color: var(--text-main); overflow: hidden; }
+        body { background-color: var(--bg-color); color: var(--text-main); height: 100vh; overflow: hidden; }
+
+        /* شاشة تسجيل الدخول */
+        #loginScreen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #111827 0%, #4f46e5 100%);
+            display: flex; align-items: center; justify-content: center; z-index: 10000;
+        }
+        .login-box {
+            background: white; padding: 40px 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 90%; max-width: 400px; text-align: center;
+        }
+        .login-box i { font-size: 50px; color: var(--primary); margin-bottom: 15px; }
+        .login-box h2 { margin-bottom: 25px; font-weight: 800; color: var(--text-main); }
+        .login-box input {
+            width: 100%; padding: 12px 15px; margin-bottom: 15px; border: 1px solid var(--border-color);
+            border-radius: 8px; font-size: 15px; background: #f9fafb; outline: none; transition: 0.2s;
+        }
+        .login-box input:focus { border-color: var(--primary); background: white; }
+        .login-box button {
+            width: 100%; padding: 12px; background: var(--primary); color: white; border: none;
+            border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s;
+        }
+        .login-box button:hover { background: var(--primary-hover); transform: translateY(-2px); }
+        .error-msg { color: var(--danger); font-size: 13px; margin-top: 10px; font-weight: 600; min-height: 20px;}
+
+        /* حاوية التطبيق بالكامل لتشغيل الإخفاء والإظهار */
+        #appContainer { display: none; width: 100%; height: 100%; flex-direction: row; }
 
         .sidebar { width: 260px; min-width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; transition: all 0.3s ease; box-shadow: 4px 0 10px rgba(0,0,0,0.1); z-index: 1000; }
         .sidebar.collapsed { margin-right: -260px; }
@@ -129,6 +157,8 @@
             .main-wrapper, .content { padding: 0 !important; margin: 0 !important; overflow: visible; width: 100%; }
             .table-card, .settlement-section { border: none; box-shadow: none; border-radius: 0; margin:0; padding:0; }
             .table-responsive { overflow: visible !important; width: 100%; }
+            #loginScreen { display: none !important; }
+            #appContainer { display: flex !important; }
             
             .print-header { display: block !important; text-align: center; margin-bottom: 15px; }
             .print-header h2 { font-size: 18px; margin: 0 0 5px 0; }
@@ -168,6 +198,21 @@
 </head>
 <body>
 
+    <!-- شاشة تسجيل الدخول -->
+    <div id="loginScreen">
+        <div class="login-box">
+            <i class="fa-solid fa-shield-halved"></i>
+            <h2>تسجيل الدخول</h2>
+            <input type="text" id="loginUsername" placeholder="اسم المستخدم (مثال: ahmed)">
+            <input type="password" id="loginPass" placeholder="كلمة المرور">
+            <button onclick="handleLogin()">دخول النظام</button>
+            <div id="loginError" class="error-msg"></div>
+        </div>
+    </div>
+
+    <!-- حاوية النظام تظهر فقط بعد تسجيل الدخول -->
+    <div id="appContainer">
+
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
     <aside class="sidebar" id="sidebar">
@@ -199,9 +244,13 @@
                     </div>
                 </div>
             </div>
-            <div class="search-container no-print">
+            <div class="search-container no-print" style="display:flex; align-items:center; gap:10px;">
+                    <div style="position: relative;">
                 <i class="fa-solid fa-search"></i>
                 <input type="text" class="search-box" id="searchInput" placeholder="ابحث عن اسم الصنف..." onkeyup="filterSearch()">
+                    </div>
+                    <!-- زر تسجيل الخروج -->
+                    <button class="btn btn-danger-light" onclick="handleLogout()" title="تسجيل الخروج"><i class="fa-solid fa-power-off"></i></button>
             </div>
         </header>
 
@@ -286,10 +335,11 @@
             </div>
         </div>
     </main>
+    </div>
 
     <script>
         // =====================================================================
-        // مفاتيح Firebase
+        // مفاتيح Firebase الخاصة بك
         // =====================================================================
         const firebaseConfig = {
             apiKey: "AIzaSyBDcJFivuL_grFOGCKoKvEXoVmKR3y6Vvc",
@@ -310,6 +360,54 @@
             isCloudEnabled = true;
         } catch(e) {
             console.warn("حدث خطأ في تحميل مفاتيح الفايربيز.");
+        }
+        
+        let dataLoaded = false;
+
+        // نظام المصادقة (تسجيل الدخول باليوزر نيم الوهمي)
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'flex';
+                
+                if (!dataLoaded) {
+                    initDB();
+                    dataLoaded = true;
+                }
+            } else {
+                document.getElementById('loginScreen').style.display = 'flex';
+                document.getElementById('appContainer').style.display = 'none';
+                dataLoaded = false;
+            }
+        });
+
+        function handleLogin() {
+            let username = document.getElementById('loginUsername').value.trim();
+            const pass = document.getElementById('loginPass').value;
+            const errorDiv = document.getElementById('loginError');
+            
+            if(!username || !pass) {
+                errorDiv.innerText = "برجاء كتابة اسم المستخدم وكلمة المرور!";
+                return;
+            }
+            
+            // الفلتر الذكي: تحويل اليوزر نيم لإيميل في الخلفية ليتوافق مع فايربيز
+            let email = username;
+            if(!email.includes('@')) {
+                email = username + "@system.com";
+            }
+            
+            errorDiv.innerText = "جاري الدخول...";
+            firebase.auth().signInWithEmailAndPassword(email, pass)
+                .catch((error) => {
+                    errorDiv.innerText = "بيانات الدخول غير صحيحة، تأكد من تسجيل الحساب.";
+                });
+        }
+
+        function handleLogout() {
+            if(confirm("هل أنت متأكد من تسجيل الخروج من السيستم؟")) {
+                firebase.auth().signOut();
+            }
         }
         // =====================================================================
 
@@ -954,7 +1052,6 @@
             });
         });
 
-        window.onload = initDB;
     </script>
 </body>
 </html>
