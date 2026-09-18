@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم المخازن الطبية - النظام المحمي</title>
+    <title>لوحة تحكم المخازن الطبية - النظام السحابي</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-    <!-- مكتبات قايربيز (Firebase) السحابية والمصادقة -->
+    <!-- مكتبات قايربيز (Firebase) السحابية -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -212,134 +212,133 @@
 
     <!-- حاوية النظام تظهر فقط بعد تسجيل الدخول -->
     <div id="appContainer">
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+        <aside class="sidebar" id="sidebar">
+            <div class="brand">
+                <i class="fa-solid fa-cloud"></i> مخازن كلاود
+            </div>
+            <div class="nav-menu">
+                <div class="nav-title">أقسام المستشفى</div>
+                <div id="locationsList"></div>
+            </div>
+            <button class="settlement-btn" onclick="showSettlement()">
+                <i class="fa-solid fa-code-compare"></i> تقرير التسويات العام
+            </button>
+        </aside>
 
-    <aside class="sidebar" id="sidebar">
-        <div class="brand">
-            <i class="fa-solid fa-cloud"></i> مخازن كلاود
-        </div>
-        <div class="nav-menu">
-            <div class="nav-title">أقسام المستشفى</div>
-            <div id="locationsList"></div>
-        </div>
-        <button class="settlement-btn" onclick="showSettlement()">
-            <i class="fa-solid fa-code-compare"></i> تقرير التسويات العام
-        </button>
-    </aside>
-
-    <main class="main-wrapper">
-        <header class="topbar">
-            <div class="topbar-left">
-                <button class="menu-toggle-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
-                <div class="topbar-title">
-                    <h2 id="currentLocationTitle">رعاية الجراحة</h2>
-                    <div id="cloudStatus" class="cloud-badge offline"><i class="fa-solid fa-circle-notch fa-spin"></i> جاري الاتصال بالسحابة...</div>
-                    
-                    <div class="sheet-controls no-print" style="margin-top: 10px;">
-                        <i class="fa-solid fa-file-excel"></i>
-                        <select id="sheetSelect" onchange="switchSheet(this.value)"></select>
-                        <button class="btn-sheet-action" onclick="createNewSheet()" title="إنشاء شيت جرد جديد"><i class="fa-solid fa-plus"></i></button>
-                        <button class="btn-sheet-action btn-sheet-delete" onclick="deleteCurrentSheet()" title="حذف الشيت الحالي"><i class="fa-solid fa-trash"></i></button>
+        <main class="main-wrapper">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="menu-toggle-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+                    <div class="topbar-title">
+                        <h2 id="currentLocationTitle">رعاية الجراحة</h2>
+                        <div id="cloudStatus" class="cloud-badge offline"><i class="fa-solid fa-circle-notch fa-spin"></i> جاري الاتصال بالسحابة...</div>
+                        
+                        <div class="sheet-controls no-print" style="margin-top: 10px;">
+                            <i class="fa-solid fa-file-excel"></i>
+                            <select id="sheetSelect" onchange="switchSheet(this.value)"></select>
+                            <button class="btn-sheet-action" onclick="createNewSheet()" title="إنشاء شيت جرد جديد"><i class="fa-solid fa-plus"></i></button>
+                            <button class="btn-sheet-action btn-sheet-delete" onclick="deleteCurrentSheet()" title="حذف الشيت الحالي"><i class="fa-solid fa-trash"></i></button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="search-container no-print" style="display:flex; align-items:center; gap:10px;">
+                <div class="search-container no-print" style="display:flex; align-items:center; gap:10px;">
                     <div style="position: relative;">
-                <i class="fa-solid fa-search"></i>
-                <input type="text" class="search-box" id="searchInput" placeholder="ابحث عن اسم الصنف..." onkeyup="filterSearch()">
+                        <i class="fa-solid fa-search"></i>
+                        <input type="text" class="search-box" id="searchInput" placeholder="ابحث عن اسم الصنف..." onkeyup="filterSearch()">
                     </div>
                     <!-- زر تسجيل الخروج -->
                     <button class="btn btn-danger-light" onclick="handleLogout()" title="تسجيل الخروج"><i class="fa-solid fa-power-off"></i></button>
-            </div>
-        </header>
+                </div>
+            </header>
 
-        <div class="content">
-            
-            <div class="print-header" id="printHeader">
-                <h2 id="printTitle">رعاية الجراحة</h2>
-                <p id="printSubtitle">تقرير جرد المخازن</p>
-            </div>
+            <div class="content">
+                
+                <div class="print-header" id="printHeader">
+                    <h2 id="printTitle">رعاية الجراحة</h2>
+                    <p id="printSubtitle">تقرير جرد المخازن</p>
+                </div>
 
-            <div id="inventoryView">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon icon-blue"><i class="fa-solid fa-boxes-stacked"></i></div>
-                        <div class="stat-info"><h4>أصناف القسم</h4><span id="stat-total">0</span></div>
+                <div id="inventoryView">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon icon-blue"><i class="fa-solid fa-boxes-stacked"></i></div>
+                            <div class="stat-info"><h4>أصناف القسم</h4><span id="stat-total">0</span></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon icon-red"><i class="fa-solid fa-arrow-trend-down"></i></div>
+                            <div class="stat-info"><h4>أصناف بها عجز</h4><span id="stat-deficit">0</span></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon icon-green"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                            <div class="stat-info"><h4>أصناف بها زيادة</h4><span id="stat-surplus">0</span></div>
+                        </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon icon-red"><i class="fa-solid fa-arrow-trend-down"></i></div>
-                        <div class="stat-info"><h4>أصناف بها عجز</h4><span id="stat-deficit">0</span></div>
+
+                    <div class="toolbar">
+                        <button class="btn btn-outline no-print" onclick="fetchCloudData()" style="color: var(--primary);" title="تحديث البيانات من السحابة"><i class="fa-solid fa-rotate"></i> جلب التحديثات</button>
+
+                        <div class="add-item-group no-print" style="margin-right:10px;">
+                            <input type="text" id="newItemName" placeholder="اسم صنف جديد...">
+                            <button class="btn btn-primary" onclick="addNewItem()"><i class="fa-solid fa-plus"></i> إضافة</button>
+                        </div>
+                        
+                        <button class="btn btn-info no-print" onclick="addIVFluids()"><i class="fa-solid fa-droplet"></i> إضافة المحاليل</button>
+
+                        <div style="flex-grow: 1;"></div> 
+
+                        <input type="file" id="excelUpload" accept=".xlsx, .xls" style="display: none;" onchange="handleExcelUpload(event)">
+                        <button class="btn btn-success" onclick="document.getElementById('excelUpload').click()">
+                            <i class="fa-solid fa-file-import"></i> استيراد من الإكسيل
+                        </button>
+
+                        <button class="btn btn-outline" onclick="filterTable('all')"><i class="fa-solid fa-list"></i> الكل</button>
+                        <button class="btn btn-danger-light" onclick="filterTable('deficit')"><i class="fa-solid fa-minus-circle"></i> العجز</button>
+                        <button class="btn btn-success-light" onclick="filterTable('surplus')"><i class="fa-solid fa-plus-circle"></i> الزيادة</button>
+                        <button class="btn btn-primary" onclick="preparePrint()"><i class="fa-solid fa-print"></i> طباعة</button>
+                        
+                        <button class="btn btn-outline no-print" onclick="clearCurrentLocationNumbers()" style="color: var(--warning);" title="تصفير الأرقام فقط في هذا القسم"><i class="fa-solid fa-eraser"></i> تصفير الأرقام</button>
+                        <button class="btn btn-outline no-print" onclick="deleteAllItems()" style="color: var(--danger);" title="حذف كل أصناف هذا القسم والبدء من الصفر"><i class="fa-solid fa-trash-can"></i> مسح أصناف القسم</button>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon icon-green"><i class="fa-solid fa-arrow-trend-up"></i></div>
-                        <div class="stat-info"><h4>أصناف بها زيادة</h4><span id="stat-surplus">0</span></div>
+
+                    <div class="table-card">
+                        <div class="table-responsive">
+                            <table id="inventoryTable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>اسم الصنف الطبي</th>
+                                        <th>السيستم</th>
+                                        <th>المصروف</th>
+                                        <th>الفعلي</th>
+                                        <th>العجز</th>
+                                        <th>الزيادة</th>
+                                        <th class="no-print"><i class="fa-solid fa-gear"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inventoryBody">
+                                    <!-- سيتم توليد الجدول هنا -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
-                <div class="toolbar">
-                    <button class="btn btn-outline no-print" onclick="fetchCloudData()" style="color: var(--primary);" title="تحديث البيانات من السحابة"><i class="fa-solid fa-rotate"></i> جلب التحديثات</button>
-
-                    <div class="add-item-group no-print" style="margin-right:10px;">
-                        <input type="text" id="newItemName" placeholder="اسم صنف جديد...">
-                        <button class="btn btn-primary" onclick="addNewItem()"><i class="fa-solid fa-plus"></i> إضافة</button>
+                <div id="settlementView">
+                    <div class="toolbar" style="margin-bottom: 25px;">
+                        <button class="btn btn-primary" onclick="hideSettlement()"><i class="fa-solid fa-arrow-right"></i> العودة للجرد</button>
+                        <button class="btn btn-outline" onclick="window.print()"><i class="fa-solid fa-print"></i> طباعة تقرير التسويات</button>
                     </div>
-                    
-                    <button class="btn btn-info no-print" onclick="addIVFluids()"><i class="fa-solid fa-droplet"></i> إضافة المحاليل</button>
-
-                    <div style="flex-grow: 1;"></div> 
-
-                    <input type="file" id="excelUpload" accept=".xlsx, .xls" style="display: none;" onchange="handleExcelUpload(event)">
-                    <button class="btn btn-success" onclick="document.getElementById('excelUpload').click()">
-                        <i class="fa-solid fa-file-import"></i> استيراد من الإكسيل
-                    </button>
-
-                    <button class="btn btn-outline" onclick="filterTable('all')"><i class="fa-solid fa-list"></i> الكل</button>
-                    <button class="btn btn-danger-light" onclick="filterTable('deficit')"><i class="fa-solid fa-minus-circle"></i> العجز</button>
-                    <button class="btn btn-success-light" onclick="filterTable('surplus')"><i class="fa-solid fa-plus-circle"></i> الزيادة</button>
-                    <button class="btn btn-primary" onclick="preparePrint()"><i class="fa-solid fa-print"></i> طباعة</button>
-                    
-                    <button class="btn btn-outline no-print" onclick="clearCurrentLocationNumbers()" style="color: var(--warning);" title="تصفير الأرقام فقط في هذا القسم"><i class="fa-solid fa-eraser"></i> تصفير الأرقام</button>
-                    <button class="btn btn-outline no-print" onclick="deleteAllItems()" style="color: var(--danger);" title="حذف كل أصناف هذا القسم والبدء من الصفر"><i class="fa-solid fa-trash-can"></i> مسح أصناف القسم</button>
-                </div>
-
-                <div class="table-card">
-                    <div class="table-responsive">
-                        <table id="inventoryTable">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>اسم الصنف الطبي</th>
-                                    <th>السيستم</th>
-                                    <th>المصروف</th>
-                                    <th>الفعلي</th>
-                                    <th>العجز</th>
-                                    <th>الزيادة</th>
-                                    <th class="no-print"><i class="fa-solid fa-gear"></i></th>
-                                </tr>
-                            </thead>
-                            <tbody id="inventoryBody">
-                                <!-- سيتم توليد الجدول هنا -->
-                            </tbody>
-                        </table>
-                    </div>
+                    <div id="settlementResults"></div>
                 </div>
             </div>
-
-            <div id="settlementView">
-                <div class="toolbar" style="margin-bottom: 25px;">
-                    <button class="btn btn-primary" onclick="hideSettlement()"><i class="fa-solid fa-arrow-right"></i> العودة للجرد</button>
-                    <button class="btn btn-outline" onclick="window.print()"><i class="fa-solid fa-print"></i> طباعة تقرير التسويات</button>
-                </div>
-                <div id="settlementResults"></div>
-            </div>
-        </div>
-    </main>
+        </main>
     </div>
 
     <script>
         // =====================================================================
-        // مفاتيح Firebase الخاصة بك
+        // مفاتيح Firebase (تم الإضافة بنجاح)
         // =====================================================================
         const firebaseConfig = {
             apiKey: "AIzaSyBDcJFivuL_grFOGCKoKvEXoVmKR3y6Vvc",
@@ -354,6 +353,7 @@
         
         let database;
         let isCloudEnabled = false;
+
         try {
             firebase.initializeApp(firebaseConfig);
             database = firebase.database();
@@ -361,7 +361,7 @@
         } catch(e) {
             console.warn("حدث خطأ في تحميل مفاتيح الفايربيز.");
         }
-        
+
         let dataLoaded = false;
 
         // نظام المصادقة (تسجيل الدخول باليوزر نيم الوهمي)
@@ -423,8 +423,6 @@
         }
 
         const locations = ["رعاية الجراحة", "رعاية القسطرة", "الطوارئ", "الدور الرابع", "الدور الخامس"];
-        
-        // تم إزالة النقطة من ML لتجنب أخطاء الفايربيز
         const ivFluidsList = ["SODIUM CHLORIDE 3 %", "SODIUM CHLORIDE 45%", "جلوكوز 10 %", "جلوكوز 25 %", "جلوكوز 5 %", "رينجر", "مانيتول", "KIDMIN 250 ML"];
         
         let currentLoc = locations[0]; 
@@ -432,7 +430,6 @@
         let appState = { activeSheet: 'default', sheets: {} };
         let db = {}; 
 
-        // دالة الفلترة الذكية (تقوم بتبديل الرموز الممنوعة في فايربيز إلى شرطة)
         function sanitizeForFirebase(str) {
             if(!str) return "";
             return String(str).replace(/[.#$\[\]\/]/g, '-').trim();
@@ -503,7 +500,7 @@
                     statusBadge.className = "cloud-badge offline";
                     statusBadge.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> فشل الرفع';
                     console.error(err);
-                    alert("خطأ أثناء الرفع للسحابة: تأكد من اتصال الإنترنت.");
+                    alert("خطأ أثناء الرفع للسحابة: تأكد من اتصال الإنترنت أو الصلاحيات.");
                 });
             }
         }
@@ -626,7 +623,6 @@
             const rawNewItem = input.value.trim();
             if (!rawNewItem) return alert('برجاء كتابة اسم الصنف أولاً.');
             
-            // تطبيق الفلتر لتنظيف الاسم قبل حفظه
             const newItem = sanitizeForFirebase(rawNewItem);
 
             if (itemsList[currentLoc].includes(newItem)) return alert('هذا الصنف موجود بالفعل في هذا القسم!');
@@ -868,7 +864,6 @@
                             if (qtyRaw !== undefined && qtyRaw !== null && nameRaw !== undefined && nameRaw !== null) {
                                 const qty = parseFloat(qtyRaw);
                                 
-                                // تطبيق الفلتر لتنظيف الاسم المأخوذ من الإكسيل
                                 const itemName = sanitizeForFirebase(String(nameRaw).replace(/[\r\n]+/g, ' ')); 
                                 
                                 if (!isNaN(qty) && itemName !== '' && itemName !== '0') {
