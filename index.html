@@ -10,9 +10,6 @@
     
     <!-- مكتبة الإكسيل -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    
-    <!-- مكتبة تحويل الموقع لـ PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <!-- مكتبات فايربيز السحابية والمصادقة -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -28,7 +25,28 @@
         }
 
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; }
-        body { background-color: var(--bg-color); color: var(--text-main); height: 100vh; overflow: hidden; }
+        body { background-color: var(--bg-color); color: var(--text-main); height: 100vh; overflow: hidden; transition: background-color 0.3s, color 0.3s; }
+
+        /* ================= الوضع الليلي ================= */
+        body.dark-mode {
+            --bg-color: #111827; --card-bg: #1f2937; --text-main: #f3f4f6; --text-muted: #9ca3af; --border-color: #374151;
+        }
+        body.dark-mode input[type="text"], body.dark-mode input[type="password"], body.dark-mode input[type="number"], body.dark-mode .search-box { 
+            background-color: #374151; color: #f3f4f6; border-color: #4b5563; 
+        }
+        body.dark-mode input:focus { background-color: #111827; }
+        body.dark-mode .sidebar { background-color: #030712; border-left: 1px solid #1f2937; }
+        body.dark-mode thead { background-color: #111827; }
+        body.dark-mode .sheet-controls, body.dark-mode .user-badge { background-color: #374151; border-color: #4b5563; }
+        body.dark-mode .sheet-controls select { color: #818cf8; }
+        body.dark-mode tr.row-deficit td { background-color: rgba(239, 68, 68, 0.15); }
+        body.dark-mode tr.row-surplus td { background-color: rgba(16, 185, 129, 0.15); }
+        body.dark-mode .login-box, body.dark-mode .settlement-section { background: var(--card-bg); border: 1px solid var(--border-color); }
+        body.dark-mode .settlement-list li { border-bottom-color: var(--border-color); }
+        
+        .btn-dark-toggle { background: transparent; border: none; color: var(--text-main); font-size: 20px; cursor: pointer; padding: 5px; transition: 0.2s; outline: none; }
+        .btn-dark-toggle:hover { color: var(--primary); transform: scale(1.1); }
+        /* ================================================= */
 
         /* شاشات تسجيل الدخول وإعداد الاسم */
         .auth-screen {
@@ -69,7 +87,7 @@
         .settlement-btn { margin: 20px 15px; background-color: var(--warning); color: white; padding: 15px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.3s; }
 
         .main-wrapper { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; transition: all 0.3s ease; }
-        .topbar { background: var(--card-bg); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); z-index: 50; flex-wrap: wrap; gap: 15px;}
+        .topbar { background: var(--card-bg); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); z-index: 50; flex-wrap: wrap; gap: 15px; transition: background-color 0.3s;}
         .topbar-left { display: flex; align-items: flex-start; gap: 15px; }
         .menu-toggle-btn { background: none; border: none; font-size: 24px; color: var(--text-main); cursor: pointer; padding: 5px; margin-top: 2px;}
         
@@ -79,7 +97,7 @@
         .cloud-badge.offline { background: #fee2e2; color: #b91c1c; }
         .cloud-badge.syncing { background: #e0e7ff; color: #4338ca; }
         
-        .sheet-controls { display: flex; align-items: center; gap: 8px; background: #eef2ff; padding: 5px 10px; border-radius: 8px; border: 1px solid #c7d2fe; flex-wrap: wrap;}
+        .sheet-controls { display: flex; align-items: center; gap: 8px; background: #eef2ff; padding: 5px 10px; border-radius: 8px; border: 1px solid #c7d2fe; flex-wrap: wrap; transition: background-color 0.3s;}
         .sheet-controls i { color: var(--primary); }
         .sheet-controls select { border: none; background: transparent; font-weight: 700; font-size: 14px; color: var(--primary); outline: none; cursor: pointer; max-width: 200px;}
         
@@ -93,13 +111,13 @@
 
         .topbar-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;}
         
-        .user-badge { background: #eef2ff; color: var(--primary); padding: 8px 15px; border-radius: 20px; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; border: 1px solid #c7d2fe; }
+        .user-badge { background: #eef2ff; color: var(--primary); padding: 8px 15px; border-radius: 20px; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; border: 1px solid #c7d2fe; transition: background-color 0.3s;}
         .btn-edit-name { background: none; border: none; color: var(--primary); cursor: pointer; padding: 0 5px; font-size: 13px; opacity: 0.7; transition: 0.2s; }
         .btn-edit-name:hover { opacity: 1; transform: scale(1.1); color: var(--primary-hover); }
 
         .search-container { position: relative; }
         .search-container i { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
-        .search-box { padding: 10px 15px 10px 40px; border: 1px solid var(--border-color); border-radius: 25px; width: 220px; outline: none; font-size: 14px; background-color: #f9fafb; }
+        .search-box { padding: 10px 15px 10px 40px; border: 1px solid var(--border-color); border-radius: 25px; width: 220px; outline: none; font-size: 14px; background-color: #f9fafb; transition: background-color 0.3s;}
         
         .btn-logout { background: #fee2e2; color: var(--danger); border: none; padding: 8px 15px; border-radius: 8px; font-weight: 800; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
         .btn-logout:hover { background: #fecaca; transform: scale(1.05); }
@@ -107,7 +125,7 @@
         .content { padding: 20px; overflow-y: auto; flex-grow: 1; }
 
         .stats-grid { display: flex; justify-content: space-between; gap: 15px; margin-bottom: 20px; }
-        .stat-card { flex: 1; background: var(--card-bg); padding: 15px; border-radius: 12px; display: flex; align-items: center; gap: 15px; border: 1px solid var(--border-color); }
+        .stat-card { flex: 1; background: var(--card-bg); padding: 15px; border-radius: 12px; display: flex; align-items: center; gap: 15px; border: 1px solid var(--border-color); transition: background-color 0.3s;}
         .stat-icon { width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
         .icon-blue { background: #e0e7ff; color: var(--primary); }
         .icon-red { background: #fee2e2; color: var(--danger); }
@@ -115,10 +133,10 @@
         .stat-info h4 { font-size: 13px; color: var(--text-muted); margin-bottom: 5px; }
         .stat-info span { font-size: 20px; font-weight: 800; }
 
-        .toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); align-items: center; }
+        .toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); align-items: center; transition: background-color 0.3s;}
         .btn { padding: 8px 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
         .btn:hover { opacity: 0.8; }
-        .btn-outline { background: white; border: 1px solid var(--border-color); color: var(--text-main); }
+        .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); }
         .btn-primary { background: var(--primary); color: white; }
         .btn-success { background: var(--success); color: white; }
         .btn-info { background: var(--info); color: white; }
@@ -129,17 +147,17 @@
         .action-btn { background: none; border: none; cursor: pointer; font-size: 16px; padding: 5px; color: #9ca3af; transition: 0.2s; }
         .action-btn:hover { color: var(--danger); transform: scale(1.1); }
 
-        .table-card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow: hidden; }
+        .table-card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow: hidden; transition: background-color 0.3s;}
         .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
         table { width: 100%; border-collapse: collapse; min-width: 850px; }
-        thead { background-color: #f8fafc; border-bottom: 2px solid var(--border-color); }
+        thead { background-color: #f8fafc; border-bottom: 2px solid var(--border-color); transition: background-color 0.3s;}
         th { padding: 12px 15px; text-align: right; font-weight: 700; color: var(--text-muted); font-size: 13px; white-space: nowrap; }
         td { padding: 10px 15px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
         .item-name { font-weight: 700; font-size: 14px; white-space: nowrap; }
         .item-fluid { color: var(--info); }
 
-        input[type="number"] { width: 70px; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; text-align: center; font-weight: 600; font-size: 14px; background-color: #f8fafc; transition: 0.1s; }
-        input[type="number"]:focus { outline: none; border-color: var(--primary); background: #eef2ff; box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2); }
+        input[type="number"] { width: 70px; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; text-align: center; font-weight: 600; font-size: 14px; background-color: transparent; color: var(--text-main); transition: 0.1s; }
+        input[type="number"]:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2); }
 
         .badge { padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 13px; display: inline-block; min-width: 40px; text-align: center; }
         .badge-gray { background: #f1f5f9; color: #64748b; }
@@ -150,10 +168,10 @@
         .row-surplus td { background-color: #f0fdf4; }
 
         #settlementView { display: none; }
-        .settlement-section { background: white; border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+        .settlement-section { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 20px; transition: background-color 0.3s;}
         .settlement-section h3 { margin-bottom: 15px; font-size: 18px; display: flex; align-items: center; gap: 10px;}
         .settlement-list { list-style: none; padding: 0; }
-        .settlement-list li { padding: 10px; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between; font-weight: 600;}
+        .settlement-list li { padding: 10px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; font-weight: 600;}
         .settlement-list li:last-child { border-bottom: none; }
 
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; }
@@ -161,68 +179,47 @@
         .print-footer { display: none; }
         
         /* ==========================================
-           تحديثات الطباعة القوية لضغط الجداول ووضع المربعات بالعرض
+           تحديثات الطباعة و PDF
            ========================================== */
         @media print {
-            * { 
-                -webkit-print-color-adjust: exact !important; 
-                print-color-adjust: exact !important; 
-                color-adjust: exact !important; 
-            }
-            @page { size: A4 portrait; margin: 5mm; } /* تقليل حواف الورقة لزيادة المساحة */
-            body { background: white; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+            @page { size: A4 portrait; margin: 5mm; }
+            body { background: white !important; color: black !important; }
             .sidebar, .topbar, .toolbar, .menu-toggle-btn, .sidebar-overlay, .no-print, .sheet-controls { display: none !important; }
             .main-wrapper, .content { padding: 0 !important; margin: 0 !important; overflow: visible; width: 100%; }
-            .table-card { border: none; box-shadow: none; border-radius: 0; margin:0; padding:0; }
-            .settlement-section { border: 1px solid var(--border-color); box-shadow: none; margin-bottom: 10px; page-break-inside: avoid; }
+            .table-card { border: none !important; background: white !important; box-shadow: none; border-radius: 0; margin:0; padding:0; }
+            .settlement-section { border: 1px solid #e5e7eb !important; background: white !important; box-shadow: none; margin-bottom: 10px; page-break-inside: avoid; }
             .table-responsive { overflow: visible !important; width: 100%; }
             .auth-screen { display: none !important; }
             #appContainer { display: flex !important; }
             
-            /* ضغط الهيدر */
             .print-header { display: block !important; text-align: center; margin-bottom: 10px !important; }
-            .print-header h2 { font-size: 16px !important; margin: 0 0 2px 0 !important; }
-            .print-header p { font-size: 12px !important; color: #555; margin: 0 !important; }
+            .print-header h2 { font-size: 16px !important; margin: 0 0 2px 0 !important; color: black !important; }
+            .print-header p { font-size: 12px !important; color: #555 !important; margin: 0 !important; }
 
-            /* إجبار الإحصائيات تكون بالعرض جنب بعض وتصغير حجمها */
-            .stats-grid { 
-                display: flex !important; 
-                flex-direction: row !important; 
-                justify-content: space-between !important; 
-                gap: 5px !important; 
-                margin-bottom: 10px !important; 
-            }
-            .stat-card { 
-                flex: 1 !important; 
-                width: 32% !important; 
-                padding: 5px 10px !important; 
-                margin: 0 !important; 
-                page-break-inside: avoid; 
-                display: flex !important;
-                flex-direction: row !important;
-                align-items: center !important;
-                border: 1px solid var(--border-color) !important;
-            }
+            .stats-grid { display: flex !important; flex-direction: row !important; justify-content: space-between !important; gap: 5px !important; margin-bottom: 10px !important; }
+            .stat-card { flex: 1 !important; background: white !important; width: 32% !important; padding: 5px 10px !important; margin: 0 !important; page-break-inside: avoid; display: flex !important; flex-direction: row !important; align-items: center !important; border: 1px solid #e5e7eb !important; color: black !important; }
             .stat-icon { width: 30px !important; height: 30px !important; font-size: 14px !important; }
-            .stat-info h4 { font-size: 10px !important; margin-bottom: 0 !important; }
-            .stat-info span { font-size: 14px !important; font-weight: 800 !important; }
+            .stat-info h4 { font-size: 10px !important; margin-bottom: 0 !important; color: #555 !important; }
+            .stat-info span { font-size: 14px !important; font-weight: 800 !important; color: black !important; }
 
-            /* ضغط الجدول لاستيعاب سطور أكتر */
-            table { border: 1px solid var(--border-color); width: 100% !important; min-width: 100% !important; table-layout: fixed; margin-bottom: 0 !important; }
-            th:nth-child(1) { width: 5%; } 
-            th:nth-child(2) { width: 45%; } 
-            th:nth-child(3), th:nth-child(4), th:nth-child(5), th:nth-child(6), th:nth-child(7) { width: 10%; } 
+            table { border: 1px solid #e5e7eb !important; width: 100% !important; min-width: 100% !important; table-layout: fixed; margin-bottom: 0 !important; background: white !important; color: black !important; }
+            thead { background: #f8fafc !important; }
+            th:nth-child(1) { width: 5%; } th:nth-child(2) { width: 45%; } th:nth-child(3), th:nth-child(4), th:nth-child(5), th:nth-child(6), th:nth-child(7) { width: 10%; } 
             
-            th { padding: 4px 2px !important; font-size: 11px !important; border: 1px solid var(--border-color) !important; }
-            td { border: 1px solid var(--border-color) !important; padding: 2px 2px !important; font-size: 11px !important; white-space: normal !important; word-wrap: break-word; text-align: center !important; height: 20px !important; }
-            .item-name { font-size: 12px !important; white-space: normal !important; text-align: right !important; }
+            th { padding: 4px 2px !important; font-size: 11px !important; border: 1px solid #e5e7eb !important; color: black !important; }
+            td { border: 1px solid #e5e7eb !important; padding: 2px 2px !important; font-size: 11px !important; white-space: normal !important; word-wrap: break-word; text-align: center !important; height: 20px !important; color: black !important; }
+            .item-name { font-size: 12px !important; text-align: right !important; }
             
-            /* إخفاء حدود مربعات الإدخال في الطباعة لتوفير المساحة */
-            input[type="number"] { border: none !important; background: transparent !important; padding: 0 !important; width: 100% !important; font-size: 11px !important; font-weight: bold; text-align: center; height: auto !important; margin: 0 !important; color: #000 !important; }
+            input[type="number"] { border: none !important; background: transparent !important; padding: 0 !important; width: 100% !important; font-size: 11px !important; font-weight: bold; text-align: center; height: auto !important; margin: 0 !important; color: black !important; }
             
             .badge { padding: 2px 5px !important; border-radius: 8px !important; font-size: 10px !important; font-weight: bold; }
             
-            .print-footer { display: flex !important; justify-content: space-between; margin-top: 15px; padding-top: 5px; border-top: 1px solid #000; font-weight: bold; font-size: 12px; page-break-inside: avoid; }
+            /* الحفاظ على الألوان في الطباعة */
+            tr.row-deficit td { background-color: #fff5f5 !important; }
+            tr.row-surplus td { background-color: #f0fdf4 !important; }
+            
+            .print-footer { display: flex !important; justify-content: space-between; margin-top: 15px; padding-top: 5px; border-top: 1px solid #000; font-weight: bold; font-size: 12px; page-break-inside: avoid; color: black !important; }
         }
 
         @media (max-width: 768px) {
@@ -310,6 +307,11 @@
                 </div>
 
                 <div class="topbar-actions no-print">
+                    <!-- زر الوضع الليلي -->
+                    <button class="btn-dark-toggle" onclick="toggleDarkMode()" title="تغيير المظهر">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+
                     <div class="user-badge">
                         <i class="fa-solid fa-user-doctor"></i> 
                         <span id="userNameDisplay">...</span>
@@ -431,6 +433,72 @@
     </div>
 
     <script>
+        // ==========================================
+        // المؤثرات الصوتية (بدون ملفات خارجية)
+        // ==========================================
+        let audioCtx = null;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+        function playSound(type) {
+            try {
+                initAudio();
+                if(audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                osc.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                
+                if (type === 'success') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
+                    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+                } else if (type === 'error') {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.2);
+                    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+                } else if (type === 'delete') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.2);
+                    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+                }
+            } catch(e) {}
+        }
+
+        // ==========================================
+        // الوضع الليلي
+        // ==========================================
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('hospital_darkMode', isDark);
+            
+            const icon = document.querySelector('.btn-dark-toggle i');
+            if(isDark) {
+                icon.className = 'fa-solid fa-sun';
+            } else {
+                icon.className = 'fa-solid fa-moon';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if(localStorage.getItem('hospital_darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+                document.querySelector('.btn-dark-toggle i').className = 'fa-solid fa-sun';
+            }
+        });
+
         // =====================================================================
         // مفاتيح Firebase
         // =====================================================================
@@ -483,11 +551,13 @@
         });
 
         function handleLogin() {
+            initAudio(); // تهيئة الصوت
             let username = document.getElementById('loginUsername').value.trim();
             const pass = document.getElementById('loginPass').value;
             const errorDiv = document.getElementById('loginError');
             
             if(!username || !pass) {
+                playSound('error');
                 errorDiv.innerText = "برجاء كتابة اسم المستخدم وكلمة المرور!";
                 return;
             }
@@ -499,16 +569,20 @@
             
             errorDiv.innerText = "جاري الدخول...";
             firebase.auth().signInWithEmailAndPassword(email, pass)
+                .then(() => { playSound('success'); })
                 .catch((error) => {
+                    playSound('error');
                     errorDiv.innerText = "بيانات الدخول غير صحيحة، تأكد من تسجيل الحساب.";
                 });
         }
 
         function saveDisplayName() {
+            initAudio();
             const nameInput = document.getElementById('actualNameInput').value.trim();
             const errorDiv = document.getElementById('setupError');
             
             if(!nameInput) {
+                playSound('error');
                 errorDiv.innerText = "برجاء كتابة اسمك للمتابعة!";
                 return;
             }
@@ -519,6 +593,7 @@
             user.updateProfile({
                 displayName: nameInput
             }).then(() => {
+                playSound('success');
                 document.getElementById('profileSetupScreen').style.display = 'none';
                 document.getElementById('appContainer').style.display = 'flex';
                 document.getElementById('userNameDisplay').innerText = nameInput;
@@ -528,11 +603,13 @@
                     dataLoaded = true;
                 }
             }).catch((error) => {
+                playSound('error');
                 errorDiv.innerText = "حدث خطأ أثناء الحفظ، حاول مرة أخرى.";
             });
         }
 
         function editDisplayName() {
+            initAudio();
             const currentName = document.getElementById('userNameDisplay').innerText;
             const newName = prompt("أدخل اسمك الجديد:", currentName);
             
@@ -542,9 +619,10 @@
                     user.updateProfile({
                         displayName: newName.trim()
                     }).then(() => {
+                        playSound('success');
                         document.getElementById('userNameDisplay').innerText = newName.trim();
-                        alert("تم تحديث الاسم بنجاح!");
                     }).catch((error) => {
+                        playSound('error');
                         alert("حدث خطأ أثناء تحديث الاسم، يرجى المحاولة لاحقاً.");
                     });
                 }
@@ -552,6 +630,7 @@
         }
 
         function handleLogout() {
+            initAudio();
             if(confirm("هل أنت متأكد من تسجيل الخروج من السيستم؟")) {
                 firebase.auth().signOut();
             }
@@ -716,10 +795,12 @@
         function deleteCurrentSheet() {
             const keys = Object.keys(appState.sheets);
             if (keys.length <= 1) {
+                playSound('error');
                 alert("لا يمكنك حذف هذا الشيت لأنه الوحيد المتبقي. قم بإنشاء جرد جديد أولاً.");
                 return;
             }
             if(confirm(`هل أنت متأكد من حذف شيت "${appState.sheets[appState.activeSheet].name}" نهائياً؟`)) {
+                playSound('delete');
                 delete appState.sheets[appState.activeSheet];
                 appState.activeSheet = Object.keys(appState.sheets)[0]; 
                 db = appState.sheets[appState.activeSheet].data;
@@ -765,14 +846,16 @@
         }
 
         function addNewItem() {
+            initAudio();
             const input = document.getElementById('newItemName');
             const rawNewItem = input.value.trim();
-            if (!rawNewItem) return alert('برجاء كتابة اسم الصنف أولاً.');
+            if (!rawNewItem) { playSound('error'); return alert('برجاء كتابة اسم الصنف أولاً.'); }
             
             const newItem = sanitizeForFirebase(rawNewItem);
 
-            if (itemsList[currentLoc].includes(newItem)) return alert('هذا الصنف موجود بالفعل في هذا القسم!');
+            if (itemsList[currentLoc].includes(newItem)) { playSound('error'); return alert('هذا الصنف موجود بالفعل في هذا القسم!'); }
 
+            playSound('success');
             insertRegularItem(newItem);
             ensureDataConsistency(); 
             saveState();
@@ -782,6 +865,7 @@
         }
 
         function addIVFluids() {
+            initAudio();
             let added = false;
             ivFluidsList.forEach(fluid => {
                 if (!itemsList[currentLoc].includes(fluid)) {
@@ -791,17 +875,20 @@
             });
             
             if(added) {
+                playSound('success');
                 ensureDataConsistency();
                 saveState();
                 loadLocation(currentLoc);
-                alert(`✅ تم إضافة قائمة المحاليل في أسفل الجدول لقسم (${currentLoc}) بنجاح.`);
             } else {
+                playSound('error');
                 alert("المحاليل موجودة بالفعل في هذا القسم.");
             }
         }
 
         function deleteItem(itemName) {
+            initAudio();
             if (confirm(`هل أنت متأكد من حذف "${itemName}" نهائياً من قسم (${currentLoc})؟`)) {
+                playSound('delete');
                 itemsList[currentLoc] = itemsList[currentLoc].filter(i => i !== itemName);
                 for (let sheet in appState.sheets) {
                     if(appState.sheets[sheet].data[currentLoc][itemName]) {
@@ -814,7 +901,9 @@
         }
 
         function clearCurrentLocationNumbers() {
+            initAudio();
             if(confirm(`هل أنت متأكد من تصفير الأرقام في قسم (${currentLoc}) فقط؟ (لن تُحذف الأصناف)`)) {
+                playSound('delete');
                 itemsList[currentLoc].forEach(item => {
                     db[currentLoc][item] = { sys: '', bills: '', actual: '' };
                 });
@@ -824,7 +913,9 @@
         }
 
         function deleteAllItems() {
+            initAudio();
             if(confirm(`تحذير شديد: هل أنت متأكد من مسح جميع الأصناف من قسم (${currentLoc}) بالكامل؟ ستعود الشاشة فارغة لتبدأ من الصفر.`)) {
+                playSound('delete');
                 itemsList[currentLoc] = [];
                 for (let sheet in appState.sheets) {
                     appState.sheets[sheet].data[currentLoc] = {}; 
@@ -976,10 +1067,12 @@
         }
 
         function handleExcelUpload(event) {
+            initAudio();
             const file = event.target.files[0];
             if (!file) return;
 
             if (typeof XLSX === 'undefined') {
+                playSound('error');
                 alert("❌ مكتبة قراءة الإكسيل لم يتم تحميلها بعد. يرجى التأكد من اتصالك بالإنترنت وتحديث الصفحة.");
                 return;
             }
@@ -1040,9 +1133,11 @@
                     saveState();
                     loadLocation(currentLoc); 
                     
+                    playSound('success');
                     alert(`✅ اكتملت العملية بنجاح!\nتم استيراد وإضافة (${updatedCount}) صنف في قسم (${currentLoc}).`);
 
                 } catch (error) {
+                    playSound('error');
                     alert("❌ حدث خطأ برمجي أثناء قراءة الملف:\n\n" + error.message);
                     console.error(error);
                 } finally {
@@ -1052,6 +1147,7 @@
             };
             
             reader.onerror = function() {
+                playSound('error');
                 alert("❌ فشل المتصفح في قراءة الملف.");
                 document.getElementById('currentLocationTitle').innerText = oldTitle;
                 event.target.value = '';
@@ -1064,7 +1160,9 @@
         // دوال التصدير للإكسيل 
         // ==========================================
         function exportToExcel() {
+            initAudio();
             if (typeof XLSX === 'undefined') {
+                playSound('error');
                 alert("مكتبة الإكسيل لم يتم تحميلها بعد. يرجى الانتظار وتحديث الصفحة.");
                 return;
             }
@@ -1109,11 +1207,14 @@
             const dateStr = new Date().toLocaleDateString('ar-EG').replace(/\//g, '-');
             const fileName = `جرد_${currentLoc}_${dateStr}.xlsx`;
 
+            playSound('success');
             XLSX.writeFile(wb, fileName);
         }
 
         function exportSettlementToExcel() {
+            initAudio();
             if (typeof XLSX === 'undefined') {
+                playSound('error');
                 alert("مكتبة الإكسيل لم يتم تحميلها بعد.");
                 return;
             }
@@ -1143,7 +1244,6 @@
 
                 let dIdx = 0, sIdx = 0;
                 
-                // حركات النقل
                 while (dIdx < deficits.length && sIdx < surpluses.length) {
                     let d = deficits[dIdx]; let s = surpluses[sIdx];
                     let transferAmount = Math.min(d.amount, s.amount);
@@ -1155,7 +1255,6 @@
                     if (s.amount === 0) sIdx++;
                 }
 
-                // نواقص تحتاج طلب
                 while (dIdx < deficits.length) {
                     if(deficits[dIdx].amount > 0) {
                         exportData.push(['عجز كلي (نواقص)', item, deficits[dIdx].amount, '-', deficits[dIdx].loc]);
@@ -1163,7 +1262,6 @@
                     dIdx++;
                 }
 
-                // رواكد جاهزة للإرجاع
                 while (sIdx < surpluses.length) {
                     if(surpluses[sIdx].amount > 0) {
                         exportData.push(['زيادة كلية (رواكد)', item, surpluses[sIdx].amount, surpluses[sIdx].loc, '-']);
@@ -1186,33 +1284,61 @@
             const dateStr = new Date().toLocaleDateString('ar-EG').replace(/\//g, '-');
             const fileName = `تقرير_التسويات_${dateStr}.xlsx`;
 
+            playSound('success');
             XLSX.writeFile(wb, fileName);
         }
 
         // ==========================================
-        // دوال طباعة وإنشاء PDF (بواسطة المتصفح للحفاظ على النصوص)
+        // الطباعة وتوليد PDF المباشر
         // ==========================================
         function downloadPDF() {
+            initAudio();
             const originalTitle = document.title;
             const dateStr = new Date().toLocaleDateString('ar-EG').replace(/\//g, '-');
-            // تغيير عنوان الصفحة عشان يطبع الملف بالاسم ده
-            document.title = `تقرير_جرد_${currentLoc}_${dateStr}`;
             
+            // تعطيل الوضع الليلي مؤقتاً للطباعة بيضاء رسمية
+            const wasDark = document.body.classList.contains('dark-mode');
+            if(wasDark) document.body.classList.remove('dark-mode');
+            
+            document.title = `تقرير_جرد_${currentLoc}_${dateStr}`;
             preparePrint();
             
-            // إرجاع الاسم الأصلي بعد ثانية
-            setTimeout(() => { document.title = originalTitle; }, 1000);
+            setTimeout(() => { 
+                document.title = originalTitle; 
+                if(wasDark) document.body.classList.add('dark-mode');
+                playSound('success');
+            }, 1000);
         }
 
         function downloadSettlementPDF() {
+            initAudio();
             const originalTitle = document.title;
             const dateStr = new Date().toLocaleDateString('ar-EG').replace(/\//g, '-');
-            document.title = `تقرير_التسويات_العام_${dateStr}`;
             
+            const wasDark = document.body.classList.contains('dark-mode');
+            if(wasDark) document.body.classList.remove('dark-mode');
+
+            document.title = `تقرير_التسويات_العام_${dateStr}`;
             window.print();
             
-            setTimeout(() => { document.title = originalTitle; }, 1000);
+            setTimeout(() => { 
+                document.title = originalTitle; 
+                if(wasDark) document.body.classList.add('dark-mode');
+                playSound('success');
+            }, 1000);
         }
+
+        function preparePrint() {
+            const sheetName = appState.sheets[appState.activeSheet].name;
+            document.getElementById('printTitle').innerText = currentLoc;
+            document.getElementById('printSubtitle').innerText = sheetName;
+            
+            const currentUserName = document.getElementById('userNameDisplay').innerText;
+            document.getElementById('printUserName').innerText = currentUserName;
+            
+            window.print();
+        }
+
         // ==========================================
 
         function showSettlement() {
@@ -1256,7 +1382,7 @@
                     if (transferAmount > 0) {
                         hasSuggestions = true;
                         transfersHTML += `
-                            <div style="background: white; border: 1px solid #e5e7eb; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-right: 5px solid var(--warning);">
+                            <div style="background: white; border: 1px solid #e5e7eb; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-right: 5px solid var(--warning); color: #000;">
                                 نقل <strong style="color:var(--primary); font-size:16px;">${transferAmount}</strong> وحدة من <strong>[${item}]</strong><br>
                                 من <span style="color:var(--success); font-weight:bold;">${s.loc}</span> (بها زيادة) ⬅️ إلى <span style="color:var(--danger); font-weight:bold;">${d.loc}</span> (بها عجز)
                             </div>`;
@@ -1296,24 +1422,13 @@
             }
             
             if(!hasSuggestions && uncoveredDeficitsHTML === '' && unreturnedSurplusesHTML === '') {
-                container.innerHTML = '<div style="padding: 40px; text-align:center; background:#f3f4f6; border-radius:8px;"><h3>التقرير فارغ</h3>يرجى إدخال الرصيد الفعلي في الجدول لتوليد تقارير التسوية.</div>';
+                container.innerHTML = '<div style="padding: 40px; text-align:center; background:#f3f4f6; border-radius:8px; color: #000;"><h3>التقرير فارغ</h3>يرجى إدخال الرصيد الفعلي في الجدول لتوليد تقارير التسوية.</div>';
             }
         }
 
         function hideSettlement() {
             document.getElementById('inventoryView').style.display = 'block';
             document.getElementById('settlementView').style.display = 'none';
-        }
-
-        function preparePrint() {
-            const sheetName = appState.sheets[appState.activeSheet].name;
-            document.getElementById('printTitle').innerText = currentLoc;
-            document.getElementById('printSubtitle').innerText = sheetName;
-            
-            const currentUserName = document.getElementById('userNameDisplay').innerText;
-            document.getElementById('printUserName').innerText = currentUserName;
-            
-            window.print();
         }
 
         document.addEventListener('DOMContentLoaded', function() {
