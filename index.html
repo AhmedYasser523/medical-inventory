@@ -365,7 +365,7 @@
             <div class="content">
                 
                 <div class="print-header" id="printHeader">
-                    <h2 id="printTitle">رعاية الجراحة</h2>
+                    <h2 id="printTitle">جاري التحميل...</h2>
                     <p id="printSubtitle">تقرير جرد المخازن</p>
                 </div>
 
@@ -840,7 +840,7 @@
         }
 
         // ==========================================
-        // دالة تعديل اسم وتاريخ الشيت الجديد
+        // دالة تعديل اسم وتاريخ الشيت
         // ==========================================
         function renameCurrentSheet() {
             initAudio();
@@ -849,6 +849,10 @@
             
             if (newName && newName.trim() !== "" && newName !== currentName) {
                 appState.sheets[appState.activeSheet].name = newName.trim();
+                
+                // تحديث عنوان الطباعة فوراً
+                document.getElementById('printSubtitle').innerText = newName.trim();
+                
                 saveState();
                 updateSheetSelectUI();
                 playSound('success');
@@ -990,6 +994,13 @@
             currentLoc = loc;
             document.getElementById('currentLocationTitle').innerText = loc;
             document.getElementById('stat-total').innerText = itemsList[loc].length;
+            
+            // تحديث عنوان الطباعة مباشرة ليتطابق مع القسم الحالي
+            document.getElementById('printTitle').innerText = loc;
+            if(appState && appState.sheets && appState.sheets[appState.activeSheet]) {
+                document.getElementById('printSubtitle').innerText = appState.sheets[appState.activeSheet].name;
+            }
+            
             renderSidebar();
 
             const tbody = document.getElementById('inventoryBody');
@@ -1330,6 +1341,9 @@
             XLSX.writeFile(wb, fileName);
         }
 
+        // ==========================================
+        // الطباعة وتوليد PDF المباشر
+        // ==========================================
         function downloadPDF() {
             initAudio();
             const originalTitle = document.title;
@@ -1367,15 +1381,27 @@
         }
 
         function preparePrint() {
-            const sheetName = appState.sheets[appState.activeSheet].name;
-            document.getElementById('printTitle').innerText = currentLoc;
-            document.getElementById('printSubtitle').innerText = sheetName;
-            
-            const currentUserName = document.getElementById('userNameDisplay').innerText;
-            document.getElementById('printUserName').innerText = currentUserName;
-            
             window.print();
         }
+
+        // ==========================================
+        // مستمع الطباعة (مهم جداً لتحديث العنوان تلقائياً حتى لو ضغط Ctrl+P)
+        // ==========================================
+        window.addEventListener('beforeprint', function() {
+            const currentUserName = document.getElementById('userNameDisplay').innerText;
+            document.getElementById('printUserName').innerText = currentUserName;
+
+            if(document.getElementById('settlementView').style.display === 'block') {
+                document.getElementById('printTitle').innerText = "تقرير التسويات العام لجميع الأقسام";
+            } else {
+                document.getElementById('printTitle').innerText = currentLoc;
+            }
+            
+            if(appState && appState.sheets && appState.sheets[appState.activeSheet]) {
+                document.getElementById('printSubtitle').innerText = appState.sheets[appState.activeSheet].name;
+            }
+        });
+        // ==========================================
 
         function showSettlement() {
             document.getElementById('inventoryView').style.display = 'none';
