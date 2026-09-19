@@ -129,7 +129,6 @@
         .btn-sheet-action { background: var(--primary); color: white; border: none; width: 28px; height: 28px; border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;}
         .btn-sheet-action:hover { background: var(--primary-hover); transform: scale(1.05);}
         
-        /* زر تعديل اسم/تاريخ الشيت */
         .btn-sheet-edit { background: #e0f2fe; color: var(--info); }
         .btn-sheet-edit:hover { background: #bae6fd; }
 
@@ -516,6 +515,36 @@
 
     <script>
         // ==========================================
+        // تسجيل الخروج التلقائي (بعد 5 دقائق من عدم النشاط)
+        // ==========================================
+        let inactivityTimer;
+        const INACTIVITY_LIMIT = 5 * 60 * 1000; // 5 دقائق
+
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            // لا نبدأ المؤقت إلا إذا كان المستخدم مسجل الدخول (شاشة التطبيق ظاهرة)
+            if (document.getElementById('appContainer').style.display === 'flex') {
+                inactivityTimer = setTimeout(autoLogout, INACTIVITY_LIMIT);
+            }
+        }
+
+        function autoLogout() {
+            const user = firebase.auth().currentUser;
+            if (user) {
+                playSound('delete'); // صوت تنبيه للخروج
+                alert("تم إغلاق السيستم وتسجيل الخروج تلقائياً لعدم وجود أي نشاط لمدة 5 دقائق، حمايةً للبيانات.");
+                firebase.auth().signOut();
+            }
+        }
+
+        // مراقبة حركة الماوس، الكيبورد، واللمس لتجديد المؤقت
+        document.addEventListener('mousemove', resetInactivityTimer);
+        document.addEventListener('mousedown', resetInactivityTimer);
+        document.addEventListener('keypress', resetInactivityTimer);
+        document.addEventListener('touchstart', resetInactivityTimer);
+        document.addEventListener('scroll', resetInactivityTimer);
+
+        // ==========================================
         // متغير تتبع حالة الفلتر (جديد)
         // ==========================================
         let currentFilter = 'all';
@@ -628,12 +657,14 @@
                         initDB();
                         dataLoaded = true;
                     }
+                    resetInactivityTimer(); // تفعيل عداد الأمان عند الدخول
                 }
             } else {
                 document.getElementById('loginScreen').style.display = 'flex';
                 document.getElementById('profileSetupScreen').style.display = 'none';
                 document.getElementById('appContainer').style.display = 'none';
                 dataLoaded = false;
+                clearTimeout(inactivityTimer); // إيقاف العداد عند الخروج
             }
         });
 
@@ -1043,7 +1074,6 @@
             });
         }
 
-        // دالة مساعدة لتحديد العنوان بناءً على الفلتر النشط
         function getDynamicTitle() {
             if (currentFilter === 'deficit') return "عجز " + currentLoc;
             if (currentFilter === 'surplus') return "زيادة " + currentLoc;
@@ -1055,7 +1085,6 @@
             document.getElementById('currentLocationTitle').innerText = loc;
             document.getElementById('stat-total').innerText = itemsList[loc].length;
             
-            // تحديث العنوان الديناميكي
             document.getElementById('printTitle').innerText = getDynamicTitle();
             if(appState && appState.sheets && appState.sheets[appState.activeSheet]) {
                 document.getElementById('printSubtitle').innerText = appState.sheets[appState.activeSheet].name;
@@ -1096,7 +1125,7 @@
                 calculateRow(tr, false); 
             });
             updateStats();
-            filterTable(currentFilter); // الحفاظ على الفلتر الحالي عند تغيير القسم
+            filterTable(currentFilter); 
         }
 
         function updateData(input, field) {
@@ -1165,9 +1194,8 @@
             document.getElementById('stat-surplus').innerText = surCount;
         }
 
-        // تحديث دالة الفلتر لتسجيل نوع الفلتر الحالي وتحديث عنوان الطباعة
         function filterTable(type) {
-            currentFilter = type; // تسجيل الفلتر
+            currentFilter = type; 
             const rows = document.querySelectorAll('#inventoryBody tr');
             rows.forEach(row => {
                 if (type === 'all') row.style.display = '';
@@ -1403,9 +1431,6 @@
             XLSX.writeFile(wb, fileName);
         }
 
-        // ==========================================
-        // دالة حفظ التقرير كصورة متنسقة (بديل للـ PDF)
-        // ==========================================
         function downloadImage(type) {
             initAudio();
             if (typeof html2canvas === 'undefined') {
@@ -1419,7 +1444,6 @@
             
             const sheetName = appState.sheets[appState.activeSheet].name;
             
-            // تحديث العنوان بناءً على الفلتر الحالي
             if (type === 'settlement') {
                 document.getElementById('printTitle').innerText = "تقرير التسويات العام لجميع الأقسام";
             } else {
@@ -1455,7 +1479,6 @@
                     if(type === 'settlement') {
                         link.download = `تسويات_${dateStr}.png`;
                     } else {
-                        // استخدام الفلتر الحالي كاسم للملف
                         const filePrefix = currentFilter === 'deficit' ? 'عجز' : currentFilter === 'surplus' ? 'زيادة' : 'جرد';
                         link.download = `${filePrefix}_${currentLoc}_${dateStr}.png`;
                     }
@@ -1480,7 +1503,6 @@
             window.print();
         }
 
-        // تحديث عنوان الطباعة العادية بناءً على الفلتر
         window.addEventListener('beforeprint', function() {
             const currentUserName = document.getElementById('userNameDisplay').innerText;
             document.getElementById('printUserName').innerText = currentUserName;
@@ -1495,7 +1517,6 @@
                 document.getElementById('printSubtitle').innerText = appState.sheets[appState.activeSheet].name;
             }
         });
-        // ==========================================
 
         function showSettlement() {
             document.getElementById('inventoryView').style.display = 'none';
