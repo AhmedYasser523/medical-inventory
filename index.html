@@ -382,7 +382,6 @@
                             <i class="fa-solid fa-file-excel"></i>
                             <select id="sheetSelect" onchange="switchSheet(this.value)"></select>
                             
-                            <!-- الزر الجديد لتعديل التاريخ والاسم -->
                             <button class="btn-sheet-action btn-sheet-edit" onclick="renameCurrentSheet()" title="تعديل اسم أو تاريخ الجرد"><i class="fa-solid fa-pen"></i></button>
                             
                             <button class="btn-sheet-add" onclick="createNewSheet()" title="إضافة شيت جديد"><i class="fa-solid fa-plus"></i></button>
@@ -419,7 +418,7 @@
             <div class="content">
                 
                 <div class="print-header" id="printHeader">
-                    <h2 id="printTitle">رعاية الجراحة</h2>
+                    <h2 id="printTitle">جاري التحميل...</h2>
                     <p id="printSubtitle">تقرير جرد المخازن</p>
                 </div>
 
@@ -462,7 +461,6 @@
                         
                         <button class="btn btn-success-light no-print" onclick="exportToExcel()"><i class="fa-solid fa-file-export"></i> إكسيل</button>
                         
-                        <!-- الزر الجديد لحفظ صورة بنفس التنسيق -->
                         <button class="btn btn-danger no-print" onclick="downloadImage('inventory')"><i class="fa-solid fa-image"></i> حفظ كصورة</button>
                         
                         <button class="btn btn-primary no-print" onclick="preparePrint()"><i class="fa-solid fa-print"></i> طباعة</button>
@@ -500,7 +498,6 @@
                         
                         <button class="btn btn-success-light" onclick="exportSettlementToExcel()"><i class="fa-solid fa-file-export"></i> تصدير إكسيل للتسويات</button>
                         
-                        <!-- الزر الجديد لحفظ صورة للتسويات -->
                         <button class="btn btn-danger no-print" onclick="downloadImage('settlement')"><i class="fa-solid fa-image"></i> حفظ كصورة</button>
                         
                         <button class="btn btn-outline no-print" onclick="window.print()"><i class="fa-solid fa-print"></i> طباعة تقرير التسويات</button>
@@ -518,6 +515,11 @@
     </div>
 
     <script>
+        // ==========================================
+        // متغير تتبع حالة الفلتر (جديد)
+        // ==========================================
+        let currentFilter = 'all';
+
         // ==========================================
         // المؤثرات الصوتية
         // ==========================================
@@ -895,9 +897,6 @@
             }
         }
 
-        // ==========================================
-        // دالة تعديل اسم وتاريخ الشيت
-        // ==========================================
         function renameCurrentSheet() {
             initAudio();
             const currentName = appState.sheets[appState.activeSheet].name;
@@ -913,7 +912,6 @@
                 playSound('success');
             }
         }
-        // ==========================================
 
         function updateSheetSelectUI() {
             const select = document.getElementById('sheetSelect');
@@ -1045,12 +1043,20 @@
             });
         }
 
+        // دالة مساعدة لتحديد العنوان بناءً على الفلتر النشط
+        function getDynamicTitle() {
+            if (currentFilter === 'deficit') return "عجز " + currentLoc;
+            if (currentFilter === 'surplus') return "زيادة " + currentLoc;
+            return "جرد " + currentLoc;
+        }
+
         function loadLocation(loc) {
             currentLoc = loc;
             document.getElementById('currentLocationTitle').innerText = loc;
             document.getElementById('stat-total').innerText = itemsList[loc].length;
             
-            document.getElementById('printTitle').innerText = loc;
+            // تحديث العنوان الديناميكي
+            document.getElementById('printTitle').innerText = getDynamicTitle();
             if(appState && appState.sheets && appState.sheets[appState.activeSheet]) {
                 document.getElementById('printSubtitle').innerText = appState.sheets[appState.activeSheet].name;
             }
@@ -1090,7 +1096,7 @@
                 calculateRow(tr, false); 
             });
             updateStats();
-            filterTable('all'); 
+            filterTable(currentFilter); // الحفاظ على الفلتر الحالي عند تغيير القسم
         }
 
         function updateData(input, field) {
@@ -1159,7 +1165,9 @@
             document.getElementById('stat-surplus').innerText = surCount;
         }
 
+        // تحديث دالة الفلتر لتسجيل نوع الفلتر الحالي وتحديث عنوان الطباعة
         function filterTable(type) {
+            currentFilter = type; // تسجيل الفلتر
             const rows = document.querySelectorAll('#inventoryBody tr');
             rows.forEach(row => {
                 if (type === 'all') row.style.display = '';
@@ -1411,20 +1419,19 @@
             
             const sheetName = appState.sheets[appState.activeSheet].name;
             
+            // تحديث العنوان بناءً على الفلتر الحالي
             if (type === 'settlement') {
                 document.getElementById('printTitle').innerText = "تقرير التسويات العام لجميع الأقسام";
             } else {
-                document.getElementById('printTitle').innerText = currentLoc;
+                document.getElementById('printTitle').innerText = getDynamicTitle();
             }
             document.getElementById('printSubtitle').innerText = sheetName;
             
             const wasDark = document.body.classList.contains('dark-mode');
             if(wasDark) document.body.classList.remove('dark-mode');
             
-            // إضافة كلاس capture-mode لتطبيق تنسيقات الطباعة على الشاشة
             document.body.classList.add('capture-mode');
             
-            // تثبيت القيم داخل الـ inputs عشان تظهر في الصورة
             const inputs = document.querySelectorAll('.capture-mode input[type="number"]');
             inputs.forEach(inp => {
                 inp.setAttribute('value', inp.value);
@@ -1448,7 +1455,9 @@
                     if(type === 'settlement') {
                         link.download = `تسويات_${dateStr}.png`;
                     } else {
-                        link.download = `جرد_${currentLoc}_${dateStr}.png`;
+                        // استخدام الفلتر الحالي كاسم للملف
+                        const filePrefix = currentFilter === 'deficit' ? 'عجز' : currentFilter === 'surplus' ? 'زيادة' : 'جرد';
+                        link.download = `${filePrefix}_${currentLoc}_${dateStr}.png`;
                     }
                     
                     link.href = imgData;
@@ -1471,6 +1480,7 @@
             window.print();
         }
 
+        // تحديث عنوان الطباعة العادية بناءً على الفلتر
         window.addEventListener('beforeprint', function() {
             const currentUserName = document.getElementById('userNameDisplay').innerText;
             document.getElementById('printUserName').innerText = currentUserName;
@@ -1478,7 +1488,7 @@
             if(document.getElementById('settlementView').style.display === 'block') {
                 document.getElementById('printTitle').innerText = "تقرير التسويات العام لجميع الأقسام";
             } else {
-                document.getElementById('printTitle').innerText = currentLoc;
+                document.getElementById('printTitle').innerText = getDynamicTitle();
             }
             
             if(appState && appState.sheets && appState.sheets[appState.activeSheet]) {
