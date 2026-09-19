@@ -17,8 +17,8 @@
     <!-- مكتبة الإكسيل -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     
-    <!-- مكتبة تحويل الموقع لـ PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- مكتبة التقاط الشاشة وتحويلها لصورة عالية الجودة -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <!-- مكتبات فايربيز السحابية والمصادقة -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -149,7 +149,7 @@
         .btn-logout { background: #fee2e2; color: var(--danger); border: none; padding: 8px 15px; border-radius: 8px; font-weight: 800; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
         .btn-logout:hover { background: #fecaca; transform: scale(1.05); }
 
-        .content { padding: 20px; overflow-y: auto; flex-grow: 1; }
+        .content { padding: 20px; overflow-y: auto; flex-grow: 1; position: relative; }
 
         .stats-grid { display: flex; justify-content: space-between; gap: 15px; margin-bottom: 20px; }
         .stat-card { flex: 1; background: var(--card-bg); padding: 15px; border-radius: 12px; display: flex; align-items: center; gap: 15px; border: 1px solid var(--border-color); transition: background-color 0.3s;}
@@ -205,6 +205,60 @@
 
         .print-footer { display: none; }
         
+        /* ==========================================
+           وضع تصوير الشاشة (لتحويل الجرد لصور بنفس التنسيق)
+           ========================================== */
+        .capture-mode { background: white !important; color: black !important; }
+        .capture-mode .sidebar, .capture-mode .topbar, .capture-mode .toolbar, .capture-mode .menu-toggle-btn, .capture-mode .sidebar-overlay, .capture-mode .no-print, .capture-mode .sheet-controls { display: none !important; }
+        
+        .capture-mode .main-wrapper { display: block !important; overflow: visible !important; }
+        
+        .capture-mode .content { 
+            padding: 20px !important; 
+            margin: 0 auto !important; 
+            overflow: visible !important; 
+            width: 1000px !important; 
+            max-width: 1000px !important; 
+            background: white !important; 
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            z-index: 99999 !important;
+            height: auto !important;
+        }
+        
+        .capture-mode .table-card { border: none !important; background: white !important; box-shadow: none !important; border-radius: 0 !important; margin:0 !important; padding:0 !important; }
+        .capture-mode .settlement-section { border: 1px solid #e5e7eb !important; background: white !important; box-shadow: none !important; margin-bottom: 15px !important; page-break-inside: avoid !important; }
+        .capture-mode .table-responsive { overflow: visible !important; width: 100% !important; }
+        
+        .capture-mode .print-header { display: block !important; text-align: center !important; margin-bottom: 15px !important; }
+        .capture-mode .print-header h2 { font-size: 22px !important; margin: 0 0 5px 0 !important; color: black !important; }
+        .capture-mode .print-header p { font-size: 16px !important; color: #555 !important; margin: 0 !important; }
+
+        .capture-mode .stats-grid { display: flex !important; flex-direction: row !important; justify-content: space-between !important; gap: 10px !important; margin-bottom: 15px !important; width: 100% !important; }
+        .capture-mode .stat-card { flex: 1 !important; background: white !important; padding: 10px 15px !important; margin: 0 !important; display: flex !important; flex-direction: row !important; align-items: center !important; border: 1px solid #e5e7eb !important; color: black !important; }
+        .capture-mode .stat-icon { width: 35px !important; height: 35px !important; font-size: 16px !important; }
+        .capture-mode .stat-info h4 { font-size: 12px !important; margin-bottom: 0 !important; color: #555 !important; }
+        .capture-mode .stat-info span { font-size: 16px !important; font-weight: 800 !important; color: black !important; }
+
+        .capture-mode table { border: 1px solid #e5e7eb !important; width: 100% !important; min-width: 100% !important; table-layout: fixed !important; margin-bottom: 0 !important; background: white !important; color: black !important; }
+        .capture-mode thead { background: #f8fafc !important; }
+        .capture-mode th:nth-child(1) { width: 5% !important; } .capture-mode th:nth-child(2) { width: 45% !important; } .capture-mode th:nth-child(3), .capture-mode th:nth-child(4), .capture-mode th:nth-child(5), .capture-mode th:nth-child(6), .capture-mode th:nth-child(7) { width: 10% !important; } 
+        
+        .capture-mode th { padding: 8px 4px !important; font-size: 14px !important; border: 1px solid #e5e7eb !important; color: black !important; }
+        .capture-mode td { border: 1px solid #e5e7eb !important; padding: 6px 4px !important; font-size: 14px !important; white-space: normal !important; word-wrap: break-word !important; text-align: center !important; color: black !important; }
+        .capture-mode .item-name { font-size: 15px !important; text-align: right !important; }
+        
+        .capture-mode input[type="number"] { border: none !important; background: transparent !important; padding: 0 !important; width: 100% !important; font-size: 14px !important; font-weight: bold !important; text-align: center !important; height: auto !important; margin: 0 !important; color: black !important; }
+        
+        .capture-mode .badge { padding: 4px 8px !important; border-radius: 12px !important; font-size: 12px !important; font-weight: bold !important; }
+        
+        .capture-mode tr.row-deficit td { background-color: #fff5f5 !important; }
+        .capture-mode tr.row-surplus td { background-color: #f0fdf4 !important; }
+        
+        .capture-mode .print-footer { display: flex !important; justify-content: space-between !important; margin-top: 25px !important; padding-top: 10px !important; border-top: 2px solid #000 !important; font-weight: bold !important; font-size: 16px !important; color: black !important; }
+
+
         /* ==========================================
            تحديثات الطباعة
            ========================================== */
@@ -365,7 +419,7 @@
             <div class="content">
                 
                 <div class="print-header" id="printHeader">
-                    <h2 id="printTitle">جاري التحميل...</h2>
+                    <h2 id="printTitle">رعاية الجراحة</h2>
                     <p id="printSubtitle">تقرير جرد المخازن</p>
                 </div>
 
@@ -408,7 +462,8 @@
                         
                         <button class="btn btn-success-light no-print" onclick="exportToExcel()"><i class="fa-solid fa-file-export"></i> إكسيل</button>
                         
-                        <button class="btn btn-danger no-print" onclick="downloadPDF()"><i class="fa-solid fa-file-pdf"></i> حفظ PDF</button>
+                        <!-- الزر الجديد لحفظ صورة بنفس التنسيق -->
+                        <button class="btn btn-danger no-print" onclick="downloadImage('inventory')"><i class="fa-solid fa-image"></i> حفظ كصورة</button>
                         
                         <button class="btn btn-primary no-print" onclick="preparePrint()"><i class="fa-solid fa-print"></i> طباعة</button>
                         
@@ -445,7 +500,8 @@
                         
                         <button class="btn btn-success-light" onclick="exportSettlementToExcel()"><i class="fa-solid fa-file-export"></i> تصدير إكسيل للتسويات</button>
                         
-                        <button class="btn btn-danger" onclick="downloadSettlementPDF()"><i class="fa-solid fa-file-pdf"></i> حفظ PDF</button>
+                        <!-- الزر الجديد لحفظ صورة للتسويات -->
+                        <button class="btn btn-danger no-print" onclick="downloadImage('settlement')"><i class="fa-solid fa-image"></i> حفظ كصورة</button>
                         
                         <button class="btn btn-outline no-print" onclick="window.print()"><i class="fa-solid fa-print"></i> طباعة تقرير التسويات</button>
                     </div>
@@ -850,7 +906,6 @@
             if (newName && newName.trim() !== "" && newName !== currentName) {
                 appState.sheets[appState.activeSheet].name = newName.trim();
                 
-                // تحديث عنوان الطباعة فوراً
                 document.getElementById('printSubtitle').innerText = newName.trim();
                 
                 saveState();
@@ -995,7 +1050,6 @@
             document.getElementById('currentLocationTitle').innerText = loc;
             document.getElementById('stat-total').innerText = itemsList[loc].length;
             
-            // تحديث عنوان الطباعة مباشرة ليتطابق مع القسم الحالي
             document.getElementById('printTitle').innerText = loc;
             if(appState && appState.sheets && appState.sheets[appState.activeSheet]) {
                 document.getElementById('printSubtitle').innerText = appState.sheets[appState.activeSheet].name;
@@ -1342,51 +1396,81 @@
         }
 
         // ==========================================
-        // الطباعة وتوليد PDF المباشر
+        // دالة حفظ التقرير كصورة متنسقة (بديل للـ PDF)
         // ==========================================
-        function downloadPDF() {
+        function downloadImage(type) {
             initAudio();
-            const originalTitle = document.title;
-            const dateStr = new Date().toLocaleDateString('ar-EG').replace(/\//g, '-');
+            if (typeof html2canvas === 'undefined') {
+                playSound('error');
+                alert("مكتبة الصور لم يتم تحميلها بعد. يرجى الانتظار ثواني وتحديث الصفحة.");
+                return;
+            }
+
+            const currentUserName = document.getElementById('userNameDisplay').innerText;
+            document.getElementById('printUserName').innerText = currentUserName;
+            
+            const sheetName = appState.sheets[appState.activeSheet].name;
+            
+            if (type === 'settlement') {
+                document.getElementById('printTitle').innerText = "تقرير التسويات العام لجميع الأقسام";
+            } else {
+                document.getElementById('printTitle').innerText = currentLoc;
+            }
+            document.getElementById('printSubtitle').innerText = sheetName;
             
             const wasDark = document.body.classList.contains('dark-mode');
             if(wasDark) document.body.classList.remove('dark-mode');
             
-            document.title = `تقرير_جرد_${currentLoc}_${dateStr}`;
-            preparePrint();
+            // إضافة كلاس capture-mode لتطبيق تنسيقات الطباعة على الشاشة
+            document.body.classList.add('capture-mode');
             
-            setTimeout(() => { 
-                document.title = originalTitle; 
-                if(wasDark) document.body.classList.add('dark-mode');
-                playSound('success');
-            }, 1000);
-        }
+            // تثبيت القيم داخل الـ inputs عشان تظهر في الصورة
+            const inputs = document.querySelectorAll('.capture-mode input[type="number"]');
+            inputs.forEach(inp => {
+                inp.setAttribute('value', inp.value);
+            });
 
-        function downloadSettlementPDF() {
-            initAudio();
-            const originalTitle = document.title;
-            const dateStr = new Date().toLocaleDateString('ar-EG').replace(/\//g, '-');
-            
-            const wasDark = document.body.classList.contains('dark-mode');
-            if(wasDark) document.body.classList.remove('dark-mode');
+            const elementToCapture = document.querySelector('.content');
+            const oldTitle = document.getElementById('currentLocationTitle').innerHTML;
+            document.getElementById('currentLocationTitle').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري حفظ الصورة...';
 
-            document.title = `تقرير_التسويات_العام_${dateStr}`;
-            window.print();
-            
-            setTimeout(() => { 
-                document.title = originalTitle; 
-                if(wasDark) document.body.classList.add('dark-mode');
-                playSound('success');
-            }, 1000);
+            setTimeout(() => {
+                html2canvas(elementToCapture, {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: "#ffffff",
+                    windowWidth: 1000
+                }).then(canvas => {
+                    const imgData = canvas.toDataURL('image/png');
+                    const link = document.createElement('a');
+                    
+                    const dateStr = new Date().toLocaleDateString('ar-EG').replace(/\//g, '-');
+                    if(type === 'settlement') {
+                        link.download = `تسويات_${dateStr}.png`;
+                    } else {
+                        link.download = `جرد_${currentLoc}_${dateStr}.png`;
+                    }
+                    
+                    link.href = imgData;
+                    link.click();
+                    
+                    document.body.classList.remove('capture-mode');
+                    if(wasDark) document.body.classList.add('dark-mode');
+                    document.getElementById('currentLocationTitle').innerHTML = oldTitle;
+                    playSound('success');
+                }).catch(err => {
+                    document.body.classList.remove('capture-mode');
+                    if(wasDark) document.body.classList.add('dark-mode');
+                    document.getElementById('currentLocationTitle').innerHTML = oldTitle;
+                    playSound('error');
+                });
+            }, 500); 
         }
 
         function preparePrint() {
             window.print();
         }
 
-        // ==========================================
-        // مستمع الطباعة (مهم جداً لتحديث العنوان تلقائياً حتى لو ضغط Ctrl+P)
-        // ==========================================
         window.addEventListener('beforeprint', function() {
             const currentUserName = document.getElementById('userNameDisplay').innerText;
             document.getElementById('printUserName').innerText = currentUserName;
