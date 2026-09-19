@@ -50,29 +50,47 @@
         body.dark-mode .sheet-controls select { color: #818cf8; }
         body.dark-mode tr.row-deficit td { background-color: rgba(239, 68, 68, 0.15); }
         body.dark-mode tr.row-surplus td { background-color: rgba(16, 185, 129, 0.15); }
-        body.dark-mode .login-box, body.dark-mode .settlement-section { background: var(--card-bg); border: 1px solid var(--border-color); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        body.dark-mode .settlement-section { background: var(--card-bg); border: 1px solid var(--border-color); }
         body.dark-mode .settlement-list li { border-bottom-color: var(--border-color); }
         
         .btn-dark-toggle { background: transparent; border: none; color: var(--text-main); font-size: 20px; cursor: pointer; padding: 5px; transition: 0.2s; outline: none; }
         .btn-dark-toggle:hover { color: var(--primary); transform: scale(1.1); }
         /* ================================================= */
 
-        /* شاشات تسجيل الدخول وإعداد الاسم */
+        /* شاشات تسجيل الدخول المنقسمة الاحترافية */
         .auth-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, #111827 0%, #4f46e5 100%);
-            display: flex; align-items: center; justify-content: center; z-index: 10000;
+            display: flex; z-index: 10000; background-color: var(--bg-color);
         }
 
-        /* تأثيرات حركية احترافية لشاشة الدخول */
+        .auth-form-side {
+            flex: 1; display: flex; align-items: center; justify-content: center;
+            background: var(--card-bg); position: relative; z-index: 2;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.05);
+            transition: background-color 0.3s;
+        }
+
+        .auth-image-side {
+            flex: 1.2; 
+            background: url('1000802332.jpg') center/cover no-repeat; 
+            position: relative;
+        }
+
+        .auth-image-side::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.4) 0%, rgba(17, 24, 39, 0.8) 100%);
+        }
+
+        @media (max-width: 768px) {
+            .auth-image-side { display: none; }
+        }
+
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-12px); } 100% { transform: translateY(0px); } }
 
         .login-box {
-            background: white; padding: 45px 35px; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
             width: 90%; max-width: 400px; text-align: center; 
             animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            position: relative; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px);
         }
         .login-box i.fa-shield-halved, .login-box i.fa-id-card { 
             font-size: 55px; color: var(--primary); margin-bottom: 15px; 
@@ -86,7 +104,7 @@
             width: 100%; padding: 14px 15px; margin-bottom: 15px; border: 1px solid var(--border-color);
             border-radius: 10px; font-size: 15px; background: #f9fafb; outline: none; transition: all 0.3s ease;
         }
-        .login-box input:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); transform: translateY(-2px); }
+        .login-box input:focus { border-color: var(--primary); background: transparent; box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); transform: translateY(-2px); }
         .login-box button {
             width: 100%; padding: 14px; background: linear-gradient(135deg, var(--primary) 0%, #312e81 100%); color: white; border: none;
             border-radius: 10px; font-size: 16px; font-weight: 800; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
@@ -328,27 +346,33 @@
 
     <!-- 1. شاشة تسجيل الدخول -->
     <div id="loginScreen" class="auth-screen">
-        <div class="login-box">
-            <i class="fa-solid fa-shield-halved"></i>
-            <h2>تسجيل الدخول</h2>
-            <p class="login-subtitle">سيستم جرد المخازن</p>
-            <input type="text" id="loginUsername" placeholder="اسم المستخدم">
-            <input type="password" id="loginPass" placeholder="كلمة المرور">
-            <button onclick="handleLogin()">دخول النظام</button>
-            <div id="loginError" class="error-msg"></div>
+        <div class="auth-form-side">
+            <div class="login-box">
+                <i class="fa-solid fa-shield-halved"></i>
+                <h2>تسجيل الدخول</h2>
+                <p class="login-subtitle">سيستم جرد المخازن</p>
+                <input type="text" id="loginUsername" placeholder="اسم المستخدم">
+                <input type="password" id="loginPass" placeholder="كلمة المرور">
+                <button onclick="handleLogin()">دخول النظام</button>
+                <div id="loginError" class="error-msg"></div>
+            </div>
         </div>
+        <div class="auth-image-side"></div>
     </div>
 
     <!-- 2. شاشة إعداد الاسم لأول مرة -->
     <div id="profileSetupScreen" class="auth-screen" style="display: none;">
-        <div class="login-box">
-            <i class="fa-solid fa-id-card"></i>
-            <h2>أهلاً بك لأول مرة!</h2>
-            <p class="login-subtitle">يرجى كتابة اسمك الذي سيظهر لباقي الزملاء في السيستم</p>
-            <input type="text" id="actualNameInput" placeholder="اكتب اسمك هنا...">
-            <button onclick="saveDisplayName()">حفظ الدخول</button>
-            <div id="setupError" class="error-msg"></div>
+        <div class="auth-form-side">
+            <div class="login-box">
+                <i class="fa-solid fa-id-card"></i>
+                <h2>أهلاً بك لأول مرة!</h2>
+                <p class="login-subtitle">يرجى كتابة اسمك الذي سيظهر لباقي الزملاء في السيستم</p>
+                <input type="text" id="actualNameInput" placeholder="اكتب اسمك هنا...">
+                <button onclick="saveDisplayName()">حفظ الدخول</button>
+                <div id="setupError" class="error-msg"></div>
+            </div>
         </div>
+        <div class="auth-image-side"></div>
     </div>
 
     <!-- 3. حاوية النظام -->
@@ -522,7 +546,6 @@
 
         function resetInactivityTimer() {
             clearTimeout(inactivityTimer);
-            // لا نبدأ المؤقت إلا إذا كان المستخدم مسجل الدخول (شاشة التطبيق ظاهرة)
             if (document.getElementById('appContainer').style.display === 'flex') {
                 inactivityTimer = setTimeout(autoLogout, INACTIVITY_LIMIT);
             }
@@ -531,13 +554,12 @@
         function autoLogout() {
             const user = firebase.auth().currentUser;
             if (user) {
-                playSound('delete'); // صوت تنبيه للخروج
+                playSound('delete');
                 alert("تم إغلاق السيستم وتسجيل الخروج تلقائياً لعدم وجود أي نشاط لمدة 5 دقائق، حمايةً للبيانات.");
                 firebase.auth().signOut();
             }
         }
 
-        // مراقبة حركة الماوس، الكيبورد، واللمس لتجديد المؤقت
         document.addEventListener('mousemove', resetInactivityTimer);
         document.addEventListener('mousedown', resetInactivityTimer);
         document.addEventListener('keypress', resetInactivityTimer);
@@ -545,7 +567,7 @@
         document.addEventListener('scroll', resetInactivityTimer);
 
         // ==========================================
-        // متغير تتبع حالة الفلتر (جديد)
+        // متغير تتبع حالة الفلتر
         // ==========================================
         let currentFilter = 'all';
 
@@ -657,14 +679,14 @@
                         initDB();
                         dataLoaded = true;
                     }
-                    resetInactivityTimer(); // تفعيل عداد الأمان عند الدخول
+                    resetInactivityTimer();
                 }
             } else {
                 document.getElementById('loginScreen').style.display = 'flex';
                 document.getElementById('profileSetupScreen').style.display = 'none';
                 document.getElementById('appContainer').style.display = 'none';
                 dataLoaded = false;
-                clearTimeout(inactivityTimer); // إيقاف العداد عند الخروج
+                clearTimeout(inactivityTimer);
             }
         });
 
