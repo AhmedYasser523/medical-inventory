@@ -57,7 +57,7 @@
         .btn-dark-toggle:hover { color: var(--primary); transform: scale(1.1); }
         /* ================================================= */
 
-        /* ================= شاشات تسجيل الدخول (التصميم الجديد المستوحى من الصورة) ================= */
+        /* ================= شاشات تسجيل الدخول المنقسمة ================= */
         .auth-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: center;
@@ -68,7 +68,6 @@
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
         }
 
-        /* الكارت الرئيسي اللي شايل الشاشة المنقسمة */
         .login-wrapper {
             display: flex; width: 100%; max-width: 1000px; height: 85vh; min-height: 550px;
             background: var(--card-bg); border-radius: 30px; 
@@ -79,7 +78,6 @@
             box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid var(--border-color);
         }
 
-        /* قسم الفورم (اليمين) */
         .auth-form-side {
             flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px;
             background: var(--card-bg); position: relative; z-index: 2;
@@ -99,7 +97,6 @@
         .login-box h2 { margin-bottom: 5px; font-weight: 800; color: var(--text-main); font-size: 28px; }
         .login-subtitle { font-size: 14px; color: var(--text-muted); margin-bottom: 35px; font-weight: 600; }
         
-        /* الحقول بتصميم دائري ناعم */
         .login-box input {
             width: 100%; padding: 15px 20px; margin-bottom: 15px; 
             border: 2px solid transparent; border-radius: 25px; 
@@ -111,7 +108,6 @@
             box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.15); transform: translateY(-2px); 
         }
         
-        /* زرار الدخول بتدرج الأزرق الطبي */
         .login-box button {
             width: 100%; padding: 15px; margin-top: 10px;
             background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%); 
@@ -122,7 +118,6 @@
         .login-box button:hover { transform: translateY(-3px); box-shadow: 0 15px 25px -5px rgba(37, 99, 235, 0.5); }
         .error-msg { color: var(--danger); font-size: 13px; margin-top: 15px; font-weight: 700; min-height: 20px;}
 
-        /* قسم الصورة (الشمال) */
         .auth-image-side {
             flex: 1.2; 
             background: url('1000802332.jpg') center/cover no-repeat; 
@@ -130,14 +125,12 @@
             display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-end;
         }
 
-        /* تدرج الأزرق الطبي الشفاف فوق الصورة */
         .auth-image-side::after {
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(135deg, rgba(37, 99, 235, 0.4) 0%, rgba(15, 23, 42, 0.85) 100%);
             pointer-events: none; z-index: 1;
         }
 
-        /* كارت زجاجي طافي فوق الصورة (Glassmorphism) */
         .glass-card {
             position: relative; z-index: 2; 
             background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
@@ -160,7 +153,9 @@
         }
         /* ========================================================================= */
 
-        /* حاوية التطبيق */
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-12px); } 100% { transform: translateY(0px); } }
+
         #appContainer { display: none; width: 100%; height: 100%; flex-direction: row; }
 
         .sidebar { width: 260px; min-width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; transition: all 0.3s ease; box-shadow: 4px 0 10px rgba(0,0,0,0.1); z-index: 1000; }
@@ -271,7 +266,7 @@
         .print-footer { display: none; }
         
         /* ==========================================
-           وضع تصوير الشاشة (لتحويل الجرد لصور بنفس التنسيق)
+           وضع تصوير الشاشة (لتحويل الجرد لصور مقسمة بجودة عالية)
            ========================================== */
         .capture-mode { background: white !important; color: black !important; }
         .capture-mode .sidebar, .capture-mode .topbar, .capture-mode .toolbar, .capture-mode .menu-toggle-btn, .capture-mode .sidebar-overlay, .capture-mode .no-print, .capture-mode .sheet-controls { display: none !important; }
@@ -546,6 +541,7 @@
                         
                         <button class="btn btn-success-light no-print" onclick="exportToExcel()"><i class="fa-solid fa-file-export"></i> إكسيل</button>
                         
+                        <!-- زر حفظ الصورة بالمقسّم الذكي -->
                         <button class="btn btn-danger no-print" onclick="downloadImage('inventory')"><i class="fa-solid fa-image"></i> حفظ كصورة</button>
                         
                         <button class="btn btn-primary no-print" onclick="preparePrint()"><i class="fa-solid fa-print"></i> طباعة</button>
@@ -583,6 +579,7 @@
                         
                         <button class="btn btn-success-light" onclick="exportSettlementToExcel()"><i class="fa-solid fa-file-export"></i> تصدير إكسيل للتسويات</button>
                         
+                        <!-- زر حفظ صورة التسويات بالمقسّم الذكي -->
                         <button class="btn btn-danger no-print" onclick="downloadImage('settlement')"><i class="fa-solid fa-image"></i> حفظ كصورة</button>
                         
                         <button class="btn btn-outline no-print" onclick="window.print()"><i class="fa-solid fa-print"></i> طباعة تقرير التسويات</button>
@@ -1515,6 +1512,9 @@
             XLSX.writeFile(wb, fileName);
         }
 
+        // ==========================================
+        // دالة حفظ التقرير כصور مقسمة (المقسّم الذكي)
+        // ==========================================
         function downloadImage(type) {
             initAudio();
             if (typeof html2canvas === 'undefined') {
@@ -1547,7 +1547,7 @@
 
             const elementToCapture = document.querySelector('.content');
             const oldTitle = document.getElementById('currentLocationTitle').innerHTML;
-            document.getElementById('currentLocationTitle').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري حفظ الصورة...';
+            document.getElementById('currentLocationTitle').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري تقسيم وحفظ الصور...';
 
             setTimeout(() => {
                 html2canvas(elementToCapture, {
@@ -1556,24 +1556,70 @@
                     backgroundColor: "#ffffff",
                     windowWidth: 1000
                 }).then(canvas => {
-                    const imgData = canvas.toDataURL('image/png');
-                    const link = document.createElement('a');
+                    const fullWidth = canvas.width;
+                    const fullHeight = canvas.height;
+                    
+                    // تحديد طول الصفحة ليكون متناسب مع A4 تقريباً
+                    const pageHeight = Math.floor(fullWidth * 1.414); 
+                    
+                    let yOffset = 0;
+                    let pageNum = 1;
                     
                     const dateStr = new Date().toLocaleDateString('ar-EG').replace(/\//g, '-');
+                    let baseName = "";
                     if(type === 'settlement') {
-                        link.download = `تسويات_${dateStr}.png`;
+                        baseName = `تسويات_${dateStr}`;
                     } else {
                         const filePrefix = currentFilter === 'deficit' ? 'عجز' : currentFilter === 'surplus' ? 'زيادة' : 'جرد';
-                        link.download = `${filePrefix}_${currentLoc}_${dateStr}.png`;
+                        baseName = `${filePrefix}_${currentLoc}_${dateStr}`;
                     }
-                    
-                    link.href = imgData;
-                    link.click();
-                    
-                    document.body.classList.remove('capture-mode');
-                    if(wasDark) document.body.classList.add('dark-mode');
-                    document.getElementById('currentLocationTitle').innerHTML = oldTitle;
-                    playSound('success');
+
+                    const totalPages = Math.ceil(fullHeight / pageHeight);
+
+                    // دالة متكررة عشان تحمل الصور ورا بعض بدون ما المتصفح يهنج
+                    function downloadNextPage() {
+                        if (yOffset >= fullHeight) {
+                            document.body.classList.remove('capture-mode');
+                            if(wasDark) document.body.classList.add('dark-mode');
+                            document.getElementById('currentLocationTitle').innerHTML = oldTitle;
+                            playSound('success');
+                            
+                            if (totalPages > 1) {
+                                alert(`تم حفظ التقرير مقسماً على (${totalPages}) صور لتجنب البكسلة على الواتساب!`);
+                            }
+                            return;
+                        }
+
+                        const currentHeight = Math.min(pageHeight, fullHeight - yOffset);
+                        const pageCanvas = document.createElement('canvas');
+                        pageCanvas.width = fullWidth;
+                        pageCanvas.height = currentHeight;
+                        const ctx = pageCanvas.getContext('2d');
+                        
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+                        ctx.drawImage(canvas, 0, yOffset, fullWidth, currentHeight, 0, 0, fullWidth, currentHeight);
+                        
+                        const imgData = pageCanvas.toDataURL('image/png');
+                        const link = document.createElement('a');
+                        
+                        if (totalPages === 1) {
+                            link.download = `${baseName}.png`;
+                        } else {
+                            link.download = `${baseName}_صفحة_${pageNum}.png`;
+                        }
+                        
+                        link.href = imgData;
+                        link.click();
+
+                        yOffset += pageHeight;
+                        pageNum++;
+
+                        setTimeout(downloadNextPage, 500);
+                    }
+
+                    downloadNextPage();
+
                 }).catch(err => {
                     document.body.classList.remove('capture-mode');
                     if(wasDark) document.body.classList.add('dark-mode');
@@ -1582,6 +1628,7 @@
                 });
             }, 500); 
         }
+        // ==========================================
 
         function preparePrint() {
             window.print();
