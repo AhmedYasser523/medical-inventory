@@ -265,51 +265,6 @@
 
         .print-footer { display: none; }
         
-        /* ==========================================
-           وضع تصوير الشاشة (لتحويل الجرد لصور مقسمة بجودة عالية)
-           ========================================== */
-        .capture-mode { background: white !important; color: black !important; }
-        .capture-mode .sidebar, .capture-mode .topbar, .capture-mode .toolbar, .capture-mode .menu-toggle-btn, .capture-mode .sidebar-overlay, .capture-mode .no-print, .capture-mode .sheet-controls { display: none !important; }
-        
-        .capture-mode .main-wrapper { display: block !important; overflow: visible !important; }
-        
-        .capture-mode .content { 
-            padding: 20px !important; margin: 0 auto !important; overflow: visible !important; 
-            width: 1000px !important; max-width: 1000px !important; background: white !important; 
-            position: absolute !important; top: 0 !important; left: 0 !important; z-index: 99999 !important; height: auto !important;
-        }
-        
-        .capture-mode .table-card { border: none !important; background: white !important; box-shadow: none !important; border-radius: 0 !important; margin:0 !important; padding:0 !important; }
-        .capture-mode .settlement-section { border: 1px solid #e5e7eb !important; background: white !important; box-shadow: none !important; margin-bottom: 15px !important; page-break-inside: avoid !important; }
-        .capture-mode .table-responsive { overflow: visible !important; width: 100% !important; }
-        
-        .capture-mode .print-header { display: block !important; text-align: center !important; margin-bottom: 15px !important; }
-        .capture-mode .print-header h2 { font-size: 22px !important; margin: 0 0 5px 0 !important; color: black !important; }
-        .capture-mode .print-header p { font-size: 16px !important; color: #555 !important; margin: 0 !important; }
-
-        .capture-mode .stats-grid { display: flex !important; flex-direction: row !important; justify-content: space-between !important; gap: 10px !important; margin-bottom: 15px !important; width: 100% !important; }
-        .capture-mode .stat-card { flex: 1 !important; background: white !important; padding: 10px 15px !important; margin: 0 !important; display: flex !important; flex-direction: row !important; align-items: center !important; border: 1px solid #e5e7eb !important; color: black !important; }
-        .capture-mode .stat-icon { width: 35px !important; height: 35px !important; font-size: 16px !important; }
-        .capture-mode .stat-info h4 { font-size: 12px !important; margin-bottom: 0 !important; color: #555 !important; }
-        .capture-mode .stat-info span { font-size: 16px !important; font-weight: 800 !important; color: black !important; }
-
-        .capture-mode table { border: 1px solid #e5e7eb !important; width: 100% !important; min-width: 100% !important; table-layout: fixed !important; margin-bottom: 0 !important; background: white !important; color: black !important; }
-        .capture-mode thead { background: #f8fafc !important; }
-        .capture-mode th:nth-child(1) { width: 5% !important; } .capture-mode th:nth-child(2) { width: 45% !important; } .capture-mode th:nth-child(3), .capture-mode th:nth-child(4), .capture-mode th:nth-child(5), .capture-mode th:nth-child(6), .capture-mode th:nth-child(7) { width: 10% !important; } 
-        
-        .capture-mode th { padding: 8px 4px !important; font-size: 14px !important; border: 1px solid #e5e7eb !important; color: black !important; }
-        .capture-mode td { border: 1px solid #e5e7eb !important; padding: 6px 4px !important; font-size: 14px !important; white-space: normal !important; word-wrap: break-word !important; text-align: center !important; color: black !important; }
-        .capture-mode .item-name { font-size: 15px !important; text-align: right !important; }
-        
-        .capture-mode input[type="number"] { border: none !important; background: transparent !important; padding: 0 !important; width: 100% !important; font-size: 14px !important; font-weight: bold !important; text-align: center !important; height: auto !important; margin: 0 !important; color: black !important; }
-        
-        .capture-mode .badge { padding: 4px 8px !important; border-radius: 12px !important; font-size: 12px !important; font-weight: bold !important; }
-        
-        .capture-mode tr.row-deficit td { background-color: #fff5f5 !important; }
-        .capture-mode tr.row-surplus td { background-color: #f0fdf4 !important; }
-        
-        .capture-mode .print-footer { display: flex !important; justify-content: space-between !important; margin-top: 25px !important; padding-top: 10px !important; border-top: 2px solid #000 !important; font-weight: bold !important; font-size: 16px !important; color: black !important; }
-
 
         /* ==========================================
            تحديثات الطباعة العادية
@@ -379,7 +334,7 @@
 </head>
 <body>
 
-    <!-- 1. شاشة تسجيل الدخول بالتصميم المنقسم החדش -->
+    <!-- 1. شاشة تسجيل الدخول بالتصميم المنقسم -->
     <div id="loginScreen" class="auth-screen">
         <div class="login-wrapper">
             <div class="auth-form-side">
@@ -539,6 +494,7 @@
                         
                         <button class="btn btn-success-light no-print" onclick="exportToExcel()"><i class="fa-solid fa-file-export"></i> إكسيل</button>
                         
+                        <!-- زر حفظ الصورة بالمقسّم الذكي الجديد -->
                         <button class="btn btn-danger no-print" onclick="downloadImage('inventory')"><i class="fa-solid fa-image"></i> حفظ كصورة</button>
                         
                         <button class="btn btn-primary no-print" onclick="preparePrint()"><i class="fa-solid fa-print"></i> طباعة</button>
@@ -576,6 +532,7 @@
                         
                         <button class="btn btn-success-light" onclick="exportSettlementToExcel()"><i class="fa-solid fa-file-export"></i> تصدير إكسيل للتسويات</button>
                         
+                        <!-- زر حفظ صورة التسويات بالمقسّم الذكي -->
                         <button class="btn btn-danger no-print" onclick="downloadImage('settlement')"><i class="fa-solid fa-image"></i> حفظ كصورة</button>
                         
                         <button class="btn btn-outline no-print" onclick="window.print()"><i class="fa-solid fa-print"></i> طباعة تقرير التسويات</button>
@@ -583,7 +540,7 @@
                     <div id="settlementResults"></div>
                 </div>
 
-                <!-- تذييل الطباعة -->
+                <!-- تذييل الطباعة العادية (يستخدم أيضاً في الطباعة) -->
                 <div class="print-footer" id="printFooter" style="display: none;">
                     <div>توقيع رئيس القسم: ..........................</div>
                     <div>القائم بالجرد: <span id="printUserName"></span></div>
@@ -602,7 +559,7 @@
         function resetInactivityTimer() {
             clearTimeout(inactivityTimer);
             if (document.getElementById('appContainer').style.display === 'flex') {
-                localStorage.setItem('hospital_lastActivity', Date.now()); // تحديث وقت آخر نشاط للحماية عند الإغلاق
+                localStorage.setItem('hospital_lastActivity', Date.now());
                 inactivityTimer = setTimeout(autoLogout, INACTIVITY_LIMIT);
             }
         }
@@ -722,12 +679,11 @@
 
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
-                // فحص الأمان: لو مر 5 دقايق والبرنامج كان مقفول يخرجه فوراً
                 const lastActivity = localStorage.getItem('hospital_lastActivity');
                 if (lastActivity && (Date.now() - parseInt(lastActivity) > INACTIVITY_LIMIT)) {
                     firebase.auth().signOut();
                     localStorage.removeItem('hospital_lastActivity');
-                    return; // سيتكفل المتغير user=null بإظهار شاشة الدخول
+                    return; 
                 }
 
                 document.getElementById('loginScreen').style.display = 'none';
@@ -1523,7 +1479,7 @@
         }
 
         // ==========================================
-        // دالة حفظ التقرير כصور مقسمة - الإصدار المعدل والمحاكي للطباعة تماماً
+        // المُقسّم الذكي - النسخة النهائية المطابقة للطباعة
         // ==========================================
         async function downloadImage(type) {
             initAudio();
@@ -1537,113 +1493,178 @@
             document.getElementById('currentLocationTitle').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري تجهيز الصور...';
 
             try {
+                const sheetName = appState.sheets[appState.activeSheet].name;
+                const printTitleText = type === 'settlement' ? "تقرير التسويات العام لجميع الأقسام" : getDynamicTitle();
+                
                 const currentUserName = document.getElementById('userNameDisplay').innerText;
                 document.getElementById('printUserName').innerText = currentUserName;
-                
-                const sheetName = appState.sheets[appState.activeSheet].name;
-                
-                if (type === 'settlement') {
-                    document.getElementById('printTitle').innerText = "تقرير التسويات العام لجميع الأقسام";
-                } else {
-                    document.getElementById('printTitle').innerText = getDynamicTitle();
-                }
-                document.getElementById('printSubtitle').innerText = sheetName;
-                
-                const wasDark = document.body.classList.contains('dark-mode');
-                if(wasDark) document.body.classList.remove('dark-mode');
-                
-                document.body.classList.add('capture-mode');
-                
-                const inputs = document.querySelectorAll('.capture-mode input[type="number"]');
-                inputs.forEach(inp => {
-                    inp.setAttribute('value', inp.value);
-                });
 
-                const elementToCapture = document.querySelector('.content');
+                // إنشاء حاوية خفية للتصوير
+                const exportContainer = document.createElement('div');
+                exportContainer.style.width = '1000px';
+                exportContainer.style.padding = '30px';
+                exportContainer.style.background = '#ffffff';
+                exportContainer.style.position = 'absolute';
+                exportContainer.style.top = '-10000px';
+                exportContainer.style.left = '-10000px';
+                exportContainer.style.direction = 'rtl';
+                exportContainer.style.fontFamily = "'Cairo', sans-serif";
+                exportContainer.style.color = '#000000';
+                document.body.appendChild(exportContainer);
+
+                const dateStr = new Date().toLocaleDateString('ar-EG').replace(/\//g, '-');
+                const filePrefix = type === 'settlement' ? 'تسويات' : (currentFilter === 'deficit' ? 'عجز' : currentFilter === 'surplus' ? 'زيادة' : 'جرد');
+                const baseName = type === 'settlement' ? `تسويات_${dateStr}` : `${filePrefix}_${currentLoc}_${dateStr}`;
 
                 if (type === 'settlement') {
-                    // إظهار التوقيع في التسويات
-                    document.getElementById('printFooter').style.display = 'flex';
+                    const clone = document.getElementById('settlementView').cloneNode(true);
+                    const tbar = clone.querySelector('.toolbar');
+                    if(tbar) tbar.remove();
                     
+                    const hTitle = document.createElement('h2');
+                    hTitle.style.textAlign = 'center';
+                    hTitle.style.marginBottom = '20px';
+                    hTitle.style.fontSize = '24px';
+                    hTitle.innerText = printTitleText;
+                    
+                    const pTitle = document.createElement('p');
+                    pTitle.style.textAlign = 'center';
+                    pTitle.style.marginBottom = '30px';
+                    pTitle.style.color = '#555';
+                    pTitle.style.fontSize = '16px';
+                    pTitle.innerText = sheetName;
+                    
+                    exportContainer.appendChild(hTitle);
+                    exportContainer.appendChild(pTitle);
+                    exportContainer.appendChild(clone);
+                    
+                    const footerClone = document.getElementById('printFooter').cloneNode(true);
+                    footerClone.style.display = 'flex';
+                    footerClone.style.justifyContent = 'space-between';
+                    footerClone.style.marginTop = '40px';
+                    footerClone.style.paddingTop = '15px';
+                    footerClone.style.borderTop = '2px solid #000';
+                    footerClone.style.fontSize = '16px';
+                    footerClone.style.fontWeight = 'bold';
+                    exportContainer.appendChild(footerClone);
+
                     await new Promise(r => setTimeout(r, 300));
-                    const canvas = await html2canvas(elementToCapture, { scale: 2, useCORS: true, backgroundColor: "#ffffff", windowWidth: 1000 });
-                    const imgData = canvas.toDataURL('image/png');
+                    const canvas = await html2canvas(exportContainer, { scale: 2, useCORS: true, backgroundColor: "#ffffff" });
                     const link = document.createElement('a');
-                    const dateStr = new Date().toLocaleDateString('ar-EG').replace(/\//g, '-');
-                    link.download = `تسويات_${dateStr}.png`;
-                    link.href = imgData;
+                    link.download = `${baseName}.png`;
+                    link.href = canvas.toDataURL('image/png');
                     link.click();
                     
-                    document.getElementById('printFooter').style.display = 'none';
                 } else {
                     const rows = Array.from(document.querySelectorAll('#inventoryBody tr')).filter(r => r.style.display !== 'none');
-                    const rowsPerPage = 32; 
+                    const rowsPerPage = 26; // عدد مثالي لكل صفحة
                     const totalPages = Math.ceil(rows.length / rowsPerPage) || 1;
-                    const filePrefix = currentFilter === 'deficit' ? 'عجز' : currentFilter === 'surplus' ? 'زيادة' : 'جرد';
-                    const dateStr = new Date().toLocaleDateString('ar-EG').replace(/\//g, '-');
-                    const baseName = `${filePrefix}_${currentLoc}_${dateStr}`;
                     
-                    const statsGrid = document.querySelector('.stats-grid');
-                    const thead = document.querySelector('#inventoryTable thead');
+                    const statsHtml = document.querySelector('.stats-grid').outerHTML;
+                    const theadHtml = document.querySelector('#inventoryTable thead').outerHTML;
 
                     for (let i = 0; i < totalPages; i++) {
-                        // إخفاء كل الصفوف الأول
-                        rows.forEach(r => r.style.display = 'none');
-                        
-                        // إظهار صفوف الصفحة الحالية فقط
+                        exportContainer.innerHTML = ''; 
+
+                        // العنوان والإحصائيات في الصفحة الأولى فقط
+                        if (i === 0) {
+                            exportContainer.innerHTML += `
+                                <div style="text-align: center; margin-bottom: 20px;">
+                                    <h2 style="font-size: 24px; margin: 0 0 5px 0;">${printTitleText}</h2>
+                                    <p style="font-size: 16px; color: #555; margin: 0;">${sheetName} ${totalPages > 1 ? `(صفحة 1 من ${totalPages})` : ''}</p>
+                                </div>
+                                ${statsHtml}
+                            `;
+                        } else {
+                            exportContainer.innerHTML += `
+                                <div style="text-align: center; margin-bottom: 15px;">
+                                    <h2 style="font-size: 18px; margin: 0; color: #555;">${printTitleText} - (صفحة ${i + 1} من ${totalPages})</h2>
+                                </div>
+                            `;
+                        }
+
+                        // تجهيز صفوف الصفحة الحالية
                         const start = i * rowsPerPage;
                         const end = Math.min(start + rowsPerPage, rows.length);
-                        for (let j = start; j < end; j++) {
-                            rows[j].style.display = '';
-                        }
-
-                        // الإحصائيات تظهر في الصفحة الأولى فقط
-                        if (i > 0 && statsGrid) {
-                            statsGrid.style.display = 'none';
-                        } else if (statsGrid) {
-                            statsGrid.style.display = 'flex'; 
-                        }
-
-                        // التوقيع يظهر في الصفحة الأخيرة فقط
-                        if (i === totalPages - 1) {
-                            document.getElementById('printFooter').style.display = 'flex';
-                        } else {
-                            document.getElementById('printFooter').style.display = 'none';
-                        }
-
-                        // رأس الجدول ثابت في كل الصفحات أوتوماتيكياً لأننا لم نخفيه
                         
-                        // تحديث رقم الصفحة
-                        if (totalPages > 1) {
-                            document.getElementById('printSubtitle').innerText = `${sheetName} - (صفحة ${i + 1} من ${totalPages})`;
+                        let rowsHtml = '';
+                        for (let j = start; j < end; j++) {
+                            const rowClone = rows[j].cloneNode(true);
+                            // تحويل مربعات الإدخال لنصوص ثابتة عشان الصورة تطلع نقية
+                            const inputs = rowClone.querySelectorAll('input[type="number"]');
+                            const originalInputs = rows[j].querySelectorAll('input[type="number"]');
+                            inputs.forEach((inp, idx) => {
+                                const val = originalInputs[idx].value;
+                                inp.outerHTML = `<span style="font-weight:bold; font-size:14px;">${val}</span>`;
+                            });
+                            // مسح زرار الحذف
+                            rowClone.querySelector('td:last-child').remove();
+                            
+                            // الحفاظ على ألوان العجز والزيادة
+                            if(rows[j].classList.contains('row-deficit')) {
+                                rowClone.style.backgroundColor = '#fff5f5';
+                            } else if(rows[j].classList.contains('row-surplus')) {
+                                rowClone.style.backgroundColor = '#f0fdf4';
+                            }
+                            
+                            rowsHtml += rowClone.outerHTML;
                         }
 
-                        await new Promise(r => setTimeout(r, 200)); 
+                        // تجهيز رأس الجدول (ثابت في كل الصفحات)
+                        const tempThead = document.createElement('table');
+                        tempThead.innerHTML = theadHtml;
+                        tempThead.querySelector('th:last-child').remove();
 
-                        const canvas = await html2canvas(elementToCapture, { scale: 2, useCORS: true, backgroundColor: "#ffffff", windowWidth: 1000 });
-                        const imgData = canvas.toDataURL('image/png');
+                        exportContainer.innerHTML += `
+                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; border: 1px solid #e5e7eb;">
+                                <thead style="background-color: #f8fafc; border-bottom: 2px solid #e5e7eb;">
+                                    ${tempThead.innerHTML}
+                                </thead>
+                                <tbody>
+                                    ${rowsHtml}
+                                </tbody>
+                            </table>
+                        `;
+
+                        // تظبيط مقاسات الجدول في الصورة
+                        const tableCells = exportContainer.querySelectorAll('th, td');
+                        tableCells.forEach(cell => {
+                            cell.style.padding = '10px 8px';
+                            cell.style.border = '1px solid #e5e7eb';
+                            cell.style.textAlign = 'center';
+                        });
+                        const nameCells = exportContainer.querySelectorAll('.item-name');
+                        nameCells.forEach(cell => cell.style.textAlign = 'right');
+
+                        // التوقيع في الصفحة الأخيرة فقط
+                        if (i === totalPages - 1) {
+                            const footerClone = document.getElementById('printFooter').cloneNode(true);
+                            footerClone.style.display = 'flex';
+                            footerClone.style.justifyContent = 'space-between';
+                            footerClone.style.marginTop = '40px';
+                            footerClone.style.paddingTop = '15px';
+                            footerClone.style.borderTop = '2px solid #000';
+                            footerClone.style.fontSize = '16px';
+                            footerClone.style.fontWeight = 'bold';
+                            exportContainer.appendChild(footerClone);
+                        }
+
+                        await new Promise(r => setTimeout(r, 200));
+
+                        const canvas = await html2canvas(exportContainer, { scale: 2, useCORS: true, backgroundColor: "#ffffff" });
                         const link = document.createElement('a');
                         link.download = totalPages === 1 ? `${baseName}.png` : `${baseName}_صفحة_${i + 1}.png`;
-                        link.href = imgData;
+                        link.href = canvas.toDataURL('image/png');
                         link.click();
                     }
-
-                    // إرجاع كل حاجة لأصلها بعد الانتهاء
-                    rows.forEach(r => r.style.display = '');
-                    if (statsGrid) statsGrid.style.display = ''; 
-                    document.getElementById('printFooter').style.display = 'none';
                 }
 
-                document.body.classList.remove('capture-mode');
-                if(wasDark) document.body.classList.add('dark-mode');
+                document.body.removeChild(exportContainer);
                 document.getElementById('currentLocationTitle').innerHTML = oldTitle;
                 playSound('success');
 
             } catch (err) {
                 console.error(err);
-                const wasDark = document.body.classList.contains('dark-mode');
-                document.body.classList.remove('capture-mode');
-                if(wasDark) document.body.classList.add('dark-mode');
                 document.getElementById('currentLocationTitle').innerHTML = oldTitle;
                 playSound('error');
             }
@@ -1651,10 +1672,8 @@
         // ==========================================
 
         function preparePrint() {
-            // إظهار التوقيع قبل الطباعة العادية
             document.getElementById('printFooter').style.display = 'flex';
             window.print();
-            // إخفاؤه بعد الطباعة
             setTimeout(() => { document.getElementById('printFooter').style.display = 'none'; }, 1000);
         }
 
