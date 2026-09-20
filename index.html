@@ -57,7 +57,7 @@
         .btn-dark-toggle:hover { color: var(--primary); transform: scale(1.1); }
         /* ================================================= */
 
-        /* ================= شاشات تسجيل الدخول المنقسمة ================= */
+        /* ================= شاشات تسجيل الدخول ================= */
         .auth-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: center;
@@ -312,7 +312,7 @@
 
 
         /* ==========================================
-           تحديثات الطباعة
+           تحديثات الطباعة العادية
            ========================================== */
         @media print {
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
@@ -379,10 +379,9 @@
 </head>
 <body>
 
-    <!-- 1. شاشة تسجيل الدخول بالتصميم المنقسم החדش -->
+    <!-- 1. شاشة تسجيل الدخول بالتصميم المنقسم -->
     <div id="loginScreen" class="auth-screen">
         <div class="login-wrapper">
-            <!-- الفورم يمين -->
             <div class="auth-form-side">
                 <div class="login-box">
                     <i class="fa-solid fa-shield-halved logo-icon"></i>
@@ -394,7 +393,6 @@
                     <div id="loginError" class="error-msg"></div>
                 </div>
             </div>
-            <!-- الصورة شمال وفيها التأثير الزجاجي -->
             <div class="auth-image-side">
                 <div class="glass-card">
                     <i class="fa-solid fa-cloud-arrow-up"></i>
@@ -541,7 +539,7 @@
                         
                         <button class="btn btn-success-light no-print" onclick="exportToExcel()"><i class="fa-solid fa-file-export"></i> إكسيل</button>
                         
-                        <!-- زر حفظ الصورة بالمقسّم الذكي -->
+                        <!-- زر حفظ الصورة بالمقسّم الذكي الجديد -->
                         <button class="btn btn-danger no-print" onclick="downloadImage('inventory')"><i class="fa-solid fa-image"></i> حفظ كصورة</button>
                         
                         <button class="btn btn-primary no-print" onclick="preparePrint()"><i class="fa-solid fa-print"></i> طباعة</button>
@@ -1513,9 +1511,9 @@
         }
 
         // ==========================================
-        // دالة حفظ التقرير כصور مقسمة (المقسّم الذكي)
+        // دالة حفظ التقرير כصور مقسمة (المقسّم الذكي الجديد)
         // ==========================================
-        function downloadImage(type) {
+        async function downloadImage(type) {
             initAudio();
             if (typeof html2canvas === 'undefined') {
                 playSound('error');
@@ -1523,110 +1521,98 @@
                 return;
             }
 
-            const currentUserName = document.getElementById('userNameDisplay').innerText;
-            document.getElementById('printUserName').innerText = currentUserName;
-            
-            const sheetName = appState.sheets[appState.activeSheet].name;
-            
-            if (type === 'settlement') {
-                document.getElementById('printTitle').innerText = "تقرير التسويات العام لجميع الأقسام";
-            } else {
-                document.getElementById('printTitle').innerText = getDynamicTitle();
-            }
-            document.getElementById('printSubtitle').innerText = sheetName;
-            
-            const wasDark = document.body.classList.contains('dark-mode');
-            if(wasDark) document.body.classList.remove('dark-mode');
-            
-            document.body.classList.add('capture-mode');
-            
-            const inputs = document.querySelectorAll('.capture-mode input[type="number"]');
-            inputs.forEach(inp => {
-                inp.setAttribute('value', inp.value);
-            });
-
-            const elementToCapture = document.querySelector('.content');
             const oldTitle = document.getElementById('currentLocationTitle').innerHTML;
-            document.getElementById('currentLocationTitle').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري تقسيم وحفظ الصور...';
+            document.getElementById('currentLocationTitle').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري تجهيز الصور...';
 
-            setTimeout(() => {
-                html2canvas(elementToCapture, {
-                    scale: 2,
-                    useCORS: true,
-                    backgroundColor: "#ffffff",
-                    windowWidth: 1000
-                }).then(canvas => {
-                    const fullWidth = canvas.width;
-                    const fullHeight = canvas.height;
-                    
-                    // تحديد طول الصفحة ليكون متناسب مع A4 تقريباً
-                    const pageHeight = Math.floor(fullWidth * 1.414); 
-                    
-                    let yOffset = 0;
-                    let pageNum = 1;
-                    
+            try {
+                const currentUserName = document.getElementById('userNameDisplay').innerText;
+                document.getElementById('printUserName').innerText = currentUserName;
+                
+                const sheetName = appState.sheets[appState.activeSheet].name;
+                
+                if (type === 'settlement') {
+                    document.getElementById('printTitle').innerText = "تقرير التسويات العام لجميع الأقسام";
+                } else {
+                    document.getElementById('printTitle').innerText = getDynamicTitle();
+                }
+                document.getElementById('printSubtitle').innerText = sheetName;
+                
+                const wasDark = document.body.classList.contains('dark-mode');
+                if(wasDark) document.body.classList.remove('dark-mode');
+                
+                document.body.classList.add('capture-mode');
+                
+                const inputs = document.querySelectorAll('.capture-mode input[type="number"]');
+                inputs.forEach(inp => {
+                    inp.setAttribute('value', inp.value);
+                });
+
+                const elementToCapture = document.querySelector('.content');
+
+                if (type === 'settlement') {
+                    await new Promise(r => setTimeout(r, 300));
+                    const canvas = await html2canvas(elementToCapture, { scale: 2, useCORS: true, backgroundColor: "#ffffff", windowWidth: 1000 });
+                    const imgData = canvas.toDataURL('image/png');
+                    const link = document.createElement('a');
                     const dateStr = new Date().toLocaleDateString('ar-EG').replace(/\//g, '-');
-                    let baseName = "";
-                    if(type === 'settlement') {
-                        baseName = `تسويات_${dateStr}`;
-                    } else {
-                        const filePrefix = currentFilter === 'deficit' ? 'عجز' : currentFilter === 'surplus' ? 'زيادة' : 'جرد';
-                        baseName = `${filePrefix}_${currentLoc}_${dateStr}`;
-                    }
+                    link.download = `تسويات_${dateStr}.png`;
+                    link.href = imgData;
+                    link.click();
+                } else {
+                    const rows = Array.from(document.querySelectorAll('#inventoryBody tr')).filter(r => r.style.display !== 'none');
+                    const rowsPerPage = 32; 
+                    const totalPages = Math.ceil(rows.length / rowsPerPage) || 1;
+                    const filePrefix = currentFilter === 'deficit' ? 'عجز' : currentFilter === 'surplus' ? 'زيادة' : 'جرد';
+                    const dateStr = new Date().toLocaleDateString('ar-EG').replace(/\//g, '-');
+                    const baseName = `${filePrefix}_${currentLoc}_${dateStr}`;
+                    const statsGrid = document.querySelector('.stats-grid');
 
-                    const totalPages = Math.ceil(fullHeight / pageHeight);
-
-                    // دالة متكررة عشان تحمل الصور ورا بعض بدون ما المتصفح يهنج
-                    function downloadNextPage() {
-                        if (yOffset >= fullHeight) {
-                            document.body.classList.remove('capture-mode');
-                            if(wasDark) document.body.classList.add('dark-mode');
-                            document.getElementById('currentLocationTitle').innerHTML = oldTitle;
-                            playSound('success');
-                            
-                            if (totalPages > 1) {
-                                alert(`تم حفظ التقرير مقسماً على (${totalPages}) صور لتجنب البكسلة على الواتساب!`);
-                            }
-                            return;
+                    for (let i = 0; i < totalPages; i++) {
+                        rows.forEach(r => r.style.display = 'none');
+                        
+                        const start = i * rowsPerPage;
+                        const end = Math.min(start + rowsPerPage, rows.length);
+                        for (let j = start; j < end; j++) {
+                            rows[j].style.display = '';
                         }
 
-                        const currentHeight = Math.min(pageHeight, fullHeight - yOffset);
-                        const pageCanvas = document.createElement('canvas');
-                        pageCanvas.width = fullWidth;
-                        pageCanvas.height = currentHeight;
-                        const ctx = pageCanvas.getContext('2d');
-                        
-                        ctx.fillStyle = '#ffffff';
-                        ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
-                        ctx.drawImage(canvas, 0, yOffset, fullWidth, currentHeight, 0, 0, fullWidth, currentHeight);
-                        
-                        const imgData = pageCanvas.toDataURL('image/png');
+                        if (i > 0 && statsGrid) {
+                            statsGrid.style.display = 'none';
+                        } else if (statsGrid) {
+                            statsGrid.style.display = 'flex'; 
+                        }
+
+                        if (totalPages > 1) {
+                            document.getElementById('printSubtitle').innerText = `${sheetName} - (صفحة ${i + 1} من ${totalPages})`;
+                        }
+
+                        await new Promise(r => setTimeout(r, 200)); 
+
+                        const canvas = await html2canvas(elementToCapture, { scale: 2, useCORS: true, backgroundColor: "#ffffff", windowWidth: 1000 });
+                        const imgData = canvas.toDataURL('image/png');
                         const link = document.createElement('a');
-                        
-                        if (totalPages === 1) {
-                            link.download = `${baseName}.png`;
-                        } else {
-                            link.download = `${baseName}_صفحة_${pageNum}.png`;
-                        }
-                        
+                        link.download = totalPages === 1 ? `${baseName}.png` : `${baseName}_صفحة_${i + 1}.png`;
                         link.href = imgData;
                         link.click();
-
-                        yOffset += pageHeight;
-                        pageNum++;
-
-                        setTimeout(downloadNextPage, 500);
                     }
 
-                    downloadNextPage();
+                    rows.forEach(r => r.style.display = '');
+                    if (statsGrid) statsGrid.style.display = ''; 
+                }
 
-                }).catch(err => {
-                    document.body.classList.remove('capture-mode');
-                    if(wasDark) document.body.classList.add('dark-mode');
-                    document.getElementById('currentLocationTitle').innerHTML = oldTitle;
-                    playSound('error');
-                });
-            }, 500); 
+                document.body.classList.remove('capture-mode');
+                if(wasDark) document.body.classList.add('dark-mode');
+                document.getElementById('currentLocationTitle').innerHTML = oldTitle;
+                playSound('success');
+
+            } catch (err) {
+                console.error(err);
+                const wasDark = document.body.classList.contains('dark-mode');
+                document.body.classList.remove('capture-mode');
+                if(wasDark) document.body.classList.add('dark-mode');
+                document.getElementById('currentLocationTitle').innerHTML = oldTitle;
+                playSound('error');
+            }
         }
         // ==========================================
 
