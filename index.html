@@ -57,7 +57,7 @@
         .btn-dark-toggle:hover { color: var(--primary); transform: scale(1.1); }
         /* ================================================= */
 
-        /* ================= شاشات تسجيل الدخول المنقسمة ================= */
+        /* ================= شاشات تسجيل الدخول ================= */
         .auth-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: center;
@@ -379,7 +379,7 @@
 </head>
 <body>
 
-    <!-- 1. شاشة تسجيل الدخول بالتصميم المنقسم -->
+    <!-- 1. شاشة تسجيل الدخول بالتصميم المنقسم החדش -->
     <div id="loginScreen" class="auth-screen">
         <div class="login-wrapper">
             <div class="auth-form-side">
@@ -602,6 +602,7 @@
         function resetInactivityTimer() {
             clearTimeout(inactivityTimer);
             if (document.getElementById('appContainer').style.display === 'flex') {
+                localStorage.setItem('hospital_lastActivity', Date.now()); // تحديث وقت آخر نشاط للحماية عند الإغلاق
                 inactivityTimer = setTimeout(autoLogout, INACTIVITY_LIMIT);
             }
         }
@@ -612,6 +613,7 @@
                 playSound('delete');
                 alert("تم إغلاق السيستم وتسجيل الخروج تلقائياً لعدم وجود أي نشاط لمدة 5 دقائق، حمايةً للبيانات.");
                 firebase.auth().signOut();
+                localStorage.removeItem('hospital_lastActivity');
             }
         }
 
@@ -720,6 +722,14 @@
 
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
+                // فحص الأمان: لو مر 5 دقايق والبرنامج كان مقفول يخرجه فوراً
+                const lastActivity = localStorage.getItem('hospital_lastActivity');
+                if (lastActivity && (Date.now() - parseInt(lastActivity) > INACTIVITY_LIMIT)) {
+                    firebase.auth().signOut();
+                    localStorage.removeItem('hospital_lastActivity');
+                    return; // سيتكفل المتغير user=null بإظهار شاشة الدخول
+                }
+
                 document.getElementById('loginScreen').style.display = 'none';
                 
                 if (!user.displayName) {
@@ -742,6 +752,7 @@
                 document.getElementById('appContainer').style.display = 'none';
                 dataLoaded = false;
                 clearTimeout(inactivityTimer);
+                localStorage.removeItem('hospital_lastActivity');
             }
         });
 
@@ -764,7 +775,10 @@
             
             errorDiv.innerText = "جاري الدخول...";
             firebase.auth().signInWithEmailAndPassword(email, pass)
-                .then(() => { playSound('success'); })
+                .then(() => { 
+                    playSound('success'); 
+                    localStorage.setItem('hospital_lastActivity', Date.now()); 
+                })
                 .catch((error) => {
                     playSound('error');
                     errorDiv.innerText = "بيانات الدخول غير صحيحة، تأكد من تسجيل الحساب.";
