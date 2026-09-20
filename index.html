@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة تحكم المخازن الطبية - النظام المحمي</title>
     
-    <!-- ربط الأيقونة وملف التعريف للديسكتوب -->
     <link rel="icon" type="image/png" href="icon.png">
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="manifest" href="manifest.json">
@@ -14,13 +13,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- مكتبة الإكسيل -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    
-    <!-- مكتبة التقاط الشاشة وتحويلها لصورة عالية الجودة -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-    <!-- مكتبات فايربيز السحابية والمصادقة -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -56,7 +51,7 @@
         .btn-dark-toggle { background: transparent; border: none; color: var(--text-main); font-size: 20px; cursor: pointer; padding: 5px; transition: 0.2s; outline: none; }
         .btn-dark-toggle:hover { color: var(--primary); transform: scale(1.1); }
 
-        /* ================= شاشات تسجيل الدخول المنقسمة ================= */
+        /* ================= شاشات تسجيل الدخول ================= */
         .auth-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: center;
@@ -200,10 +195,30 @@
         .btn-edit-name { background: none; border: none; color: var(--primary); cursor: pointer; padding: 0 5px; font-size: 13px; opacity: 0.7; transition: 0.2s; }
         .btn-edit-name:hover { opacity: 1; transform: scale(1.1); color: var(--primary-hover); }
 
+        /* ================= ستايل زرار الإدخال الصوتي ================= */
         .search-container { position: relative; }
-        .search-container i { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+        .search-container i.fa-search { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
         .search-box { padding: 10px 15px 10px 40px; border: 1px solid var(--border-color); border-radius: 25px; width: 220px; outline: none; font-size: 14px; background-color: #f9fafb; transition: background-color 0.3s;}
         
+        .btn-voice {
+            background: linear-gradient(135deg, var(--primary) 0%, #312e81 100%); color: white;
+            border: none; border-radius: 50%; width: 42px; height: 42px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            font-size: 16px; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+            margin-right: 5px;
+        }
+        .btn-voice:hover { transform: scale(1.1); box-shadow: 0 6px 15px rgba(79, 70, 229, 0.5); }
+        .btn-voice.recording {
+            background: linear-gradient(135deg, var(--danger) 0%, #991b1b 100%);
+            animation: pulse-red 1.5s infinite;
+        }
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        /* ========================================================== */
+
         .btn-logout { background: #fee2e2; color: var(--danger); border: none; padding: 8px 15px; border-radius: 8px; font-weight: 800; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
         .btn-logout:hover { background: #fecaca; transform: scale(1.05); }
 
@@ -263,55 +278,33 @@
 
         .print-footer { display: none; }
         
-        /* ==========================================
-           وضع تصوير الشاشة (لتحويل الجرد لصور مقسمة بجودة عالية)
-           ========================================== */
         .capture-mode { background: white !important; color: black !important; }
         .capture-mode .sidebar, .capture-mode .topbar, .capture-mode .toolbar, .capture-mode .menu-toggle-btn, .capture-mode .sidebar-overlay, .capture-mode .no-print, .capture-mode .sheet-controls { display: none !important; }
-        
         .capture-mode .main-wrapper { display: block !important; overflow: visible !important; }
-        
-        .capture-mode .content { 
-            padding: 20px !important; margin: 0 auto !important; overflow: visible !important; 
-            width: 1000px !important; max-width: 1000px !important; background: white !important; 
-            position: absolute !important; top: 0 !important; left: 0 !important; z-index: 99999 !important; height: auto !important;
-        }
-        
+        .capture-mode .content { padding: 20px !important; margin: 0 auto !important; overflow: visible !important; width: 1000px !important; max-width: 1000px !important; background: white !important; position: absolute !important; top: 0 !important; left: 0 !important; z-index: 99999 !important; height: auto !important; }
         .capture-mode .table-card { border: none !important; background: white !important; box-shadow: none !important; border-radius: 0 !important; margin:0 !important; padding:0 !important; }
         .capture-mode .settlement-section { border: 1px solid #e5e7eb !important; background: white !important; box-shadow: none !important; margin-bottom: 15px !important; page-break-inside: avoid !important; }
         .capture-mode .table-responsive { overflow: visible !important; width: 100% !important; }
-        
         .capture-mode .print-header { display: block !important; text-align: center !important; margin-bottom: 15px !important; }
         .capture-mode .print-header h2 { font-size: 22px !important; margin: 0 0 5px 0 !important; color: black !important; }
         .capture-mode .print-header p { font-size: 16px !important; color: #555 !important; margin: 0 !important; }
-
         .capture-mode .stats-grid { display: flex !important; flex-direction: row !important; justify-content: space-between !important; gap: 10px !important; margin-bottom: 15px !important; width: 100% !important; }
         .capture-mode .stat-card { flex: 1 !important; background: white !important; padding: 10px 15px !important; margin: 0 !important; display: flex !important; flex-direction: row !important; align-items: center !important; border: 1px solid #e5e7eb !important; color: black !important; }
         .capture-mode .stat-icon { width: 35px !important; height: 35px !important; font-size: 16px !important; }
         .capture-mode .stat-info h4 { font-size: 12px !important; margin-bottom: 0 !important; color: #555 !important; }
         .capture-mode .stat-info span { font-size: 16px !important; font-weight: 800 !important; color: black !important; }
-
         .capture-mode table { border: 1px solid #e5e7eb !important; width: 100% !important; min-width: 100% !important; table-layout: fixed !important; margin-bottom: 0 !important; background: white !important; color: black !important; }
         .capture-mode thead { background: #f8fafc !important; }
         .capture-mode th:nth-child(1) { width: 5% !important; } .capture-mode th:nth-child(2) { width: 45% !important; } .capture-mode th:nth-child(3), .capture-mode th:nth-child(4), .capture-mode th:nth-child(5), .capture-mode th:nth-child(6), .capture-mode th:nth-child(7) { width: 10% !important; } 
-        
         .capture-mode th { padding: 8px 4px !important; font-size: 14px !important; border: 1px solid #e5e7eb !important; color: black !important; }
         .capture-mode td { border: 1px solid #e5e7eb !important; padding: 6px 4px !important; font-size: 14px !important; white-space: normal !important; word-wrap: break-word !important; text-align: center !important; color: black !important; }
         .capture-mode .item-name { font-size: 15px !important; text-align: right !important; }
-        
         .capture-mode input[type="number"] { border: none !important; background: transparent !important; padding: 0 !important; width: 100% !important; font-size: 14px !important; font-weight: bold !important; text-align: center !important; height: auto !important; margin: 0 !important; color: black !important; }
-        
         .capture-mode .badge { padding: 4px 8px !important; border-radius: 12px !important; font-size: 12px !important; font-weight: bold !important; }
-        
         .capture-mode tr.row-deficit td { background-color: #fff5f5 !important; }
         .capture-mode tr.row-surplus td { background-color: #f0fdf4 !important; }
-        
         .capture-mode .print-footer { display: flex !important; justify-content: space-between !important; margin-top: 25px !important; padding-top: 10px !important; border-top: 2px solid #000 !important; font-weight: bold !important; font-size: 16px !important; color: black !important; }
 
-
-        /* ==========================================
-           تحديثات الطباعة العادية
-           ========================================== */
         @media print {
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
             @page { size: A4 portrait; margin: 5mm; }
@@ -323,32 +316,24 @@
             .table-responsive { overflow: visible !important; width: 100%; }
             .auth-screen { display: none !important; }
             #appContainer { display: flex !important; }
-            
             .print-header { display: block !important; text-align: center; margin-bottom: 10px !important; }
             .print-header h2 { font-size: 16px !important; margin: 0 0 2px 0 !important; color: black !important; }
             .print-header p { font-size: 12px !important; color: #555 !important; margin: 0 !important; }
-
             .stats-grid { display: flex !important; flex-direction: row !important; justify-content: space-between !important; gap: 5px !important; margin-bottom: 10px !important; }
             .stat-card { flex: 1 !important; background: white !important; width: 32% !important; padding: 5px 10px !important; margin: 0 !important; page-break-inside: avoid; display: flex !important; flex-direction: row !important; align-items: center !important; border: 1px solid #e5e7eb !important; color: black !important; }
             .stat-icon { width: 30px !important; height: 30px !important; font-size: 14px !important; }
             .stat-info h4 { font-size: 10px !important; margin-bottom: 0 !important; color: #555 !important; }
             .stat-info span { font-size: 14px !important; font-weight: 800 !important; color: black !important; }
-
             table { border: 1px solid #e5e7eb !important; width: 100% !important; min-width: 100% !important; table-layout: fixed; margin-bottom: 0 !important; background: white !important; color: black !important; }
             thead { background: #f8fafc !important; }
             th:nth-child(1) { width: 5%; } th:nth-child(2) { width: 45%; } th:nth-child(3), th:nth-child(4), th:nth-child(5), th:nth-child(6), th:nth-child(7) { width: 10%; } 
-            
             th { padding: 4px 2px !important; font-size: 11px !important; border: 1px solid #e5e7eb !important; color: black !important; }
             td { border: 1px solid #e5e7eb !important; padding: 2px 2px !important; font-size: 11px !important; white-space: normal !important; word-wrap: break-word; text-align: center !important; height: 20px !important; color: black !important; }
             .item-name { font-size: 12px !important; text-align: right !important; }
-            
             input[type="number"] { border: none !important; background: transparent !important; padding: 0 !important; width: 100% !important; font-size: 11px !important; font-weight: bold; text-align: center; height: auto !important; margin: 0 !important; color: black !important; }
-            
             .badge { padding: 2px 5px !important; border-radius: 8px !important; font-size: 10px !important; font-weight: bold; }
-            
             tr.row-deficit td { background-color: #fff5f5 !important; }
             tr.row-surplus td { background-color: #f0fdf4 !important; }
-            
             .print-footer { display: flex !important; justify-content: space-between; margin-top: 15px; padding-top: 5px; border-top: 1px solid #000; font-weight: bold; font-size: 12px; page-break-inside: avoid; color: black !important; }
         }
 
@@ -377,7 +362,6 @@
 </head>
 <body>
 
-    <!-- 1. شاشة تسجيل الدخول بالتصميم المنقسم -->
     <div id="loginScreen" class="auth-screen">
         <div class="login-wrapper">
             <div class="auth-form-side">
@@ -403,7 +387,6 @@
         </div>
     </div>
 
-    <!-- 2. شاشة إعداد الاسم لأول مرة -->
     <div id="profileSetupScreen" class="auth-screen" style="display: none;">
         <div class="login-wrapper">
             <div class="auth-form-side">
@@ -428,7 +411,6 @@
         </div>
     </div>
 
-    <!-- 3. حاوية النظام -->
     <div id="appContainer">
 
         <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
@@ -467,7 +449,6 @@
                 </div>
 
                 <div class="topbar-actions no-print">
-                    <!-- زر الوضع الليلي -->
                     <button class="btn-dark-toggle" onclick="toggleDarkMode()" title="تغيير المظهر">
                         <i class="fa-solid fa-moon"></i>
                     </button>
@@ -480,9 +461,15 @@
                         </button>
                     </div>
 
-                    <div class="search-container">
-                        <i class="fa-solid fa-search"></i>
-                        <input type="text" class="search-box" id="searchInput" placeholder="ابحث عن اسم الصنف..." onkeyup="filterSearch()">
+                    <!-- تم إضافة زر الإدخال الصوتي هنا بجانب مربع البحث -->
+                    <div style="display: flex; align-items: center;">
+                        <button id="voiceBtn" class="btn-voice no-print" onclick="startVoiceRecognition()" title="جرد بالصوت: قل اسم الصنف ثم العدد. مثال: بامبرز العدد 10">
+                            <i class="fa-solid fa-microphone"></i>
+                        </button>
+                        <div class="search-container">
+                            <i class="fa-solid fa-search"></i>
+                            <input type="text" class="search-box" id="searchInput" placeholder="ابحث عن اسم الصنف..." onkeyup="filterSearch()">
+                        </div>
                     </div>
 
                     <button class="btn-logout" onclick="handleLogout()" title="تسجيل الخروج">
@@ -536,11 +523,8 @@
                         <button class="btn btn-success-light" onclick="filterTable('surplus')"><i class="fa-solid fa-plus-circle"></i> الزيادة</button>
                         
                         <button class="btn btn-success-light no-print" onclick="exportToExcel()"><i class="fa-solid fa-file-export"></i> إكسيل</button>
-                        
                         <button class="btn btn-danger no-print" onclick="downloadImage('inventory')"><i class="fa-solid fa-image"></i> حفظ كصورة</button>
-                        
                         <button class="btn btn-primary no-print" onclick="preparePrint()"><i class="fa-solid fa-print"></i> طباعة</button>
-                        
                         <button class="btn btn-outline no-print" onclick="clearCurrentLocationNumbers()" style="color: var(--warning);" title="تصفير الأرقام فقط في هذا القسم"><i class="fa-solid fa-eraser"></i> تصفير الأرقام</button>
                         <button class="btn btn-outline no-print" onclick="deleteAllItems()" style="color: var(--danger);" title="حذف كل أصناف هذا القسم والبدء من الصفر"><i class="fa-solid fa-trash-can"></i> مسح أصناف القسم</button>
                     </div>
@@ -595,7 +579,7 @@
         // تسجيل الخروج التلقائي (بعد 5 دقائق من عدم النشاط)
         // ==========================================
         let inactivityTimer;
-        const INACTIVITY_LIMIT = 5 * 60 * 1000; // 5 دقائق
+        const INACTIVITY_LIMIT = 5 * 60 * 1000; 
 
         function resetInactivityTimer() {
             clearTimeout(inactivityTimer);
@@ -621,9 +605,6 @@
         document.addEventListener('touchstart', resetInactivityTimer);
         document.addEventListener('scroll', resetInactivityTimer);
 
-        // ==========================================
-        // متغير تتبع حالة الفلتر
-        // ==========================================
         let currentFilter = 'all';
 
         // ==========================================
@@ -692,9 +673,6 @@
             }
         });
 
-        // =====================================================================
-        // مفاتيح Firebase
-        // =====================================================================
         const firebaseConfig = {
             apiKey: "AIzaSyBDcJFivuL_grFOGCKoKvEXoVmKR3y6Vvc",
             authDomain: "golden-heart-system.firebaseapp.com",
@@ -841,7 +819,6 @@
                 firebase.auth().signOut();
             }
         }
-        // =====================================================================
 
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
@@ -867,9 +844,6 @@
             return String(str).replace(/[.#$\[\]\/]/g, '-').trim();
         }
 
-        // ==========================================
-        // نظام الحماية للبيانات الفارغة لفايربيز
-        // ==========================================
         function ensureDataConsistency() {
             locations.forEach(loc => {
                 if (!appState[loc]) {
@@ -930,7 +904,6 @@
                 });
             }
         }
-        // ==========================================
 
         function initDB() {
             if (isCloudEnabled) {
@@ -989,7 +962,6 @@
                 statusBadge.className = "cloud-badge syncing";
                 statusBadge.innerHTML = '<i class="fa-solid fa-arrows-rotate fa-spin"></i> جاري الرفع...';
 
-                // إرسال الداتا بشكل نظيف لفايربيز
                 database.ref('medical_inventory').set(JSON.parse(JSON.stringify({
                     itemsList: itemsList,
                     appState: appState
@@ -1595,9 +1567,6 @@
             XLSX.writeFile(wb, fileName);
         }
 
-        // ==========================================
-        // دالة حفظ التقرير כصور مقسمة - الإصدار المعدل والمحاكي للطباعة تماماً
-        // ==========================================
         async function downloadImage(type) {
             initAudio();
             if (typeof html2canvas === 'undefined') {
@@ -1810,7 +1779,6 @@
                 playSound('error');
             }
         }
-        // ==========================================
 
         function preparePrint() {
             document.getElementById('printFooter').style.display = 'flex';
@@ -1964,6 +1932,109 @@
                 }
             });
         });
+
+        // ==========================================
+        // دالة المساعد الصوتي لإدخال الجرد
+        // ==========================================
+        function startVoiceRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("عفواً، متصفحك لا يدعم خاصية الإدخال الصوتي. يرجى استخدام متصفح جوجل كروم الحديث.");
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'ar-EG'; // اللغة العربية
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            const btn = document.getElementById('voiceBtn');
+            const icon = btn.querySelector('i');
+
+            recognition.onstart = function() {
+                btn.classList.add('recording');
+                icon.className = 'fa-solid fa-microphone-lines fa-fade';
+                document.getElementById('searchInput').placeholder = "جاري الاستماع... قل اسم الصنف ثم العدد";
+            };
+
+            recognition.onresult = function(event) {
+                let transcript = event.results[0][0].transcript;
+                
+                // تحويل الأرقام العربية (١, ٢) إلى أرقام إنجليزية (1, 2) إن وجدت
+                transcript = transcript.replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
+                
+                // إزالة الكلمات التي تسبق الرقم عادةً
+                let cleanText = transcript.replace(/العدد|عدد|حط|اكتب|سجل|كمية|كميه/g, ' ').trim();
+                
+                // البحث عن الأرقام في النص
+                let numbers = cleanText.match(/\d+/g);
+                if (!numbers) {
+                    playSound('error');
+                    alert("سمعت: '" + transcript + "'\nلم أتمكن من التقاط العدد. برجاء قول (اسم الصنف) ثم (العدد).");
+                    return;
+                }
+
+                // استخراج آخر رقم نطقته كـ (كمية فعلية)
+                let qty = numbers[numbers.length - 1]; 
+                
+                // فصل اسم الصنف (عن طريق إزالة آخر رقم من النص)
+                let lastIdx = cleanText.lastIndexOf(qty);
+                let searchName = cleanText.substring(0, lastIdx).trim();
+
+                // معالجة خطأ كلمة سرنجة في الداتا المرفوعة في المستشفى أوتوماتيكياً
+                let alternativeSearch = searchName.replace(/سرنجة|سرنجه/g, 'س نجة');
+
+                let bestMatchRow = null;
+                const rows = document.querySelectorAll('#inventoryBody tr');
+
+                rows.forEach(row => {
+                    let itemName = row.querySelector('.item-name').innerText;
+                    
+                    // تنظيف النصوص للمقارنة (تجاهل التاء المربوطة، المسافات، والهمزات)
+                    let normItem = itemName.toLowerCase().replace(/ة/g, 'ه').replace(/أ|إ|آ/g, 'ا').replace(/\s+/g, '');
+                    let normSearch = searchName.toLowerCase().replace(/ة/g, 'ه').replace(/أ|إ|آ/g, 'ا').replace(/\s+/g, '');
+                    let normAlt = alternativeSearch.toLowerCase().replace(/ة/g, 'ه').replace(/أ|إ|آ/g, 'ا').replace(/\s+/g, '');
+
+                    if (normItem.includes(normSearch) || normSearch.includes(normItem) || normItem.includes(normAlt) || normAlt.includes(normItem)) {
+                        if(!bestMatchRow) bestMatchRow = row; // اختيار أول تطابق يظهر
+                    }
+                });
+
+                if (bestMatchRow) {
+                    // تحديث حقل الفعلي
+                    let actualInput = bestMatchRow.querySelector('.actual-input');
+                    actualInput.value = qty;
+                    updateData(actualInput, 'actual');
+
+                    // إعطاء تأثير بصري (تظليل باللون الأخضر)
+                    bestMatchRow.style.backgroundColor = 'rgba(16, 185, 129, 0.3)';
+                    setTimeout(() => { 
+                        calculateRow(bestMatchRow, false); // إرجاع اللون الطبيعي
+                    }, 2000);
+                    
+                    // التمرير إلى الصف تلقائياً
+                    bestMatchRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    playSound('success');
+                } else {
+                    playSound('error');
+                    alert("سمعت: '" + transcript + "'\nالعدد المستخرج: " + qty + "\nلكن لم أجد صنفاً مطابقاً لـ '" + searchName + "' في هذا القسم.");
+                }
+            };
+
+            recognition.onerror = function(event) {
+                btn.classList.remove('recording');
+                icon.className = 'fa-solid fa-microphone';
+                document.getElementById('searchInput').placeholder = "ابحث عن اسم الصنف...";
+            };
+
+            recognition.onend = function() {
+                btn.classList.remove('recording');
+                icon.className = 'fa-solid fa-microphone';
+                document.getElementById('searchInput').placeholder = "ابحث عن اسم الصنف...";
+            };
+
+            recognition.start();
+        }
 
     </script>
 </body>
