@@ -581,7 +581,7 @@
                     <div id="settlementResults"></div>
                 </div>
 
-                <!-- تذييل الطباعة -->
+                <!-- تذييل الطباعة العادية -->
                 <div class="print-footer" id="printFooter" style="display: none;">
                     <div>توقيع رئيس القسم: ..........................</div>
                     <div>القائم بالجرد: <span id="printUserName"></span></div>
@@ -859,7 +859,7 @@
         
         let currentLoc = locations[0]; 
         let itemsList = {}; 
-        let appState = {}; // الهيكلة الجديدة: كل قسم له شيتاته الخاصة
+        let appState = {}; 
         let db = {}; 
 
         function sanitizeForFirebase(str) {
@@ -867,32 +867,70 @@
             return String(str).replace(/[.#$\[\]\/]/g, '-').trim();
         }
 
+        // ==========================================
+        // نظام الحماية للبيانات الفارغة لفايربيز
+        // ==========================================
+        function ensureDataConsistency() {
+            locations.forEach(loc => {
+                if (!appState[loc]) {
+                    appState[loc] = { activeSheet: 'default', sheets: { 'default': { id: 'default', name: 'جرد البداية', data: {} } } };
+                }
+                if (!appState[loc].sheets) {
+                    appState[loc].sheets = { 'default': { id: 'default', name: 'جرد البداية', data: {} } };
+                }
+                for (let sheet in appState[loc].sheets) {
+                    if (!appState[loc].sheets[sheet].data) {
+                        appState[loc].sheets[sheet].data = {};
+                    }
+                    if (itemsList[loc]) {
+                        itemsList[loc].forEach(item => {
+                            if (!appState[loc].sheets[sheet].data[item]) {
+                                appState[loc].sheets[sheet].data[item] = { sys: '', bills: '', actual: '' };
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
         function migrateDataIfNeeded() {
-            // دالة لنقل البيانات القديمة (الشيت الواحد لكل المستشفى) إلى النظام الجديد (كل قسم له شيتاته)
             if (appState.sheets) {
-                console.log("جارِ تحديث قاعدة البيانات للنظام الجديد المنفصل...");
                 let newState = {};
                 locations.forEach(loc => {
-                    newState[loc] = { activeSheet: appState.activeSheet, sheets: {} };
+                    newState[loc] = { activeSheet: appState.activeSheet || 'default', sheets: {} };
+                    let hasAnySheet = false;
                     for (let sid in appState.sheets) {
+                        hasAnySheet = true;
                         newState[loc].sheets[sid] = {
-                            id: appState.sheets[sid].id,
-                            name: appState.sheets[sid].name,
-                            data: appState.sheets[sid].data[loc] || {}
+                            id: appState.sheets[sid].id || sid,
+                            name: appState.sheets[sid].name || 'جرد',
+                            data: (appState.sheets[sid].data && appState.sheets[sid].data[loc]) ? appState.sheets[sid].data[loc] : {}
                         };
+                    }
+                    if(!hasAnySheet) {
+                         newState[loc].sheets['default'] = { id: 'default', name: 'جرد البداية', data: {} };
+                         newState[loc].activeSheet = 'default';
+                    } else if (!newState[loc].sheets[newState[loc].activeSheet]) {
+                         newState[loc].activeSheet = Object.keys(newState[loc].sheets)[0];
                     }
                 });
                 appState = newState;
                 saveState();
             } else {
-                // التأكد من وجود كل الأقسام في النظام الجديد
                 locations.forEach(loc => {
                     if (!appState[loc]) {
                         appState[loc] = { activeSheet: 'default', sheets: { 'default': { id: 'default', name: 'جرد البداية', data: {} } } };
                     }
+                    if (!appState[loc].sheets) {
+                        appState[loc].sheets = { 'default': { id: 'default', name: 'جرد البداية', data: {} } };
+                    }
+                    if (!appState[loc].sheets[appState[loc].activeSheet]) {
+                        appState[loc].activeSheet = Object.keys(appState[loc].sheets)[0] || 'default';
+                    }
                 });
             }
         }
+        // ==========================================
 
         function initDB() {
             if (isCloudEnabled) {
@@ -951,10 +989,11 @@
                 statusBadge.className = "cloud-badge syncing";
                 statusBadge.innerHTML = '<i class="fa-solid fa-arrows-rotate fa-spin"></i> جاري الرفع...';
 
-                database.ref('medical_inventory').set({
+                // إرسال الداتا بشكل نظيف لفايربيز
+                database.ref('medical_inventory').set(JSON.parse(JSON.stringify({
                     itemsList: itemsList,
                     appState: appState
-                }).then(() => {
+                }))).then(() => {
                     statusBadge.className = "cloud-badge";
                     statusBadge.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> تم الحفظ بالسحابة';
                 }).catch(err => {
@@ -1007,7 +1046,6 @@
             const sheetId = forceId || 'sheet_' + Date.now();
             
             let newDb = {};
-            // إنشاء الشيت فارغ تماماً من أي أرقام
             itemsList[currentLoc].forEach(item => {
                 newDb[item] = { sys: '', bills: '', actual: '' };
             });
@@ -1070,16 +1108,6 @@
                 opt.text = currentSheets[key].name;
                 if (key === appState[currentLoc].activeSheet) opt.selected = true;
                 select.appendChild(opt);
-            }
-        }
-
-        function ensureDataConsistency() {
-            for (let sheet in appState[currentLoc].sheets) {
-                itemsList[currentLoc].forEach(item => {
-                    if (!appState[currentLoc].sheets[sheet].data[item]) {
-                        appState[currentLoc].sheets[sheet].data[item] = { sys: '', bills: '', actual: '' };
-                    }
-                });
             }
         }
 
@@ -1197,10 +1225,19 @@
         function loadLocation(loc) {
             currentLoc = loc;
             
-            // التأكد من وجود القسم في الداتا وتوجيه db للشيت النشط فيه
             if(!appState[loc]) {
                 appState[loc] = { activeSheet: 'default', sheets: { 'default': { id: 'default', name: 'جرد البداية', data: {} } } };
             }
+            if(!appState[loc].sheets) {
+                appState[loc].sheets = { 'default': { id: 'default', name: 'جرد البداية', data: {} } };
+            }
+            if(!appState[loc].sheets[appState[loc].activeSheet]) {
+                appState[loc].activeSheet = Object.keys(appState[loc].sheets)[0];
+            }
+            if(!appState[loc].sheets[appState[loc].activeSheet].data) {
+                appState[loc].sheets[appState[loc].activeSheet].data = {};
+            }
+            
             db = appState[loc].sheets[appState[loc].activeSheet].data;
 
             document.getElementById('currentLocationTitle').innerText = loc;
@@ -1499,6 +1536,7 @@
                     let locData = appState[loc].sheets[activeSheetId].data;
                     
                     if(!locData || !locData[item] || !itemsList[loc].includes(item)) return;
+                    
                     const data = locData[item];
                     if (data.actual === '') return;
                     
@@ -1572,32 +1610,43 @@
             document.getElementById('currentLocationTitle').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري تجهيز الصور...';
 
             try {
-                const sheetName = appState[currentLoc].sheets[appState[currentLoc].activeSheet].name;
-                const printTitleText = type === 'settlement' ? "تقرير التسويات العام لجميع الأقسام" : getDynamicTitle();
-                
                 const currentUserName = document.getElementById('userNameDisplay').innerText;
                 document.getElementById('printUserName').innerText = currentUserName;
+                
+                const sheetName = appState[currentLoc].sheets[appState[currentLoc].activeSheet].name;
+                
+                const printTitleText = type === 'settlement' ? "تقرير التسويات العام لجميع الأقسام" : getDynamicTitle();
+                document.getElementById('printTitle').innerText = printTitleText;
+                document.getElementById('printSubtitle').innerText = sheetName;
+                
+                const wasDark = document.body.classList.contains('dark-mode');
+                if(wasDark) document.body.classList.remove('dark-mode');
+                
+                document.body.classList.add('capture-mode');
+                
+                const inputs = document.querySelectorAll('.capture-mode input[type="number"]');
+                inputs.forEach(inp => {
+                    inp.setAttribute('value', inp.value);
+                });
 
-                const exportContainer = document.createElement('div');
-                exportContainer.style.width = '1000px';
-                exportContainer.style.padding = '30px';
-                exportContainer.style.background = '#ffffff';
-                exportContainer.style.position = 'absolute';
-                exportContainer.style.top = '-10000px';
-                exportContainer.style.left = '-10000px';
-                exportContainer.style.direction = 'rtl';
-                exportContainer.style.fontFamily = "'Cairo', sans-serif";
-                exportContainer.style.color = '#000000';
-                document.body.appendChild(exportContainer);
-
-                const dateStr = new Date().toLocaleDateString('ar-EG').replace(/\//g, '-');
-                const filePrefix = type === 'settlement' ? 'تسويات' : (currentFilter === 'deficit' ? 'عجز' : currentFilter === 'surplus' ? 'زيادة' : 'جرد');
-                const baseName = type === 'settlement' ? `تسويات_${dateStr}` : `${filePrefix}_${currentLoc}_${dateStr}`;
+                const elementToCapture = document.querySelector('.content');
 
                 if (type === 'settlement') {
                     const clone = document.getElementById('settlementView').cloneNode(true);
                     const tbar = clone.querySelector('.toolbar');
                     if(tbar) tbar.remove();
+                    
+                    const exportContainer = document.createElement('div');
+                    exportContainer.style.width = '1000px';
+                    exportContainer.style.padding = '30px';
+                    exportContainer.style.background = '#ffffff';
+                    exportContainer.style.position = 'absolute';
+                    exportContainer.style.top = '-10000px';
+                    exportContainer.style.left = '-10000px';
+                    exportContainer.style.direction = 'rtl';
+                    exportContainer.style.fontFamily = "'Cairo', sans-serif";
+                    exportContainer.style.color = '#000000';
+                    document.body.appendChild(exportContainer);
                     
                     const hTitle = document.createElement('h2');
                     hTitle.style.textAlign = 'center';
@@ -1628,21 +1677,37 @@
 
                     await new Promise(r => setTimeout(r, 300));
                     const canvas = await html2canvas(exportContainer, { scale: 2, useCORS: true, backgroundColor: "#ffffff" });
+                    const imgData = canvas.toDataURL('image/png');
                     const link = document.createElement('a');
-                    link.download = `${baseName}.png`;
-                    link.href = canvas.toDataURL('image/png');
+                    const dateStr = new Date().toLocaleDateString('ar-EG').replace(/\//g, '-');
+                    link.download = `تسويات_${dateStr}.png`;
+                    link.href = imgData;
                     link.click();
                     
+                    document.body.removeChild(exportContainer);
                 } else {
                     const rows = Array.from(document.querySelectorAll('#inventoryBody tr')).filter(r => r.style.display !== 'none');
                     const rowsPerPage = 26; 
                     const totalPages = Math.ceil(rows.length / rowsPerPage) || 1;
+                    const filePrefix = currentFilter === 'deficit' ? 'عجز' : currentFilter === 'surplus' ? 'زيادة' : 'جرد';
+                    const dateStr = new Date().toLocaleDateString('ar-EG').replace(/\//g, '-');
+                    const baseName = `${filePrefix}_${currentLoc}_${dateStr}`;
                     
                     const statsHtml = document.querySelector('.stats-grid').outerHTML;
                     const theadHtml = document.querySelector('#inventoryTable thead').outerHTML;
 
                     for (let i = 0; i < totalPages; i++) {
-                        exportContainer.innerHTML = ''; 
+                        const exportContainer = document.createElement('div');
+                        exportContainer.style.width = '1000px';
+                        exportContainer.style.padding = '30px';
+                        exportContainer.style.background = '#ffffff';
+                        exportContainer.style.position = 'absolute';
+                        exportContainer.style.top = '-10000px';
+                        exportContainer.style.left = '-10000px';
+                        exportContainer.style.direction = 'rtl';
+                        exportContainer.style.fontFamily = "'Cairo', sans-serif";
+                        exportContainer.style.color = '#000000';
+                        document.body.appendChild(exportContainer);
 
                         if (i === 0) {
                             exportContainer.innerHTML += `
@@ -1726,15 +1791,21 @@
                         link.download = totalPages === 1 ? `${baseName}.png` : `${baseName}_صفحة_${i + 1}.png`;
                         link.href = canvas.toDataURL('image/png');
                         link.click();
+
+                        document.body.removeChild(exportContainer);
                     }
                 }
 
-                document.body.removeChild(exportContainer);
+                document.body.classList.remove('capture-mode');
+                if(wasDark) document.body.classList.add('dark-mode');
                 document.getElementById('currentLocationTitle').innerHTML = oldTitle;
                 playSound('success');
 
             } catch (err) {
                 console.error(err);
+                const wasDark = document.body.classList.contains('dark-mode');
+                document.body.classList.remove('capture-mode');
+                if(wasDark) document.body.classList.add('dark-mode');
                 document.getElementById('currentLocationTitle').innerHTML = oldTitle;
                 playSound('error');
             }
