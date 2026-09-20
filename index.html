@@ -55,9 +55,8 @@
         
         .btn-dark-toggle { background: transparent; border: none; color: var(--text-main); font-size: 20px; cursor: pointer; padding: 5px; transition: 0.2s; outline: none; }
         .btn-dark-toggle:hover { color: var(--primary); transform: scale(1.1); }
-        /* ================================================= */
 
-        /* ================= شاشات تسجيل الدخول ================= */
+        /* ================= شاشات تسجيل الدخول المنقسمة ================= */
         .auth-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: center;
@@ -151,7 +150,6 @@
             .auth-image-side { display: none; }
             .login-wrapper { height: auto; padding: 30px 0; border-radius: 25px; }
         }
-        /* ========================================================================= */
 
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-12px); } 100% { transform: translateY(0px); } }
@@ -265,6 +263,51 @@
 
         .print-footer { display: none; }
         
+        /* ==========================================
+           وضع تصوير الشاشة (لتحويل الجرد لصور مقسمة بجودة عالية)
+           ========================================== */
+        .capture-mode { background: white !important; color: black !important; }
+        .capture-mode .sidebar, .capture-mode .topbar, .capture-mode .toolbar, .capture-mode .menu-toggle-btn, .capture-mode .sidebar-overlay, .capture-mode .no-print, .capture-mode .sheet-controls { display: none !important; }
+        
+        .capture-mode .main-wrapper { display: block !important; overflow: visible !important; }
+        
+        .capture-mode .content { 
+            padding: 20px !important; margin: 0 auto !important; overflow: visible !important; 
+            width: 1000px !important; max-width: 1000px !important; background: white !important; 
+            position: absolute !important; top: 0 !important; left: 0 !important; z-index: 99999 !important; height: auto !important;
+        }
+        
+        .capture-mode .table-card { border: none !important; background: white !important; box-shadow: none !important; border-radius: 0 !important; margin:0 !important; padding:0 !important; }
+        .capture-mode .settlement-section { border: 1px solid #e5e7eb !important; background: white !important; box-shadow: none !important; margin-bottom: 15px !important; page-break-inside: avoid !important; }
+        .capture-mode .table-responsive { overflow: visible !important; width: 100% !important; }
+        
+        .capture-mode .print-header { display: block !important; text-align: center !important; margin-bottom: 15px !important; }
+        .capture-mode .print-header h2 { font-size: 22px !important; margin: 0 0 5px 0 !important; color: black !important; }
+        .capture-mode .print-header p { font-size: 16px !important; color: #555 !important; margin: 0 !important; }
+
+        .capture-mode .stats-grid { display: flex !important; flex-direction: row !important; justify-content: space-between !important; gap: 10px !important; margin-bottom: 15px !important; width: 100% !important; }
+        .capture-mode .stat-card { flex: 1 !important; background: white !important; padding: 10px 15px !important; margin: 0 !important; display: flex !important; flex-direction: row !important; align-items: center !important; border: 1px solid #e5e7eb !important; color: black !important; }
+        .capture-mode .stat-icon { width: 35px !important; height: 35px !important; font-size: 16px !important; }
+        .capture-mode .stat-info h4 { font-size: 12px !important; margin-bottom: 0 !important; color: #555 !important; }
+        .capture-mode .stat-info span { font-size: 16px !important; font-weight: 800 !important; color: black !important; }
+
+        .capture-mode table { border: 1px solid #e5e7eb !important; width: 100% !important; min-width: 100% !important; table-layout: fixed !important; margin-bottom: 0 !important; background: white !important; color: black !important; }
+        .capture-mode thead { background: #f8fafc !important; }
+        .capture-mode th:nth-child(1) { width: 5% !important; } .capture-mode th:nth-child(2) { width: 45% !important; } .capture-mode th:nth-child(3), .capture-mode th:nth-child(4), .capture-mode th:nth-child(5), .capture-mode th:nth-child(6), .capture-mode th:nth-child(7) { width: 10% !important; } 
+        
+        .capture-mode th { padding: 8px 4px !important; font-size: 14px !important; border: 1px solid #e5e7eb !important; color: black !important; }
+        .capture-mode td { border: 1px solid #e5e7eb !important; padding: 6px 4px !important; font-size: 14px !important; white-space: normal !important; word-wrap: break-word !important; text-align: center !important; color: black !important; }
+        .capture-mode .item-name { font-size: 15px !important; text-align: right !important; }
+        
+        .capture-mode input[type="number"] { border: none !important; background: transparent !important; padding: 0 !important; width: 100% !important; font-size: 14px !important; font-weight: bold !important; text-align: center !important; height: auto !important; margin: 0 !important; color: black !important; }
+        
+        .capture-mode .badge { padding: 4px 8px !important; border-radius: 12px !important; font-size: 12px !important; font-weight: bold !important; }
+        
+        .capture-mode tr.row-deficit td { background-color: #fff5f5 !important; }
+        .capture-mode tr.row-surplus td { background-color: #f0fdf4 !important; }
+        
+        .capture-mode .print-footer { display: flex !important; justify-content: space-between !important; margin-top: 25px !important; padding-top: 10px !important; border-top: 2px solid #000 !important; font-weight: bold !important; font-size: 16px !important; color: black !important; }
+
 
         /* ==========================================
            تحديثات الطباعة العادية
@@ -494,7 +537,6 @@
                         
                         <button class="btn btn-success-light no-print" onclick="exportToExcel()"><i class="fa-solid fa-file-export"></i> إكسيل</button>
                         
-                        <!-- زر حفظ الصورة بالمقسّم الذكي الجديد -->
                         <button class="btn btn-danger no-print" onclick="downloadImage('inventory')"><i class="fa-solid fa-image"></i> حفظ كصورة</button>
                         
                         <button class="btn btn-primary no-print" onclick="preparePrint()"><i class="fa-solid fa-print"></i> طباعة</button>
@@ -532,7 +574,6 @@
                         
                         <button class="btn btn-success-light" onclick="exportSettlementToExcel()"><i class="fa-solid fa-file-export"></i> تصدير إكسيل للتسويات</button>
                         
-                        <!-- زر حفظ صورة التسويات بالمقسّم الذكي -->
                         <button class="btn btn-danger no-print" onclick="downloadImage('settlement')"><i class="fa-solid fa-image"></i> حفظ كصورة</button>
                         
                         <button class="btn btn-outline no-print" onclick="window.print()"><i class="fa-solid fa-print"></i> طباعة تقرير التسويات</button>
@@ -540,7 +581,7 @@
                     <div id="settlementResults"></div>
                 </div>
 
-                <!-- تذييل الطباعة العادية (يستخدم أيضاً في الطباعة) -->
+                <!-- تذييل الطباعة -->
                 <div class="print-footer" id="printFooter" style="display: none;">
                     <div>توقيع رئيس القسم: ..........................</div>
                     <div>القائم بالجرد: <span id="printUserName"></span></div>
@@ -818,12 +859,39 @@
         
         let currentLoc = locations[0]; 
         let itemsList = {}; 
-        let appState = { activeSheet: 'default', sheets: {} };
+        let appState = {}; // الهيكلة الجديدة: كل قسم له شيتاته الخاصة
         let db = {}; 
 
         function sanitizeForFirebase(str) {
             if(!str) return "";
             return String(str).replace(/[.#$\[\]\/]/g, '-').trim();
+        }
+
+        function migrateDataIfNeeded() {
+            // دالة لنقل البيانات القديمة (الشيت الواحد لكل المستشفى) إلى النظام الجديد (كل قسم له شيتاته)
+            if (appState.sheets) {
+                console.log("جارِ تحديث قاعدة البيانات للنظام الجديد المنفصل...");
+                let newState = {};
+                locations.forEach(loc => {
+                    newState[loc] = { activeSheet: appState.activeSheet, sheets: {} };
+                    for (let sid in appState.sheets) {
+                        newState[loc].sheets[sid] = {
+                            id: appState.sheets[sid].id,
+                            name: appState.sheets[sid].name,
+                            data: appState.sheets[sid].data[loc] || {}
+                        };
+                    }
+                });
+                appState = newState;
+                saveState();
+            } else {
+                // التأكد من وجود كل الأقسام في النظام الجديد
+                locations.forEach(loc => {
+                    if (!appState[loc]) {
+                        appState[loc] = { activeSheet: 'default', sheets: { 'default': { id: 'default', name: 'جرد البداية', data: {} } } };
+                    }
+                });
+            }
         }
 
         function initDB() {
@@ -844,16 +912,18 @@
                 if (snapshot.exists()) {
                     const data = snapshot.val();
                     itemsList = data.itemsList || {};
-                    appState = data.appState || { activeSheet: 'default', sheets: {} };
-                    
+                    appState = data.appState || {};
                     locations.forEach(loc => { if(!itemsList[loc]) itemsList[loc] = []; });
+                    migrateDataIfNeeded();
                     ensureDataConsistency();
                 } else {
                     locations.forEach(loc => itemsList[loc] = []);
-                    createNewSheet("جرد البداية", 'default', false);
+                    locations.forEach(loc => {
+                        appState[loc] = { activeSheet: 'default', sheets: { 'default': { id: 'default', name: 'جرد البداية', data: {} } } };
+                    });
                 }
                 
-                db = appState.sheets[appState.activeSheet].data;
+                db = appState[currentLoc].sheets[appState[currentLoc].activeSheet].data;
                 updateSheetSelectUI();
                 renderSidebar();
                 loadLocation(currentLoc);
@@ -911,13 +981,16 @@
             const savedState = localStorage.getItem('hospitalState_v15');
             if (savedState) {
                 appState = JSON.parse(savedState);
+                migrateDataIfNeeded();
                 ensureDataConsistency();
             } else {
-                createNewSheet(null, 'default', false);
+                locations.forEach(loc => {
+                    appState[loc] = { activeSheet: 'default', sheets: { 'default': { id: 'default', name: 'جرد البداية', data: {} } } };
+                });
             }
             
             updateSheetSelectUI();
-            db = appState.sheets[appState.activeSheet].data;
+            db = appState[currentLoc].sheets[appState[currentLoc].activeSheet].data;
             renderSidebar();
             loadLocation(currentLoc);
         }
@@ -928,22 +1001,20 @@
             const timeStr = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
             const autoSuggestedName = `جرد يوم ${dateStr} (${timeStr})`;
 
-            const sheetName = customName || prompt("أدخل اسماً للجرد الجديد:", autoSuggestedName);
+            const sheetName = customName || prompt("أدخل اسماً للجرد الجديد (خاص بهذا القسم فقط):", autoSuggestedName);
             if (!sheetName) return; 
 
             const sheetId = forceId || 'sheet_' + Date.now();
             
             let newDb = {};
-            locations.forEach(loc => {
-                newDb[loc] = {};
-                itemsList[loc].forEach(item => {
-                    newDb[loc][item] = { sys: '', bills: '', actual: '' };
-                });
+            // إنشاء الشيت فارغ تماماً من أي أرقام
+            itemsList[currentLoc].forEach(item => {
+                newDb[item] = { sys: '', bills: '', actual: '' };
             });
 
-            appState.sheets[sheetId] = { id: sheetId, name: sheetName, data: newDb };
-            appState.activeSheet = sheetId;
-            db = appState.sheets[sheetId].data; 
+            appState[currentLoc].sheets[sheetId] = { id: sheetId, name: sheetName, data: newDb };
+            appState[currentLoc].activeSheet = sheetId;
+            db = appState[currentLoc].sheets[sheetId].data; 
             
             if(shouldSave) saveState();
             updateSheetSelectUI();
@@ -951,24 +1022,24 @@
         }
 
         function switchSheet(sheetId) {
-            appState.activeSheet = sheetId;
-            db = appState.sheets[sheetId].data; 
+            appState[currentLoc].activeSheet = sheetId;
+            db = appState[currentLoc].sheets[sheetId].data; 
             saveState();
             loadLocation(currentLoc);
         }
 
         function deleteCurrentSheet() {
-            const keys = Object.keys(appState.sheets);
+            const keys = Object.keys(appState[currentLoc].sheets);
             if (keys.length <= 1) {
                 playSound('error');
-                alert("لا يمكنك حذف هذا الشيت لأنه الوحيد المتبقي. قم بإنشاء جرد جديد أولاً.");
+                alert("لا يمكنك حذف هذا الشيت لأنه الوحيد المتبقي في هذا القسم. قم بإنشاء جرد جديد أولاً.");
                 return;
             }
-            if(confirm(`هل أنت متأكد من حذف شيت "${appState.sheets[appState.activeSheet].name}" نهائياً؟`)) {
+            if(confirm(`هل أنت متأكد من حذف شيت "${appState[currentLoc].sheets[appState[currentLoc].activeSheet].name}" نهائياً من هذا القسم؟`)) {
                 playSound('delete');
-                delete appState.sheets[appState.activeSheet];
-                appState.activeSheet = Object.keys(appState.sheets)[0]; 
-                db = appState.sheets[appState.activeSheet].data;
+                delete appState[currentLoc].sheets[appState[currentLoc].activeSheet];
+                appState[currentLoc].activeSheet = Object.keys(appState[currentLoc].sheets)[0]; 
+                db = appState[currentLoc].sheets[appState[currentLoc].activeSheet].data;
                 saveState();
                 updateSheetSelectUI();
                 loadLocation(currentLoc);
@@ -977,14 +1048,12 @@
 
         function renameCurrentSheet() {
             initAudio();
-            const currentName = appState.sheets[appState.activeSheet].name;
+            const currentName = appState[currentLoc].sheets[appState[currentLoc].activeSheet].name;
             const newName = prompt("تعديل اسم أو تاريخ الجرد الحالي:", currentName);
             
             if (newName && newName.trim() !== "" && newName !== currentName) {
-                appState.sheets[appState.activeSheet].name = newName.trim();
-                
+                appState[currentLoc].sheets[appState[currentLoc].activeSheet].name = newName.trim();
                 document.getElementById('printSubtitle').innerText = newName.trim();
-                
                 saveState();
                 updateSheetSelectUI();
                 playSound('success');
@@ -994,24 +1063,22 @@
         function updateSheetSelectUI() {
             const select = document.getElementById('sheetSelect');
             select.innerHTML = '';
-            for (let key in appState.sheets) {
+            const currentSheets = appState[currentLoc].sheets;
+            for (let key in currentSheets) {
                 const opt = document.createElement('option');
                 opt.value = key;
-                opt.text = appState.sheets[key].name;
-                if (key === appState.activeSheet) opt.selected = true;
+                opt.text = currentSheets[key].name;
+                if (key === appState[currentLoc].activeSheet) opt.selected = true;
                 select.appendChild(opt);
             }
         }
 
         function ensureDataConsistency() {
-            for (let sheet in appState.sheets) {
-                locations.forEach(loc => {
-                    if (!appState.sheets[sheet].data[loc]) appState.sheets[sheet].data[loc] = {};
-                    itemsList[loc].forEach(item => {
-                        if (!appState.sheets[sheet].data[loc][item]) {
-                            appState.sheets[sheet].data[loc][item] = { sys: '', bills: '', actual: '' };
-                        }
-                    });
+            for (let sheet in appState[currentLoc].sheets) {
+                itemsList[currentLoc].forEach(item => {
+                    if (!appState[currentLoc].sheets[sheet].data[item]) {
+                        appState[currentLoc].sheets[sheet].data[item] = { sys: '', bills: '', actual: '' };
+                    }
                 });
             }
         }
@@ -1071,9 +1138,9 @@
             if (confirm(`هل أنت متأكد من حذف "${itemName}" نهائياً من قسم (${currentLoc})؟`)) {
                 playSound('delete');
                 itemsList[currentLoc] = itemsList[currentLoc].filter(i => i !== itemName);
-                for (let sheet in appState.sheets) {
-                    if(appState.sheets[sheet].data[currentLoc][itemName]) {
-                        delete appState.sheets[sheet].data[currentLoc][itemName]; 
+                for (let sheet in appState[currentLoc].sheets) {
+                    if(appState[currentLoc].sheets[sheet].data[itemName]) {
+                        delete appState[currentLoc].sheets[sheet].data[itemName]; 
                     }
                 }
                 saveState();
@@ -1086,7 +1153,7 @@
             if(confirm(`هل أنت متأكد من تصفير الأرقام في قسم (${currentLoc}) فقط؟ (لن تُحذف الأصناف)`)) {
                 playSound('delete');
                 itemsList[currentLoc].forEach(item => {
-                    db[currentLoc][item] = { sys: '', bills: '', actual: '' };
+                    db[item] = { sys: '', bills: '', actual: '' };
                 });
                 saveState();
                 loadLocation(currentLoc);
@@ -1098,8 +1165,8 @@
             if(confirm(`تحذير شديد: هل أنت متأكد من مسح جميع الأصناف من قسم (${currentLoc}) بالكامل؟ ستعود الشاشة فارغة لتبدأ من الصفر.`)) {
                 playSound('delete');
                 itemsList[currentLoc] = [];
-                for (let sheet in appState.sheets) {
-                    appState.sheets[sheet].data[currentLoc] = {}; 
+                for (let sheet in appState[currentLoc].sheets) {
+                    appState[currentLoc].sheets[sheet].data = {}; 
                 }
                 saveState();
                 loadLocation(currentLoc);
@@ -1129,14 +1196,22 @@
 
         function loadLocation(loc) {
             currentLoc = loc;
+            
+            // التأكد من وجود القسم في الداتا وتوجيه db للشيت النشط فيه
+            if(!appState[loc]) {
+                appState[loc] = { activeSheet: 'default', sheets: { 'default': { id: 'default', name: 'جرد البداية', data: {} } } };
+            }
+            db = appState[loc].sheets[appState[loc].activeSheet].data;
+
             document.getElementById('currentLocationTitle').innerText = loc;
             document.getElementById('stat-total').innerText = itemsList[loc].length;
             
             document.getElementById('printTitle').innerText = getDynamicTitle();
-            if(appState && appState.sheets && appState.sheets[appState.activeSheet]) {
-                document.getElementById('printSubtitle').innerText = appState.sheets[appState.activeSheet].name;
+            if(appState[loc] && appState[loc].sheets && appState[loc].sheets[appState[loc].activeSheet]) {
+                document.getElementById('printSubtitle').innerText = appState[loc].sheets[appState[loc].activeSheet].name;
             }
             
+            updateSheetSelectUI();
             renderSidebar();
 
             const tbody = document.getElementById('inventoryBody');
@@ -1149,7 +1224,7 @@
             }
 
             itemsList[loc].forEach((item, index) => {
-                const data = db[loc][item] || { sys: '', bills: '', actual: '' };
+                const data = db[item] || { sys: '', bills: '', actual: '' };
                 const tr = document.createElement('tr');
                 tr.setAttribute('data-item', item);
                 
@@ -1179,8 +1254,8 @@
             const tr = input.closest('tr');
             const item = tr.getAttribute('data-item');
             if(input.value < 0) input.value = 0;
-            if(!db[currentLoc][item]) db[currentLoc][item] = { sys: '', bills: '', actual: '' };
-            db[currentLoc][item][field] = input.value;
+            if(!db[item]) db[item] = { sys: '', bills: '', actual: '' };
+            db[item][field] = input.value;
             saveState();
             calculateRow(tr, true);
         }
@@ -1317,10 +1392,8 @@
 
                     let updatedCount = 0;
                     Object.keys(excelMap).forEach(exName => {
-                        if (!db[currentLoc]) db[currentLoc] = {};
-                        if (!db[currentLoc][exName]) db[currentLoc][exName] = { sys: '', bills: '', actual: '' };
-                        
-                        db[currentLoc][exName].sys = excelMap[exName];
+                        if (!db[exName]) db[exName] = { sys: '', bills: '', actual: '' };
+                        db[exName].sys = excelMap[exName];
                         updatedCount++;
                     });
 
@@ -1362,7 +1435,7 @@
             exportData.push(['#', 'اسم الصنف الطبي', 'السيستم', 'المصروف', 'الفعلي', 'العجز', 'الزيادة']);
 
             itemsList[currentLoc].forEach((item, index) => {
-                const data = db[currentLoc][item] || { sys: '', bills: '', actual: '' };
+                const data = db[item] || { sys: '', bills: '', actual: '' };
                 const sysVal = parseFloat(data.sys) || 0;
                 const billsVal = parseFloat(data.bills) || 0;
                 const actualVal = data.actual !== '' ? parseFloat(data.actual) : '';
@@ -1419,8 +1492,14 @@
                 let deficits = []; let surpluses = [];
                 
                 locations.forEach(loc => {
-                    if(!db[loc] || !db[loc][item] || !itemsList[loc].includes(item)) return;
-                    const data = db[loc][item];
+                    if(!appState[loc]) return;
+                    let activeSheetId = appState[loc].activeSheet;
+                    if(!appState[loc].sheets[activeSheetId]) return;
+                    
+                    let locData = appState[loc].sheets[activeSheetId].data;
+                    
+                    if(!locData || !locData[item] || !itemsList[loc].includes(item)) return;
+                    const data = locData[item];
                     if (data.actual === '') return;
                     
                     const sys = parseFloat(data.sys) || 0;
@@ -1479,7 +1558,7 @@
         }
 
         // ==========================================
-        // المُقسّم الذكي - النسخة النهائية المطابقة للطباعة
+        // دالة حفظ التقرير כصور مقسمة - الإصدار المعدل والمحاكي للطباعة تماماً
         // ==========================================
         async function downloadImage(type) {
             initAudio();
@@ -1493,13 +1572,12 @@
             document.getElementById('currentLocationTitle').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري تجهيز الصور...';
 
             try {
-                const sheetName = appState.sheets[appState.activeSheet].name;
+                const sheetName = appState[currentLoc].sheets[appState[currentLoc].activeSheet].name;
                 const printTitleText = type === 'settlement' ? "تقرير التسويات العام لجميع الأقسام" : getDynamicTitle();
                 
                 const currentUserName = document.getElementById('userNameDisplay').innerText;
                 document.getElementById('printUserName').innerText = currentUserName;
 
-                // إنشاء حاوية خفية للتصوير
                 const exportContainer = document.createElement('div');
                 exportContainer.style.width = '1000px';
                 exportContainer.style.padding = '30px';
@@ -1557,7 +1635,7 @@
                     
                 } else {
                     const rows = Array.from(document.querySelectorAll('#inventoryBody tr')).filter(r => r.style.display !== 'none');
-                    const rowsPerPage = 26; // عدد مثالي لكل صفحة
+                    const rowsPerPage = 26; 
                     const totalPages = Math.ceil(rows.length / rowsPerPage) || 1;
                     
                     const statsHtml = document.querySelector('.stats-grid').outerHTML;
@@ -1566,7 +1644,6 @@
                     for (let i = 0; i < totalPages; i++) {
                         exportContainer.innerHTML = ''; 
 
-                        // العنوان والإحصائيات في الصفحة الأولى فقط
                         if (i === 0) {
                             exportContainer.innerHTML += `
                                 <div style="text-align: center; margin-bottom: 20px;">
@@ -1583,24 +1660,20 @@
                             `;
                         }
 
-                        // تجهيز صفوف الصفحة الحالية
                         const start = i * rowsPerPage;
                         const end = Math.min(start + rowsPerPage, rows.length);
                         
                         let rowsHtml = '';
                         for (let j = start; j < end; j++) {
                             const rowClone = rows[j].cloneNode(true);
-                            // تحويل مربعات الإدخال لنصوص ثابتة عشان الصورة تطلع نقية
                             const inputs = rowClone.querySelectorAll('input[type="number"]');
                             const originalInputs = rows[j].querySelectorAll('input[type="number"]');
                             inputs.forEach((inp, idx) => {
                                 const val = originalInputs[idx].value;
                                 inp.outerHTML = `<span style="font-weight:bold; font-size:14px;">${val}</span>`;
                             });
-                            // مسح زرار الحذف
                             rowClone.querySelector('td:last-child').remove();
                             
-                            // الحفاظ على ألوان العجز والزيادة
                             if(rows[j].classList.contains('row-deficit')) {
                                 rowClone.style.backgroundColor = '#fff5f5';
                             } else if(rows[j].classList.contains('row-surplus')) {
@@ -1610,7 +1683,6 @@
                             rowsHtml += rowClone.outerHTML;
                         }
 
-                        // تجهيز رأس الجدول (ثابت في كل الصفحات)
                         const tempThead = document.createElement('table');
                         tempThead.innerHTML = theadHtml;
                         tempThead.querySelector('th:last-child').remove();
@@ -1626,7 +1698,6 @@
                             </table>
                         `;
 
-                        // تظبيط مقاسات الجدول في الصورة
                         const tableCells = exportContainer.querySelectorAll('th, td');
                         tableCells.forEach(cell => {
                             cell.style.padding = '10px 8px';
@@ -1636,7 +1707,6 @@
                         const nameCells = exportContainer.querySelectorAll('.item-name');
                         nameCells.forEach(cell => cell.style.textAlign = 'right');
 
-                        // التوقيع في الصفحة الأخيرة فقط
                         if (i === totalPages - 1) {
                             const footerClone = document.getElementById('printFooter').cloneNode(true);
                             footerClone.style.display = 'flex';
@@ -1687,8 +1757,8 @@
                 document.getElementById('printTitle').innerText = getDynamicTitle();
             }
             
-            if(appState && appState.sheets && appState.sheets[appState.activeSheet]) {
-                document.getElementById('printSubtitle').innerText = appState.sheets[appState.activeSheet].name;
+            if(appState[currentLoc] && appState[currentLoc].sheets && appState[currentLoc].sheets[appState[currentLoc].activeSheet]) {
+                document.getElementById('printSubtitle').innerText = appState[currentLoc].sheets[appState[currentLoc].activeSheet].name;
             }
         });
 
@@ -1711,9 +1781,15 @@
                 let deficits = []; let surpluses = [];
                 
                 locations.forEach(loc => {
-                    if(!db[loc] || !db[loc][item] || !itemsList[loc].includes(item)) return;
+                    if(!appState[loc]) return;
+                    let activeSheetId = appState[loc].activeSheet;
+                    if(!appState[loc].sheets[activeSheetId]) return;
                     
-                    const data = db[loc][item];
+                    let locData = appState[loc].sheets[activeSheetId].data;
+                    
+                    if(!locData || !locData[item] || !itemsList[loc].includes(item)) return;
+                    
+                    const data = locData[item];
                     if (data.actual === '') return;
                     
                     const sys = parseFloat(data.sys) || 0;
