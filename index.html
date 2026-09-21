@@ -832,16 +832,9 @@
         }
 
         const locations = ["رعاية الجراحة", "رعاية القسطرة", "الطوارئ", "الدور الرابع", "الدور الخامس"];
-        const ivFluidsList = [
-            "SODIUM CHLORIDE 3 %", 
-            "SODIUM CHLORIDE 45%", 
-            "جلوكوز 10 %", 
-            "جلوكوز 25 %", 
-            "جلوكوز 5 %", 
-            "رينجر", 
-            "مانيتول", 
-            "KIDMIN 250 ML"
-        ];
+        
+        // المحاليل اللي بتلون بالأزرق لما تتداس على (إضافة المحاليل)
+        const ivFluidsList = ["SODIUM CHLORIDE 3 %", "SODIUM CHLORIDE 45%", "جلوكوز 10 %", "جلوكوز 25 %", "جلوكوز 5 %", "رينجر", "مانيتول", "KIDMIN 250 ML"];
         
         let currentLoc = locations[0]; 
         let itemsList = {}; 
@@ -1040,7 +1033,6 @@
             loadLocation(currentLoc);
         }
 
-        // تم إصلاح دالة الحذف وتأمينها
         function deleteCurrentSheet() {
             const currentKeys = Object.keys(appState[currentLoc].sheets);
             if (currentKeys.length <= 1) {
@@ -1055,10 +1047,8 @@
             if(confirm(`هل أنت متأكد من حذف شيت "${sheetName}" نهائياً من هذا القسم؟`)) {
                 playSound('delete');
                 
-                // حذف الشيت من الذاكرة
                 delete appState[currentLoc].sheets[activeId];
                 
-                // تحويل المستخدم للشيت الأقدم
                 const remainingKeys = Object.keys(appState[currentLoc].sheets);
                 appState[currentLoc].activeSheet = remainingKeys[0];
                 db = appState[currentLoc].sheets[remainingKeys[0]].data;
@@ -1153,10 +1143,7 @@
             if (confirm(`هل أنت متأكد من حذف "${itemName}" من الجرد؟`)) {
                 playSound('delete');
                 
-                // هنشيله من القائمة عشان ميظهرش في الشيتات الجديدة
                 itemsList[currentLoc] = itemsList[currentLoc].filter(i => i !== itemName);
-                
-                // وهنشيله من الشيت الحالي بس (لكن هيفضل محفوظ في شيت 19 القديم كمرجع)
                 delete db[itemName]; 
                 
                 saveState();
@@ -1229,7 +1216,6 @@
 
             document.getElementById('currentLocationTitle').innerText = loc;
             
-            // قراءة عدد الأصناف من الشيت الفعلي بدقة
             const currentSheetItems = Object.keys(db);
             document.getElementById('stat-total').innerText = currentSheetItems.length;
             
@@ -1363,6 +1349,9 @@
             });
         }
 
+        // ==========================================
+        // دالة رفع الإكسيل بالترتيب المظبوط 100%
+        // ==========================================
         function handleExcelUpload(event) {
             initAudio();
             const file = event.target.files[0];
@@ -1386,6 +1375,7 @@
                     const json = XLSX.utils.sheet_to_json(firstSheet, {header: 1, defval: null});
 
                     let excelMap = {};
+                    let excelOrder = []; // المصفوفة دي هتحفظ ترتيب الإكسيل حرفياً سطر سطر
                     
                     for (let i = 0; i < json.length - 1; i++) {
                         try {
@@ -1403,7 +1393,10 @@
                                 const itemName = sanitizeForFirebase(String(nameRaw).replace(/[\r\n]+/g, ' ')); 
                                 
                                 if (!isNaN(qty) && itemName !== '' && itemName !== '0') {
-                                    if (!excelMap[itemName]) excelMap[itemName] = 0;
+                                    if (!excelMap[itemName]) {
+                                        excelMap[itemName] = 0;
+                                        excelOrder.push(itemName); // حفظ الاسم بالترتيب
+                                    }
                                     excelMap[itemName] += qty;
                                 }
                             }
@@ -1412,12 +1405,15 @@
                         }
                     }
 
-                    Object.keys(excelMap).forEach(exName => {
+                    // استيراد الأسماء بنفس ترتيب مصفوفة الإكسيل
+                    excelOrder.forEach(exName => {
                         insertRegularItem(exName);
                     });
                     
+                    ensureDataConsistency();
+
                     let updatedCount = 0;
-                    Object.keys(excelMap).forEach(exName => {
+                    excelOrder.forEach(exName => {
                         if (!db[exName]) db[exName] = { sys: '', bills: '', actual: '' };
                         db[exName].sys = excelMap[exName];
                         updatedCount++;
@@ -2065,6 +2061,10 @@
                 btn.classList.remove('recording');
                 icon.className = 'fa-solid fa-microphone';
                 document.getElementById('searchInput').placeholder = "بحث...";
+                
+                if (event.error === 'not-allowed') {
+                    alert("المتصفح يمنع استخدام المايكروفون. يرجى الضغط على علامة القفل بجوار الرابط والسماح للمايكروفون (Allow).");
+                }
             };
 
             recognition.onend = function() {
