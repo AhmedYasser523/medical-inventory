@@ -166,7 +166,7 @@
 
         .main-wrapper { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; transition: all 0.3s ease; }
         
-        /* ================= تصميم الهيدر (Topbar) ================= */
+        /* ================= تصميم الهيدر الجديد (الصفين) ================= */
         .topbar { background: var(--card-bg); padding: 15px 20px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); z-index: 50; transition: background-color 0.3s; }
         
         .topbar-main-row { display: flex; width: 100%; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; }
@@ -180,24 +180,14 @@
         .cloud-badge.offline { background: #fee2e2; color: #b91c1c; }
         .cloud-badge.syncing { background: #e0e7ff; color: #4338ca; }
 
-        /* شريط الشيتات (المتوازن) */
-        .sheet-controls { 
-            display: flex; justify-content: space-between; align-items: center; 
-            background: #eef2ff; padding: 10px 15px; border-radius: 12px; 
-            border: 1px solid #c7d2fe; width: 100%; transition: background-color 0.3s; flex-wrap: wrap; gap: 10px;
-        }
-        .sheet-select-group { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 180px; overflow: hidden; }
-        .sheet-select-group i { color: var(--primary); font-size: 18px; }
-        .sheet-select-group select { 
-            border: none; background: transparent; font-weight: 700; font-size: 14px; 
-            color: var(--primary); outline: none; cursor: pointer; width: 100%; 
-            text-overflow: ellipsis; white-space: nowrap; 
-        }
-        .sheet-action-group { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+        /* شريط الشيتات نزل تحت لوحده */
+        .sheet-controls { display: flex; align-items: center; gap: 8px; background: #eef2ff; padding: 8px 12px; border-radius: 12px; border: 1px solid #c7d2fe; flex-wrap: wrap; width: 100%; transition: background-color 0.3s;}
+        .sheet-controls i { color: var(--primary); }
+        .sheet-controls select { border: none; background: transparent; font-weight: 700; font-size: 14px; color: var(--primary); outline: none; cursor: pointer; max-width: 200px;}
         
-        .btn-sheet-add { background: transparent; color: var(--primary); border: 2px dashed var(--primary); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 900; transition: 0.2s;}
+        .btn-sheet-add { background: transparent; color: var(--primary); border: 2px dashed var(--primary); width: 28px; height: 28px; border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 900; transition: 0.2s;}
         .btn-sheet-add:hover { background: var(--primary); color: white; transform: scale(1.05);}
-        .btn-sheet-action { background: var(--primary); color: white; border: none; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;}
+        .btn-sheet-action { background: var(--primary); color: white; border: none; width: 28px; height: 28px; border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;}
         .btn-sheet-action:hover { background: var(--primary-hover); transform: scale(1.05);}
         .btn-sheet-edit { background: #e0f2fe; color: var(--info); }
         .btn-sheet-edit:hover { background: #bae6fd; }
@@ -208,12 +198,12 @@
         .btn-edit-name { background: none; border: none; color: var(--primary); cursor: pointer; padding: 0 5px; font-size: 13px; opacity: 0.7; transition: 0.2s; }
         .btn-edit-name:hover { opacity: 1; transform: scale(1.1); color: var(--primary-hover); }
 
+        /* دمج المايك والبحث */
         .search-mic-group { display: flex; align-items: center; background: #f9fafb; border: 1px solid var(--border-color); border-radius: 25px; padding: 3px; transition: all 0.3s; }
         .search-mic-group:focus-within { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1); background: transparent;}
         .search-container { position: relative; }
-        .search-container i.fa-search { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
-        
-        .search-box { padding: 10px 38px 10px 15px; border: none; border-radius: 25px; width: 180px; outline: none; font-size: 13px; background: transparent; color: var(--text-main); }
+        .search-container i.fa-search { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+        .search-box { padding: 8px 10px 8px 30px; border: none; border-radius: 25px; width: 160px; outline: none; font-size: 13px; background: transparent; color: var(--text-main); }
         
         .btn-voice { background: linear-gradient(135deg, var(--primary) 0%, #312e81 100%); color: white; border: none; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; transition: all 0.3s ease; margin-left: 5px; }
         .btn-voice:hover { transform: scale(1.1); box-shadow: 0 4px 10px rgba(79, 70, 229, 0.4); }
@@ -343,7 +333,7 @@
 
         @media (max-width: 768px) {
             .hide-mobile { display: none !important; }
-            .search-box { width: 120px !important; padding: 8px 38px 8px 10px !important; }
+            .search-box { width: 110px !important; }
             .user-badge { display: none !important; }
             .sidebar { position: fixed; right: -260px; top: 0; bottom: 0; }
             .sidebar.mobile-open { right: 0; }
@@ -431,8 +421,10 @@
         </aside>
 
         <main class="main-wrapper">
+            <!-- الهيدر الجديد المنظم لسطرين عشان الموبايل -->
             <header class="topbar">
                 
+                <!-- السطر الأول: يمين (القائمة والاسم) -- شمال (المايك والبحث والخروج) -->
                 <div class="topbar-main-row">
                     
                     <div class="topbar-right">
@@ -456,6 +448,7 @@
                             </button>
                         </div>
 
+                        <!-- دمج المايك ومربع البحث فوق على الشمال -->
                         <div class="search-mic-group">
                             <button id="voiceBtn" class="btn-voice no-print" onclick="startVoiceRecognition()" title="جرد بالصوت: قل اسم الصنف ثم العدد">
                                 <i class="fa-solid fa-microphone"></i>
@@ -473,16 +466,13 @@
 
                 </div>
 
+                <!-- السطر التاني: شريط الشيتات واخد العرض كله -->
                 <div class="sheet-controls no-print">
-                    <div class="sheet-select-group">
-                        <i class="fa-solid fa-file-excel"></i>
-                        <select id="sheetSelect" onchange="switchSheet(this.value)"></select>
-                    </div>
-                    <div class="sheet-action-group">
-                        <button class="btn-sheet-action btn-sheet-edit" onclick="renameCurrentSheet()" title="تعديل اسم أو تاريخ الجرد"><i class="fa-solid fa-pen"></i></button>
-                        <button class="btn-sheet-add" onclick="createNewSheet()" title="إضافة شيت جديد"><i class="fa-solid fa-plus"></i></button>
-                        <button class="btn-sheet-action btn-sheet-delete" onclick="deleteCurrentSheet()" title="حذف الشيت الحالي"><i class="fa-solid fa-trash"></i></button>
-                    </div>
+                    <i class="fa-solid fa-file-excel"></i>
+                    <select id="sheetSelect" onchange="switchSheet(this.value)"></select>
+                    <button class="btn-sheet-action btn-sheet-edit" onclick="renameCurrentSheet()" title="تعديل اسم أو تاريخ الجرد"><i class="fa-solid fa-pen"></i></button>
+                    <button class="btn-sheet-add" onclick="createNewSheet()" title="إضافة شيت جديد"><i class="fa-solid fa-plus"></i></button>
+                    <button class="btn-sheet-action btn-sheet-delete" onclick="deleteCurrentSheet()" title="حذف الشيت الحالي"><i class="fa-solid fa-trash"></i></button>
                 </div>
 
             </header>
@@ -511,6 +501,8 @@
                     </div>
 
                     <div class="toolbar">
+                        
+                        <button class="btn btn-warning no-print" onclick="restoreDay19Data()" style="color: #000; font-weight: 900;"><i class="fa-solid fa-magic"></i> استرجاع جرد يوم 19 🪄</button>
 
                         <button class="btn btn-outline no-print" onclick="fetchCloudData()" style="color: var(--primary);" title="تحديث البيانات من السحابة"><i class="fa-solid fa-rotate"></i> جلب التحديثات</button>
 
@@ -536,7 +528,7 @@
                         <button class="btn btn-danger no-print" onclick="downloadImage('inventory')"><i class="fa-solid fa-image"></i> حفظ كصورة</button>
                         <button class="btn btn-primary no-print" onclick="preparePrint()"><i class="fa-solid fa-print"></i> طباعة</button>
                         <button class="btn btn-outline no-print" onclick="clearCurrentLocationNumbers()" style="color: var(--warning);" title="تصفير الأرقام فقط في هذا القسم"><i class="fa-solid fa-eraser"></i> تصفير الأرقام</button>
-                        <button class="btn btn-outline no-print" onclick="deleteAllItems()" style="color: var(--danger);" title="تفريغ الشيت الحالي للاستيراد"><i class="fa-solid fa-broom"></i> تفريغ الشيت (للاستيراد)</button>
+                        <button class="btn btn-outline no-print" onclick="deleteAllItems()" style="color: var(--danger);" title="حذف كل أصناف هذا القسم والبدء من الصفر"><i class="fa-solid fa-trash-can"></i> مسح أصناف القسم</button>
                     </div>
 
                     <div class="table-card">
@@ -832,8 +824,6 @@
         }
 
         const locations = ["رعاية الجراحة", "رعاية القسطرة", "الطوارئ", "الدور الرابع", "الدور الخامس"];
-        
-        // المحاليل اللي بتلون بالأزرق لما تتداس على (إضافة المحاليل)
         const ivFluidsList = ["SODIUM CHLORIDE 3 %", "SODIUM CHLORIDE 45%", "جلوكوز 10 %", "جلوكوز 25 %", "جلوكوز 5 %", "رينجر", "مانيتول", "KIDMIN 250 ML"];
         
         let currentLoc = locations[0]; 
@@ -857,6 +847,13 @@
                 for (let sheet in appState[loc].sheets) {
                     if (!appState[loc].sheets[sheet].data) {
                         appState[loc].sheets[sheet].data = {};
+                    }
+                    if (itemsList[loc]) {
+                        itemsList[loc].forEach(item => {
+                            if (!appState[loc].sheets[sheet].data[item]) {
+                                appState[loc].sheets[sheet].data[item] = { sys: '', bills: '', actual: '' };
+                            }
+                        });
                     }
                 }
             });
@@ -1001,6 +998,177 @@
             loadLocation(currentLoc);
         }
 
+        function restoreDay19Data() {
+            initAudio();
+            if(!confirm("هل أنت متأكد من استرجاع جرد يوم 19 لكل من (رعاية القسطرة) و (الطوارئ)؟")) return;
+
+            const restoreData = {
+              "رعاية القسطرة": {
+                "-NORMAL SALINE 0-9% 500 ML": {"sys": 2, "actual": "", "bills": ""},
+                "اسليبر مريض": {"sys": 15, "actual": 6, "bills": ""},
+                "الكترود رسم قلب": {"sys": 0, "actual": 100, "bills": ""},
+                "انبوبة حنجرية بالبالون مقاسات": {"sys": 22, "actual": 22, "bills": ""},
+                "انبوبه حنجريه بالبالون مقاسات ( اطفال )": {"sys": 2, "actual": 2, "bills": ""},
+                "بامبرز مقاس L": {"sys": 40, "actual": 34, "bills": 6},
+                "باند ايد مستطيل": {"sys": 23, "actual": 13, "bills": 6},
+                "بلاستر حرير 10 سم": {"sys": 6, "actual": 7, "bills": ""},
+                "ترمومتر زئبقي": {"sys": 24, "actual": 22, "bills": 3},
+                "جاون طبيب جراحي": {"sys": 0, "actual": "", "bills": ""},
+                "جهاز نقل دم": {"sys": 2, "actual": 7, "bills": ""},
+                "جهاز وريد ابيض": {"sys": 9, "actual": 16, "bills": 1},
+                "جوانتي لاتكس مقاس L": {"sys": 800, "actual": 200, "bills": 100},
+                "جوانتي معقم مقاسات": {"sys": 2, "actual": 9, "bills": ""},
+                "حرير 1 علي ابره قاطعه": {"sys": 6, "actual": 6, "bills": ""},
+                "خرطوم شفط دم 2م": {"sys": 4, "actual": 3, "bills": 1},
+                "دريسنج جراحي": {"sys": 53, "actual": 7, "bills": 5},
+                "رايل مقاسات": {"sys": 5, "actual": 5, "bills": ""},
+                "رباط شاش 5سم": {"sys": 8, "actual": 10, "bills": ""},
+                "رباط ضاغط": {"sys": 2, "actual": 2, "bills": ""},
+                "سالوسيت 150": {"sys": 3, "actual": 2, "bills": 1},
+                "ستري باد 10*20": {"sys": 49, "actual": 48, "bills": 1},
+                "سرنجة انسولين 1 سم": {"sys": 52, "actual": 51, "bills": 3},
+                "س نجة 10": {"sys": 21, "actual": 21, "bills": ""},
+                "س نجة 20": {"sys": 26, "actual": 30, "bills": 1},
+                "س نجة 3": {"sys": 3, "actual": 31, "bills": ""},
+                "س نجة 5": {"sys": 94, "actual": 106, "bills": ""},
+                "س نجة 50 رايل": {"sys": 24, "actual": 25, "bills": ""},
+                "س نجة 50 سن": {"sys": 32, "actual": 31, "bills": 1},
+                "سلاح مشراط مقاس 24": {"sys": 112, "actual": 114, "bills": ""},
+                "سواب 10*10 عادى": {"sys": 50, "actual": 100, "bills": ""},
+                "سواب كحول": {"sys": 12, "actual": 40, "bills": ""},
+                "شرائط سكر": {"sys": 65, "actual": 70, "bills": ""},
+                "شكاكات": {"sys": 27, "actual": 200, "bills": ""},
+                "غطاء راس طبيب": {"sys": 0, "actual": 5, "bills": ""},
+                "قسطرة سيلكون مقاسات": {"sys": 2, "actual": 3, "bills": ""},
+                "قسطرة فولي مقاسات": {"sys": 1, "actual": 1, "bills": ""},
+                "قسطره سي في بي": {"sys": 1, "actual": 1, "bills": ""},
+                "قسطره نيلاتون مقاسات": {"sys": 20, "actual": 22, "bills": ""},
+                "كاب ممرض": {"sys": 104, "actual": 105, "bills": ""},
+                "كاندم مقاسات": {"sys": 2, "actual": 3, "bills": ""},
+                "كانيولا مقاس 14": {"sys": 1, "actual": 2, "bills": ""},
+                "كانيولا مقاس 16": {"sys": 0, "actual": 0, "bills": ""},
+                "كانيولا مقاسات": {"sys": 28, "actual": 37, "bills": ""},
+                "ثري واى مقاس 24": {"sys": 0, "actual": 1, "bills": ""},
+                "كحول طبى 1 لتر": {"sys": 4890, "actual": 5000, "bills": ""},
+                "كوب جمع عينه 120ملل": {"sys": 3, "actual": 2, "bills": 1},
+                "كي واي جيل": {"sys": 5, "actual": 5, "bills": ""},
+                "كيس جمع بول": {"sys": 9, "actual": 9, "bills": ""},
+                "ماسك اكسجين اطفال": {"sys": 0, "actual": 0, "bills": ""},
+                "ماسك اكسجين كبار": {"sys": 12, "actual": 10, "bills": 2},
+                "ماسك بالباج": {"sys": 0, "actual": 1, "bills": ""},
+                "ماسك نوبلايزر اطفال": {"sys": 1, "actual": 1, "bills": ""},
+                "ماسك نيبوبلايزر كبار": {"sys": 11, "actual": 10, "bills": 1},
+                "ماهوكر ثلاثي": {"sys": 1, "actual": 1, "bills": ""},
+                "مفرش سرير 60-90": {"sys": 32, "actual": 28, "bills": 4},
+                "ممر هوائى مقاسات": {"sys": 7, "actual": 7, "bills": ""},
+                "نيزل أكسجين": {"sys": 17, "actual": 15, "bills": 2},
+                "نيزل اكسجين اطفال": {"sys": 1, "actual": 1, "bills": ""},
+                "وصلة شريانية 150": {"sys": 3, "actual": 3, "bills": ""},
+                "وصلة وريدية 150": {"sys": 2, "actual": 8, "bills": ""},
+                "وصله تخدير كبار بالباج": {"sys": 1, "actual": 1, "bills": ""},
+                "وصله ثلاثي": {"sys": 27, "actual": 26, "bills": 3},
+                "يورينال": {"sys": 5, "actual": 4, "bills": 1},
+                "جلوكوز 10 %": {"sys": 0, "actual": "", "bills": ""},
+                "جلوكوز 25 %": {"sys": 1, "actual": 1, "bills": ""},
+                "جلوكوز 5 %": {"sys": 0, "actual": "", "bills": ""},
+                "رينجر": {"sys": 0, "actual": 4, "bills": ""},
+                "مانيتول": {"sys": 0, "actual": 1, "bills": ""},
+                "KIDMIN 250 ML": {"sys": 0, "actual": "", "bills": ""}
+              },
+              "الطوارئ": {
+                "-NORMAL SALINE 0-9% 500 ML": {"sys": 19, "actual": 19, "bills": ""},
+                "الكترود رسم قلب": {"sys": 4, "actual": 9, "bills": ""},
+                "انبوبة حنجرية بالبالون مقاسات": {"sys": 12, "actual": 15, "bills": ""},
+                "باند ايد مستطيل": {"sys": 13, "actual": 8, "bills": ""},
+                "بلاستر حرير 10 سم": {"sys": 5, "actual": 5, "bills": ""},
+                "ترمومتر زئبقي": {"sys": 10, "actual": 10, "bills": ""},
+                "جاون مريض": {"sys": 4, "actual": 4, "bills": ""},
+                "جهاز نقل دم": {"sys": 11, "actual": 12, "bills": ""},
+                "جهاز وريد ابيض": {"sys": 9, "actual": 9, "bills": ""},
+                "جوانتي لاتكس مقاس L": {"sys": 700, "actual": "", "bills": ""},
+                "جوانتي معقم مقاسات": {"sys": 10, "actual": 17, "bills": ""},
+                "حرير 1 علي ابره قاطعه": {"sys": 14, "actual": 15, "bills": ""},
+                "دريسنج جراحي": {"sys": 37, "actual": 15, "bills": ""},
+                "رايل مقاسات": {"sys": 14, "actual": 14, "bills": ""},
+                "رباط شاش 5سم": {"sys": 10, "actual": 10, "bills": ""},
+                "رباط ضاغط": {"sys": 3, "actual": 4, "bills": ""},
+                "سالوسيت 150": {"sys": 3, "actual": 3, "bills": ""},
+                "سرنجة انسولين 1 سم": {"sys": 13, "actual": 19, "bills": ""},
+                "س نجة 10": {"sys": 8, "actual": 19, "bills": ""},
+                "س نجة 20": {"sys": 20, "actual": 35, "bills": ""},
+                "س نجة 3": {"sys": 32, "actual": 32, "bills": ""},
+                "س نجة 5": {"sys": 22, "actual": 22, "bills": ""},
+                "س نجة 50 رايل": {"sys": 7, "actual": 7, "bills": ""},
+                "س نجة 50 سن": {"sys": 29, "actual": 31, "bills": ""},
+                "سيفتى بوكس": {"sys": 1, "actual": 1, "bills": ""},
+                "شرائط سكر": {"sys": 109, "actual": 110, "bills": ""},
+                "شكاكات": {"sys": 193, "actual": 200, "bills": ""},
+                "قسطرة سيلكون مقاسات": {"sys": 4, "actual": 5, "bills": ""},
+                "قسطرة فولي مقاسات": {"sys": 6, "actual": 5, "bills": ""},
+                "قسطره سي في بي": {"sys": 2, "actual": 2, "bills": ""},
+                "قسطره نيلاتون مقاسات": {"sys": 28, "actual": 39, "bills": ""},
+                "قطن طبى": {"sys": 40, "actual": "", "bills": ""},
+                "كانيولا مقاس 16": {"sys": 9, "actual": 9, "bills": ""},
+                "كانيولا مقاسات": {"sys": 49, "actual": 51, "bills": ""},
+                "كانيولا مقاس 24": {"sys": 8, "actual": 5, "bills": ""}, 
+                "كحول طبى 1 لتر": {"sys": 1, "actual": 2, "bills": ""},
+                "كوب جمع عينه 120ملل": {"sys": 5, "actual": 5, "bills": ""},
+                "كي واي جيل": {"sys": 6, "actual": 6, "bills": ""},
+                "كيس جمع بول": {"sys": 3, "actual": 3, "bills": ""},
+                "ماسك اكسجين كبار": {"sys": 5, "actual": 6, "bills": ""},
+                "ماسك بالباج": {"sys": 1, "actual": 1, "bills": ""},
+                "ماسك نيبوبلايزر كبار": {"sys": 4, "actual": 5, "bills": ""},
+                "ماسك ورق ( رباط )": {"sys": 52, "actual": 53, "bills": ""},
+                "مشرط مقاس 15": {"sys": 29, "actual": 29, "bills": ""},
+                "ممر هوائى مقاسات": {"sys": 11, "actual": 11, "bills": ""},
+                "نيزل أكسجين": {"sys": 7, "actual": 7, "bills": ""},
+                "ورق رسم قلب": {"sys": 1, "actual": "", "bills": ""},
+                "وصلة شريانية 150": {"sys": 7, "actual": 10, "bills": ""},
+                "وصلة وريدية 150": {"sys": 12, "actual": 14, "bills": ""},
+                "وصله تخدير كبار بالباج": {"sys": 2, "actual": 2, "bills": ""},
+                "وصله ثلاثي": {"sys": 28, "actual": 30, "bills": ""},
+                "يورينال": {"sys": 1, "actual": 2, "bills": ""},
+                "خرطوم شفط": {"sys": 0, "actual": 4, "bills": ""},
+                "كانيولا مقاس 14": {"sys": 0, "actual": 3, "bills": ""},
+                "ستري باد": {"sys": 0, "actual": 18, "bills": ""},
+                "كاندم": {"sys": 0, "actual": 15, "bills": ""},
+                "جلوكوز 10 %": {"sys": 2, "actual": 4, "bills": ""},
+                "جلوكوز 25 %": {"sys": 4, "actual": 4, "bills": ""},
+                "جلوكوز 5 %": {"sys": 0, "actual": "", "bills": ""},
+                "رينجر": {"sys": 0, "actual": 4, "bills": ""},
+                "مانيتول": {"sys": 0, "actual": 1, "bills": ""},
+                "KIDMIN 250 ML": {"sys": 0, "actual": "", "bills": ""}
+              }
+            };
+
+            for (let loc in restoreData) {
+                if (!appState[loc]) appState[loc] = { activeSheet: 'default', sheets: {} };
+                if (!itemsList[loc]) itemsList[loc] = [];
+                
+                const sheetId = 'sheet_restored_19_' + Date.now();
+                let newDb = {};
+                
+                for (let itemName in restoreData[loc]) {
+                    if (!itemsList[loc].includes(itemName)) {
+                        itemsList[loc].push(itemName);
+                    }
+                    newDb[itemName] = restoreData[loc][itemName];
+                }
+                
+                itemsList[loc].forEach(item => {
+                    if(!newDb[item]) newDb[item] = { sys: '', bills: '', actual: '' };
+                });
+                
+                appState[loc].sheets[sheetId] = { id: sheetId, name: 'جرد يوم 2026/9/19', data: newDb };
+                appState[loc].activeSheet = sheetId;
+            }
+            
+            saveState();
+            loadLocation(currentLoc);
+            playSound('success');
+            alert("تم استرجاع جرد يوم 19 المفقود بنجاح في قسمي (القسطرة) و (الطوارئ)!");
+        }
+
         function createNewSheet(customName = null, forceId = null, shouldSave = true) {
             const now = new Date();
             const dateStr = now.toLocaleDateString('ar-EG', { year: 'numeric', month: 'numeric', day: 'numeric' });
@@ -1034,25 +1202,17 @@
         }
 
         function deleteCurrentSheet() {
-            const currentKeys = Object.keys(appState[currentLoc].sheets);
-            if (currentKeys.length <= 1) {
+            const keys = Object.keys(appState[currentLoc].sheets);
+            if (keys.length <= 1) {
                 playSound('error');
                 alert("لا يمكنك حذف هذا الشيت لأنه الوحيد المتبقي في هذا القسم. قم بإنشاء جرد جديد أولاً.");
                 return;
             }
-            
-            const activeId = appState[currentLoc].activeSheet;
-            const sheetName = appState[currentLoc].sheets[activeId].name;
-            
-            if(confirm(`هل أنت متأكد من حذف شيت "${sheetName}" نهائياً من هذا القسم؟`)) {
+            if(confirm(`هل أنت متأكد من حذف شيت "${appState[currentLoc].sheets[appState[currentLoc].activeSheet].name}" نهائياً من هذا القسم؟`)) {
                 playSound('delete');
-                
-                delete appState[currentLoc].sheets[activeId];
-                
-                const remainingKeys = Object.keys(appState[currentLoc].sheets);
-                appState[currentLoc].activeSheet = remainingKeys[0];
-                db = appState[currentLoc].sheets[remainingKeys[0]].data;
-                
+                delete appState[currentLoc].sheets[appState[currentLoc].activeSheet];
+                appState[currentLoc].activeSheet = Object.keys(appState[currentLoc].sheets)[0]; 
+                db = appState[currentLoc].sheets[appState[currentLoc].activeSheet].data;
                 saveState();
                 updateSheetSelectUI();
                 loadLocation(currentLoc);
@@ -1087,11 +1247,12 @@
         }
 
         function insertRegularItem(itemName) {
-            if (!itemsList[currentLoc].includes(itemName)) {
-                itemsList[currentLoc].push(itemName); 
-            }
-            if (!db[itemName]) {
-                db[itemName] = { sys: '', bills: '', actual: '' };
+            if (itemsList[currentLoc].includes(itemName)) return;
+            let firstFluidIndex = itemsList[currentLoc].findIndex(i => ivFluidsList.includes(i));
+            if (firstFluidIndex !== -1) {
+                itemsList[currentLoc].splice(firstFluidIndex, 0, itemName);
+            } else {
+                itemsList[currentLoc].push(itemName);
             }
         }
 
@@ -1103,10 +1264,11 @@
             
             const newItem = sanitizeForFirebase(rawNewItem);
 
-            if (Object.keys(db).includes(newItem)) { playSound('error'); return alert('هذا الصنف موجود بالفعل في هذا الشيت!'); }
+            if (itemsList[currentLoc].includes(newItem)) { playSound('error'); return alert('هذا الصنف موجود بالفعل في هذا القسم!'); }
 
             playSound('success');
             insertRegularItem(newItem);
+            ensureDataConsistency(); 
             saveState();
 
             input.value = '';
@@ -1118,18 +1280,14 @@
             let added = false;
             ivFluidsList.forEach(fluid => {
                 if (!itemsList[currentLoc].includes(fluid)) {
-                    // الميزة دي بتضيف المحاليل في آخر الشيت بكل هدوء
                     itemsList[currentLoc].push(fluid); 
-                    added = true;
-                }
-                if (!db[fluid]) {
-                    db[fluid] = { sys: '', bills: '', actual: '' };
                     added = true;
                 }
             });
             
             if(added) {
                 playSound('success');
+                ensureDataConsistency();
                 saveState();
                 loadLocation(currentLoc);
             } else {
@@ -1140,12 +1298,14 @@
 
         function deleteItem(itemName) {
             initAudio();
-            if (confirm(`هل أنت متأكد من حذف "${itemName}" من الجرد؟`)) {
+            if (confirm(`هل أنت متأكد من حذف "${itemName}" نهائياً من قسم (${currentLoc})؟`)) {
                 playSound('delete');
-                
                 itemsList[currentLoc] = itemsList[currentLoc].filter(i => i !== itemName);
-                delete db[itemName]; 
-                
+                for (let sheet in appState[currentLoc].sheets) {
+                    if(appState[currentLoc].sheets[sheet].data[itemName]) {
+                        delete appState[currentLoc].sheets[sheet].data[itemName]; 
+                    }
+                }
                 saveState();
                 loadLocation(currentLoc);
             }
@@ -1155,8 +1315,7 @@
             initAudio();
             if(confirm(`هل أنت متأكد من تصفير الأرقام في قسم (${currentLoc}) فقط؟ (لن تُحذف الأصناف)`)) {
                 playSound('delete');
-                const currentSheetItems = Object.keys(db);
-                currentSheetItems.forEach(item => {
+                itemsList[currentLoc].forEach(item => {
                     db[item] = { sys: '', bills: '', actual: '' };
                 });
                 saveState();
@@ -1166,10 +1325,12 @@
 
         function deleteAllItems() {
             initAudio();
-            if(confirm(`تحذير شديد: هل أنت متأكد من تفريغ الشيت الحالي بالكامل للاستيراد؟ (الشيتات السابقة محفوظة)`)) {
+            if(confirm(`تحذير شديد: هل أنت متأكد من مسح جميع الأصناف من قسم (${currentLoc}) بالكامل؟ ستعود الشاشة فارغة لتبدأ من الصفر.`)) {
                 playSound('delete');
-                appState[currentLoc].sheets[appState[currentLoc].activeSheet].data = {}; 
-                db = appState[currentLoc].sheets[appState[currentLoc].activeSheet].data;
+                itemsList[currentLoc] = [];
+                for (let sheet in appState[currentLoc].sheets) {
+                    appState[currentLoc].sheets[sheet].data = {}; 
+                }
                 saveState();
                 loadLocation(currentLoc);
             }
@@ -1215,9 +1376,7 @@
             db = appState[loc].sheets[appState[loc].activeSheet].data;
 
             document.getElementById('currentLocationTitle').innerText = loc;
-            
-            const currentSheetItems = Object.keys(db);
-            document.getElementById('stat-total').innerText = currentSheetItems.length;
+            document.getElementById('stat-total').innerText = itemsList[loc].length;
             
             document.getElementById('printTitle').innerText = getDynamicTitle();
             if(appState[loc] && appState[loc].sheets && appState[loc].sheets[appState[loc].activeSheet]) {
@@ -1230,19 +1389,18 @@
             const tbody = document.getElementById('inventoryBody');
             tbody.innerHTML = '';
             
-            if (currentSheetItems.length === 0) {
+            if (itemsList[loc].length === 0) {
                 tbody.innerHTML = `<tr><td colspan="8" style="padding:40px; text-align:center; color:#6b7280; font-size:16px;">
-                    لا توجد أصناف حالياً في هذا الشيت. استخدم الأزرار بالأعلى لإضافة الأصناف أو استيرادها.
+                    لا توجد أصناف حالياً في قسم (${loc}). استخدم الأزرار بالأعلى لإضافة الأصناف أو استيرادها.
                 </td></tr>`;
             }
 
-            // عرض الأصناف بناءً على ترتيب إدخالها في الإكسيل أو اليدوي (بدون فرز إجباري)
-            currentSheetItems.forEach((item, index) => {
-                const data = db[item];
+            itemsList[loc].forEach((item, index) => {
+                const data = db[item] || { sys: '', bills: '', actual: '' };
                 const tr = document.createElement('tr');
                 tr.setAttribute('data-item', item);
                 
-                const isFluid = ivFluidsList.includes(item) || item.toUpperCase().includes("SALINE");
+                const isFluid = ivFluidsList.includes(item);
                 const nameClass = isFluid ? "item-name item-fluid" : "item-name";
                 
                 tr.innerHTML = `
@@ -1349,9 +1507,6 @@
             });
         }
 
-        // ==========================================
-        // دالة رفع الإكسيل بالترتيب المظبوط 100%
-        // ==========================================
         function handleExcelUpload(event) {
             initAudio();
             const file = event.target.files[0];
@@ -1375,7 +1530,6 @@
                     const json = XLSX.utils.sheet_to_json(firstSheet, {header: 1, defval: null});
 
                     let excelMap = {};
-                    let excelOrder = []; // المصفوفة دي هتحفظ ترتيب الإكسيل حرفياً سطر سطر
                     
                     for (let i = 0; i < json.length - 1; i++) {
                         try {
@@ -1393,10 +1547,7 @@
                                 const itemName = sanitizeForFirebase(String(nameRaw).replace(/[\r\n]+/g, ' ')); 
                                 
                                 if (!isNaN(qty) && itemName !== '' && itemName !== '0') {
-                                    if (!excelMap[itemName]) {
-                                        excelMap[itemName] = 0;
-                                        excelOrder.push(itemName); // حفظ الاسم بالترتيب
-                                    }
+                                    if (!excelMap[itemName]) excelMap[itemName] = 0;
                                     excelMap[itemName] += qty;
                                 }
                             }
@@ -1405,15 +1556,14 @@
                         }
                     }
 
-                    // استيراد الأسماء بنفس ترتيب مصفوفة الإكسيل
-                    excelOrder.forEach(exName => {
+                    Object.keys(excelMap).forEach(exName => {
                         insertRegularItem(exName);
                     });
                     
                     ensureDataConsistency();
 
                     let updatedCount = 0;
-                    excelOrder.forEach(exName => {
+                    Object.keys(excelMap).forEach(exName => {
                         if (!db[exName]) db[exName] = { sys: '', bills: '', actual: '' };
                         db[exName].sys = excelMap[exName];
                         updatedCount++;
@@ -1456,9 +1606,7 @@
             let exportData = [];
             exportData.push(['#', 'اسم الصنف الطبي', 'السيستم', 'المصروف', 'الفعلي', 'العجز', 'الزيادة']);
 
-            const sheetItems = Object.keys(db);
-
-            sheetItems.forEach((item, index) => {
+            itemsList[currentLoc].forEach((item, index) => {
                 const data = db[item] || { sys: '', bills: '', actual: '' };
                 const sysVal = parseFloat(data.sys) || 0;
                 const billsVal = parseFloat(data.bills) || 0;
@@ -1861,7 +2009,12 @@
                     let d = deficits[dIdx]; let s = surpluses[sIdx];
                     let transferAmount = Math.min(d.amount, s.amount);
                     if (transferAmount > 0) {
-                        exportData.push(['نقل مقترح', item, transferAmount, s.loc, d.loc]);
+                        hasSuggestions = true;
+                        transfersHTML += `
+                            <div style="background: white; border: 1px solid #e5e7eb; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-right: 5px solid var(--warning); color: #000;">
+                                نقل <strong style="color:var(--primary); font-size:16px;">${transferAmount}</strong> وحدة من <strong>[${item}]</strong><br>
+                                من <span style="color:var(--success); font-weight:bold;">${s.loc}</span> (بها زيادة) ⬅️ إلى <span style="color:var(--danger); font-weight:bold;">${d.loc}</span> (بها عجز)
+                            </div>`;
                     }
                     d.amount -= transferAmount; s.amount -= transferAmount;
                     if (d.amount === 0) dIdx++;
@@ -1943,9 +2096,6 @@
             });
         });
 
-        let recognition = null;
-        let isRecording = false;
-
         function startVoiceRecognition() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRecognition) {
@@ -1953,122 +2103,81 @@
                 return;
             }
 
-            const btn = document.getElementById('voiceBtn');
-            const icon = btn.querySelector('i');
-
-            if (isRecording && recognition) {
-                recognition.stop();
-                return;
-            }
-
-            recognition = new SpeechRecognition();
+            const recognition = new SpeechRecognition();
             recognition.lang = 'ar-EG'; 
             recognition.interimResults = false;
             recognition.maxAlternatives = 1;
 
+            const btn = document.getElementById('voiceBtn');
+            const icon = btn.querySelector('i');
+
             recognition.onstart = function() {
-                isRecording = true;
                 btn.classList.add('recording');
                 icon.className = 'fa-solid fa-microphone-lines fa-fade';
                 document.getElementById('searchInput').placeholder = "جاري الاستماع...";
             };
 
             recognition.onresult = function(event) {
-                try {
-                    let transcript = event.results[0][0].transcript;
+                let transcript = event.results[0][0].transcript;
+                
+                transcript = transcript.replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
+                
+                let cleanText = transcript.replace(/العدد|عدد|حط|اكتب|سجل|كمية|كميه/g, ' ').trim();
+                
+                let numbers = cleanText.match(/\d+/g);
+                if (!numbers) {
+                    playSound('error');
+                    alert("سمعت: '" + transcript + "'\nلم أتمكن من التقاط العدد. برجاء قول (اسم الصنف) ثم (العدد).");
+                    return;
+                }
+
+                let qty = numbers[numbers.length - 1]; 
+                
+                let lastIdx = cleanText.lastIndexOf(qty);
+                let searchName = cleanText.substring(0, lastIdx).trim();
+
+                let alternativeSearch = searchName.replace(/سرنجة|سرنجه/g, 'س نجة');
+
+                let bestMatchRow = null;
+                const rows = document.querySelectorAll('#inventoryBody tr');
+
+                rows.forEach(row => {
+                    let itemName = row.querySelector('.item-name').innerText;
                     
-                    transcript = transcript.replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
+                    let normItem = itemName.toLowerCase().replace(/ة/g, 'ه').replace(/أ|إ|آ/g, 'ا').replace(/\s+/g, '');
+                    let normSearch = searchName.toLowerCase().replace(/ة/g, 'ه').replace(/أ|إ|آ/g, 'ا').replace(/\s+/g, '');
+                    let normAlt = alternativeSearch.toLowerCase().replace(/ة/g, 'ه').replace(/أ|إ|آ/g, 'ا').replace(/\s+/g, '');
+
+                    if (normItem.includes(normSearch) || normSearch.includes(normItem) || normItem.includes(normAlt) || normAlt.includes(normItem)) {
+                        if(!bestMatchRow) bestMatchRow = row; 
+                    }
+                });
+
+                if (bestMatchRow) {
+                    let actualInput = bestMatchRow.querySelector('.actual-input');
+                    actualInput.value = qty;
+                    updateData(actualInput, 'actual');
+
+                    bestMatchRow.style.backgroundColor = 'rgba(16, 185, 129, 0.3)';
+                    setTimeout(() => { 
+                        calculateRow(bestMatchRow, false); 
+                    }, 2000);
                     
-                    const numWords = {
-                        "واحد": "1", "واحده": "1", "اتنين": "2", "اثنين": "2", "تلاته": "3", "ثلاثه": "3",
-                        "اربعة": "4", "اربعه": "4", "خمسة": "5", "خمسه": "5", "ستة": "6", "سته": "6",
-                        "سبعة": "7", "سبعه": "7", "ثمانية": "8", "تمانيه": "8", "تسعة": "9", "تسعه": "9",
-                        "عشرة": "10", "عشره": "10", "صفر": "0"
-                    };
-                    
-                    let cleanText = transcript;
-                    for (const [word, digit] of Object.entries(numWords)) {
-                        const regex = new RegExp(`\\b${word}\\b`, 'g');
-                        cleanText = cleanText.replace(regex, digit);
-                    }
-
-                    cleanText = cleanText.replace(/العدد|عدد|حط|اكتب|سجل|كمية|كميه|يساوي/g, ' ').trim();
-                    
-                    let numbers = cleanText.match(/\d+/g);
-                    if (!numbers) {
-                        playSound('error');
-                        alert("سمعت: '" + transcript + "'\nلم أتمكن من التقاط العدد. برجاء قول (اسم الصنف) ثم (العدد).");
-                        return;
-                    }
-
-                    let qty = numbers[numbers.length - 1]; 
-                    let lastIdx = cleanText.lastIndexOf(qty);
-                    let searchName = cleanText.substring(0, lastIdx).trim();
-
-                    if(searchName === "") {
-                        playSound('error');
-                        alert("سمعت العدد (" + qty + ") ولكن لم أسمع اسم الصنف.");
-                        return;
-                    }
-
-                    let alternativeSearch = searchName.replace(/سرنجة|سرنجه/g, 'س نجة');
-
-                    let bestMatchRow = null;
-                    const rows = document.querySelectorAll('#inventoryBody tr');
-
-                    let maxScore = 0;
-
-                    rows.forEach(row => {
-                        let itemName = row.querySelector('.item-name').innerText;
-                        let normItem = itemName.toLowerCase().replace(/[ةهاء]/g, 'ه').replace(/[أإآا]/g, 'ا').replace(/\s+/g, '');
-                        let normSearch = searchName.toLowerCase().replace(/[ةهاء]/g, 'ه').replace(/[أإآا]/g, 'ا').replace(/\s+/g, '');
-                        let normAlt = alternativeSearch.toLowerCase().replace(/[ةهاء]/g, 'ه').replace(/[أإآا]/g, 'ا').replace(/\s+/g, '');
-
-                        if (normItem.includes(normSearch) || normSearch.includes(normItem) || normItem.includes(normAlt) || normAlt.includes(normItem)) {
-                            let score = (row.style.display !== 'none') ? 2 : 1;
-                            if(normItem === normSearch || normItem === normAlt) score += 5;
-                            
-                            if (score > maxScore) {
-                                maxScore = score;
-                                bestMatchRow = row;
-                            }
-                        }
-                    });
-
-                    if (bestMatchRow) {
-                        let actualInput = bestMatchRow.querySelector('.actual-input');
-                        actualInput.value = qty;
-                        updateData(actualInput, 'actual');
-
-                        bestMatchRow.style.backgroundColor = 'rgba(16, 185, 129, 0.3)';
-                        setTimeout(() => { 
-                            calculateRow(bestMatchRow, false); 
-                        }, 2000);
-                        
-                        bestMatchRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        playSound('success');
-                    } else {
-                        playSound('error');
-                        alert("سمعت: '" + transcript + "'\nالعدد المستخرج: " + qty + "\nلكن لم أجد صنفاً مطابقاً لـ '" + searchName + "' في هذا القسم.");
-                    }
-                } catch (err) {
-                    console.error(err);
+                    bestMatchRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    playSound('success');
+                } else {
+                    playSound('error');
+                    alert("سمعت: '" + transcript + "'\nالعدد المستخرج: " + qty + "\nلكن لم أجد صنفاً مطابقاً لـ '" + searchName + "' في هذا القسم.");
                 }
             };
 
             recognition.onerror = function(event) {
-                isRecording = false;
                 btn.classList.remove('recording');
                 icon.className = 'fa-solid fa-microphone';
                 document.getElementById('searchInput').placeholder = "بحث...";
-                
-                if (event.error === 'not-allowed') {
-                    alert("المتصفح يمنع استخدام المايكروفون. يرجى الضغط على علامة القفل بجوار الرابط والسماح للمايكروفون (Allow).");
-                }
             };
 
             recognition.onend = function() {
-                isRecording = false;
                 btn.classList.remove('recording');
                 icon.className = 'fa-solid fa-microphone';
                 document.getElementById('searchInput').placeholder = "بحث...";
