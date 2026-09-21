@@ -214,7 +214,6 @@
         .search-container { position: relative; }
         .search-container i.fa-search { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
         
-        /* تم تصحيح الفراغات لتبدأ الكتابة بعيداً عن العدسة */
         .search-box { padding: 10px 38px 10px 15px; border: none; border-radius: 25px; width: 180px; outline: none; font-size: 13px; background: transparent; color: var(--text-main); }
         
         .btn-voice { background: linear-gradient(135deg, var(--primary) 0%, #312e81 100%); color: white; border: none; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; transition: all 0.3s ease; margin-left: 5px; }
@@ -346,8 +345,7 @@
         @media (max-width: 768px) {
             .hide-mobile { display: none !important; }
             
-            /* تعديل مساحة البحث على الموبايل عشان مفيش حاجة تلمس العدسة */
-            .search-box { width: 120px !important; padding: 8px 30px 8px 10px !important; }
+            .search-box { width: 120px !important; padding: 8px 38px 8px 10px !important; }
             
             .user-badge { display: none !important; }
             .sidebar { position: fixed; right: -260px; top: 0; bottom: 0; }
@@ -1960,56 +1958,86 @@
             };
 
             recognition.onresult = function(event) {
-                let transcript = event.results[0][0].transcript;
-                
-                transcript = transcript.replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
-                
-                let cleanText = transcript.replace(/العدد|عدد|حط|اكتب|سجل|كمية|كميه/g, ' ').trim();
-                
-                let numbers = cleanText.match(/\d+/g);
-                if (!numbers) {
-                    playSound('error');
-                    alert("سمعت: '" + transcript + "'\nلم أتمكن من التقاط العدد. برجاء قول (اسم الصنف) ثم (العدد).");
-                    return;
-                }
-
-                let qty = numbers[numbers.length - 1]; 
-                
-                let lastIdx = cleanText.lastIndexOf(qty);
-                let searchName = cleanText.substring(0, lastIdx).trim();
-
-                let alternativeSearch = searchName.replace(/سرنجة|سرنجه/g, 'س نجة');
-
-                let bestMatchRow = null;
-                const rows = document.querySelectorAll('#inventoryBody tr');
-
-                rows.forEach(row => {
-                    let itemName = row.querySelector('.item-name').innerText;
+                try {
+                    let transcript = event.results[0][0].transcript;
                     
-                    let normItem = itemName.toLowerCase().replace(/ة/g, 'ه').replace(/أ|إ|آ/g, 'ا').replace(/\s+/g, '');
-                    let normSearch = searchName.toLowerCase().replace(/ة/g, 'ه').replace(/أ|إ|آ/g, 'ا').replace(/\s+/g, '');
-                    let normAlt = alternativeSearch.toLowerCase().replace(/ة/g, 'ه').replace(/أ|إ|آ/g, 'ا').replace(/\s+/g, '');
-
-                    if (normItem.includes(normSearch) || normSearch.includes(normItem) || normItem.includes(normAlt) || normAlt.includes(normItem)) {
-                        if(!bestMatchRow) bestMatchRow = row; 
+                    transcript = transcript.replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
+                    
+                    const numWords = {
+                        "واحد": "1", "واحده": "1", "اتنين": "2", "اثنين": "2", "تلاته": "3", "ثلاثه": "3",
+                        "اربعة": "4", "اربعه": "4", "خمسة": "5", "خمسه": "5", "ستة": "6", "سته": "6",
+                        "سبعة": "7", "سبعه": "7", "ثمانية": "8", "تمانيه": "8", "تسعة": "9", "تسعه": "9",
+                        "عشرة": "10", "عشره": "10", "صفر": "0"
+                    };
+                    
+                    let cleanText = transcript;
+                    for (const [word, digit] of Object.entries(numWords)) {
+                        const regex = new RegExp(`\\b${word}\\b`, 'g');
+                        cleanText = cleanText.replace(regex, digit);
                     }
-                });
 
-                if (bestMatchRow) {
-                    let actualInput = bestMatchRow.querySelector('.actual-input');
-                    actualInput.value = qty;
-                    updateData(actualInput, 'actual');
-
-                    bestMatchRow.style.backgroundColor = 'rgba(16, 185, 129, 0.3)';
-                    setTimeout(() => { 
-                        calculateRow(bestMatchRow, false); 
-                    }, 2000);
+                    cleanText = cleanText.replace(/العدد|عدد|حط|اكتب|سجل|كمية|كميه|يساوي/g, ' ').trim();
                     
-                    bestMatchRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    playSound('success');
-                } else {
-                    playSound('error');
-                    alert("سمعت: '" + transcript + "'\nالعدد المستخرج: " + qty + "\nلكن لم أجد صنفاً مطابقاً لـ '" + searchName + "' في هذا القسم.");
+                    let numbers = cleanText.match(/\d+/g);
+                    if (!numbers) {
+                        playSound('error');
+                        alert("سمعت: '" + transcript + "'\nلم أتمكن من التقاط العدد. برجاء قول (اسم الصنف) ثم (العدد).");
+                        return;
+                    }
+
+                    let qty = numbers[numbers.length - 1]; 
+                    let lastIdx = cleanText.lastIndexOf(qty);
+                    let searchName = cleanText.substring(0, lastIdx).trim();
+
+                    if(searchName === "") {
+                        playSound('error');
+                        alert("سمعت العدد (" + qty + ") ولكن لم أسمع اسم الصنف.");
+                        return;
+                    }
+
+                    let alternativeSearch = searchName.replace(/سرنجة|سرنجه/g, 'س نجة');
+
+                    let bestMatchRow = null;
+                    const rows = document.querySelectorAll('#inventoryBody tr');
+
+                    let maxScore = 0;
+
+                    rows.forEach(row => {
+                        let itemName = row.querySelector('.item-name').innerText;
+                        let normItem = itemName.toLowerCase().replace(/[ةهاء]/g, 'ه').replace(/[أإآا]/g, 'ا').replace(/\s+/g, '');
+                        let normSearch = searchName.toLowerCase().replace(/[ةهاء]/g, 'ه').replace(/[أإآا]/g, 'ا').replace(/\s+/g, '');
+                        let normAlt = alternativeSearch.toLowerCase().replace(/[ةهاء]/g, 'ه').replace(/[أإآا]/g, 'ا').replace(/\s+/g, '');
+
+                        if (normItem.includes(normSearch) || normSearch.includes(normItem) || normItem.includes(normAlt) || normAlt.includes(normItem)) {
+                            let score = (row.style.display !== 'none') ? 2 : 1;
+                            if(normItem === normSearch || normItem === normAlt) score += 5;
+                            
+                            if (score > maxScore) {
+                                maxScore = score;
+                                bestMatchRow = row;
+                            }
+                        }
+                    });
+
+                    if (bestMatchRow) {
+                        let actualInput = bestMatchRow.querySelector('.actual-input');
+                        actualInput.value = qty;
+                        updateData(actualInput, 'actual');
+
+                        bestMatchRow.style.backgroundColor = 'rgba(16, 185, 129, 0.3)';
+                        setTimeout(() => { 
+                            calculateRow(bestMatchRow, false); 
+                        }, 2000);
+                        
+                        bestMatchRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        playSound('success');
+                    } else {
+                        playSound('error');
+                        alert("سمعت: '" + transcript + "'\nالعدد المستخرج: " + qty + "\nلكن لم أجد صنفاً مطابقاً لـ '" + searchName + "' في هذا القسم.");
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert("حدث خطأ غير متوقع أثناء تحليل الصوت.");
                 }
             };
 
@@ -2017,6 +2045,9 @@
                 btn.classList.remove('recording');
                 icon.className = 'fa-solid fa-microphone';
                 document.getElementById('searchInput').placeholder = "بحث...";
+                if(event.error !== 'no-speech') {
+                   alert("خطأ في المايكروفون: " + event.error);
+                }
             };
 
             recognition.onend = function() {
