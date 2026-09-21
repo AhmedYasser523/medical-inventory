@@ -47,6 +47,7 @@
         body.dark-mode tr.row-surplus td { background-color: rgba(16, 185, 129, 0.15); }
         body.dark-mode .settlement-section { background: var(--card-bg); border: 1px solid var(--border-color); }
         body.dark-mode .settlement-list li { border-bottom-color: var(--border-color); }
+        body.dark-mode .search-mic-group { background: #334155; border-color: #475569; }
         
         .btn-dark-toggle { background: transparent; border: none; color: var(--text-main); font-size: 20px; cursor: pointer; padding: 5px; transition: 0.2s; outline: none; }
         .btn-dark-toggle:hover { color: var(--primary); transform: scale(1.1); }
@@ -149,6 +150,7 @@
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-12px); } 100% { transform: translateY(0px); } }
 
+        /* حاوية التطبيق */
         #appContainer { display: none; width: 100%; height: 100%; flex-direction: row; }
 
         .sidebar { width: 260px; min-width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; transition: all 0.3s ease; box-shadow: 4px 0 10px rgba(0,0,0,0.1); z-index: 1000; }
@@ -163,63 +165,52 @@
         .settlement-btn { margin: 20px 15px; background-color: var(--warning); color: white; padding: 15px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.3s; }
 
         .main-wrapper { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; transition: all 0.3s ease; }
-        .topbar { background: var(--card-bg); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); z-index: 50; flex-wrap: wrap; gap: 15px; transition: background-color 0.3s;}
-        .topbar-left { display: flex; align-items: flex-start; gap: 15px; }
-        .menu-toggle-btn { background: none; border: none; font-size: 24px; color: var(--text-main); cursor: pointer; padding: 5px; margin-top: 2px;}
         
-        .print-header { display: none; text-align: center; margin-bottom: 20px; }
-        .topbar-title h2 { font-size: 20px; font-weight: 700; margin: 0 0 8px 0; }
-        .cloud-badge { background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; margin-top: 5px;}
+        /* ================= تصميم الهيدر الجديد (الصفين) ================= */
+        .topbar { background: var(--card-bg); padding: 15px 20px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); z-index: 50; transition: background-color 0.3s; }
+        
+        .topbar-main-row { display: flex; width: 100%; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; }
+        .topbar-right { display: flex; align-items: flex-start; gap: 15px; }
+        
+        .topbar-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+        
+        .menu-toggle-btn { background: none; border: none; font-size: 24px; color: var(--text-main); cursor: pointer; padding: 5px; margin-top: 2px;}
+        .topbar-title h2 { font-size: 20px; font-weight: 700; margin: 0 0 5px 0; }
+        .cloud-badge { background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; }
         .cloud-badge.offline { background: #fee2e2; color: #b91c1c; }
         .cloud-badge.syncing { background: #e0e7ff; color: #4338ca; }
-        
-        .sheet-controls { display: flex; align-items: center; gap: 8px; background: #eef2ff; padding: 5px 10px; border-radius: 8px; border: 1px solid #c7d2fe; flex-wrap: wrap; transition: background-color 0.3s;}
+
+        /* شريط الشيتات نزل تحت لوحده */
+        .sheet-controls { display: flex; align-items: center; gap: 8px; background: #eef2ff; padding: 8px 12px; border-radius: 12px; border: 1px solid #c7d2fe; flex-wrap: wrap; width: 100%; transition: background-color 0.3s;}
         .sheet-controls i { color: var(--primary); }
         .sheet-controls select { border: none; background: transparent; font-weight: 700; font-size: 14px; color: var(--primary); outline: none; cursor: pointer; max-width: 200px;}
         
         .btn-sheet-add { background: transparent; color: var(--primary); border: 2px dashed var(--primary); width: 28px; height: 28px; border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 900; transition: 0.2s;}
         .btn-sheet-add:hover { background: var(--primary); color: white; transform: scale(1.05);}
-        
         .btn-sheet-action { background: var(--primary); color: white; border: none; width: 28px; height: 28px; border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;}
         .btn-sheet-action:hover { background: var(--primary-hover); transform: scale(1.05);}
-        
         .btn-sheet-edit { background: #e0f2fe; color: var(--info); }
         .btn-sheet-edit:hover { background: #bae6fd; }
-
         .btn-sheet-delete { background: #fee2e2; color: var(--danger); }
         .btn-sheet-delete:hover { background: #fecaca; }
 
-        .topbar-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;}
-        
         .user-badge { background: #eef2ff; color: var(--primary); padding: 8px 15px; border-radius: 20px; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; border: 1px solid #c7d2fe; transition: background-color 0.3s;}
         .btn-edit-name { background: none; border: none; color: var(--primary); cursor: pointer; padding: 0 5px; font-size: 13px; opacity: 0.7; transition: 0.2s; }
         .btn-edit-name:hover { opacity: 1; transform: scale(1.1); color: var(--primary-hover); }
 
-        /* ================= ستايل زرار الإدخال الصوتي ================= */
+        /* دمج المايك والبحث */
+        .search-mic-group { display: flex; align-items: center; background: #f9fafb; border: 1px solid var(--border-color); border-radius: 25px; padding: 3px; transition: all 0.3s; }
+        .search-mic-group:focus-within { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1); background: transparent;}
         .search-container { position: relative; }
-        .search-container i.fa-search { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
-        .search-box { padding: 10px 15px 10px 40px; border: 1px solid var(--border-color); border-radius: 25px; width: 220px; outline: none; font-size: 14px; background-color: #f9fafb; transition: background-color 0.3s;}
+        .search-container i.fa-search { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+        .search-box { padding: 8px 10px 8px 30px; border: none; border-radius: 25px; width: 160px; outline: none; font-size: 13px; background: transparent; color: var(--text-main); }
         
-        .btn-voice {
-            background: linear-gradient(135deg, var(--primary) 0%, #312e81 100%); color: white;
-            border: none; border-radius: 50%; width: 42px; height: 42px;
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
-            font-size: 16px; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
-            margin-right: 5px;
-        }
-        .btn-voice:hover { transform: scale(1.1); box-shadow: 0 6px 15px rgba(79, 70, 229, 0.5); }
-        .btn-voice.recording {
-            background: linear-gradient(135deg, var(--danger) 0%, #991b1b 100%);
-            animation: pulse-red 1.5s infinite;
-        }
-        @keyframes pulse-red {
-            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-        }
-        /* ========================================================== */
+        .btn-voice { background: linear-gradient(135deg, var(--primary) 0%, #312e81 100%); color: white; border: none; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; transition: all 0.3s ease; margin-left: 5px; }
+        .btn-voice:hover { transform: scale(1.1); box-shadow: 0 4px 10px rgba(79, 70, 229, 0.4); }
+        .btn-voice.recording { background: linear-gradient(135deg, var(--danger) 0%, #991b1b 100%); animation: pulse-red 1.5s infinite; }
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
 
-        .btn-logout { background: #fee2e2; color: var(--danger); border: none; padding: 8px 15px; border-radius: 8px; font-weight: 800; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .btn-logout { background: #fee2e2; color: var(--danger); border: none; padding: 8px 12px; border-radius: 8px; font-weight: 800; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
         .btn-logout:hover { background: #fecaca; transform: scale(1.05); }
 
         .content { padding: 20px; overflow-y: auto; flex-grow: 1; position: relative; }
@@ -276,6 +267,7 @@
 
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; }
 
+        .print-header { display: none; text-align: center; margin-bottom: 20px; }
         .print-footer { display: none; }
         
         .capture-mode { background: white !important; color: black !important; }
@@ -337,15 +329,15 @@
             .print-footer { display: flex !important; justify-content: space-between; margin-top: 15px; padding-top: 5px; border-top: 1px solid #000; font-weight: bold; font-size: 12px; page-break-inside: avoid; color: black !important; }
         }
 
+        .hide-mobile { display: inline; }
+
         @media (max-width: 768px) {
+            .hide-mobile { display: none !important; }
+            .search-box { width: 110px !important; }
+            .user-badge { display: none !important; }
             .sidebar { position: fixed; right: -260px; top: 0; bottom: 0; }
             .sidebar.mobile-open { right: 0; }
             .sidebar-overlay.active { display: block; }
-            .topbar { flex-direction: column; align-items: flex-start; }
-            .topbar-left { width: 100%; justify-content: flex-start; }
-            .topbar-actions { width: 100%; justify-content: space-between; }
-            .search-container { flex-grow: 1;}
-            .search-box { width: 100%; }
             .stats-grid { flex-direction: column; }
             .toolbar { justify-content: space-between; }
             .btn { flex-grow: 1; justify-content: center; }
@@ -429,53 +421,60 @@
         </aside>
 
         <main class="main-wrapper">
+            <!-- الهيدر الجديد المنظم لسطرين عشان الموبايل -->
             <header class="topbar">
-                <div class="topbar-left">
-                    <button class="menu-toggle-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
-                    <div class="topbar-title">
-                        <h2 id="currentLocationTitle">رعاية الجراحة</h2>
-                        <div id="cloudStatus" class="cloud-badge offline"><i class="fa-solid fa-circle-notch fa-spin"></i> جاري الاتصال بالسحابة...</div>
+                
+                <!-- السطر الأول: يمين (القائمة والاسم) -- شمال (المايك والبحث والخروج) -->
+                <div class="topbar-main-row">
+                    
+                    <div class="topbar-right">
+                        <button class="menu-toggle-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+                        <div class="topbar-title">
+                            <h2 id="currentLocationTitle" style="font-size: 18px; margin-bottom: 2px;">رعاية الجراحة</h2>
+                            <div id="cloudStatus" class="cloud-badge offline"><i class="fa-solid fa-circle-notch fa-spin"></i> جاري الاتصال...</div>
+                        </div>
+                    </div>
+
+                    <div class="topbar-left topbar-actions no-print">
+                        <button class="btn-dark-toggle" onclick="toggleDarkMode()" title="تغيير المظهر">
+                            <i class="fa-solid fa-moon"></i>
+                        </button>
                         
-                        <div class="sheet-controls no-print" style="margin-top: 10px;">
-                            <i class="fa-solid fa-file-excel"></i>
-                            <select id="sheetSelect" onchange="switchSheet(this.value)"></select>
-                            
-                            <button class="btn-sheet-action btn-sheet-edit" onclick="renameCurrentSheet()" title="تعديل اسم أو تاريخ الجرد"><i class="fa-solid fa-pen"></i></button>
-                            
-                            <button class="btn-sheet-add" onclick="createNewSheet()" title="إضافة شيت جديد"><i class="fa-solid fa-plus"></i></button>
-                            <button class="btn-sheet-action btn-sheet-delete" onclick="deleteCurrentSheet()" title="حذف الشيت الحالي"><i class="fa-solid fa-trash"></i></button>
+                        <div class="user-badge hide-mobile">
+                            <i class="fa-solid fa-user-doctor"></i> 
+                            <span id="userNameDisplay">...</span>
+                            <button class="btn-edit-name" onclick="editDisplayName()" title="تعديل الاسم">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
                         </div>
-                    </div>
-                </div>
 
-                <div class="topbar-actions no-print">
-                    <button class="btn-dark-toggle" onclick="toggleDarkMode()" title="تغيير المظهر">
-                        <i class="fa-solid fa-moon"></i>
-                    </button>
+                        <!-- دمج المايك ومربع البحث فوق على الشمال -->
+                        <div class="search-mic-group">
+                            <button id="voiceBtn" class="btn-voice no-print" onclick="startVoiceRecognition()" title="جرد بالصوت: قل اسم الصنف ثم العدد">
+                                <i class="fa-solid fa-microphone"></i>
+                            </button>
+                            <div class="search-container">
+                                <i class="fa-solid fa-search"></i>
+                                <input type="text" class="search-box" id="searchInput" placeholder="بحث..." onkeyup="filterSearch()">
+                            </div>
+                        </div>
 
-                    <div class="user-badge">
-                        <i class="fa-solid fa-user-doctor"></i> 
-                        <span id="userNameDisplay">...</span>
-                        <button class="btn-edit-name" onclick="editDisplayName()" title="تعديل الاسم">
-                            <i class="fa-solid fa-pen-to-square"></i>
+                        <button class="btn-logout" onclick="handleLogout()" title="تسجيل الخروج">
+                            <i class="fa-solid fa-door-open"></i> <span class="hide-mobile">خروج</span>
                         </button>
                     </div>
 
-                    <!-- تم إضافة زر الإدخال الصوتي هنا بجانب مربع البحث -->
-                    <div style="display: flex; align-items: center;">
-                        <button id="voiceBtn" class="btn-voice no-print" onclick="startVoiceRecognition()" title="جرد بالصوت: قل اسم الصنف ثم العدد. مثال: بامبرز العدد 10">
-                            <i class="fa-solid fa-microphone"></i>
-                        </button>
-                        <div class="search-container">
-                            <i class="fa-solid fa-search"></i>
-                            <input type="text" class="search-box" id="searchInput" placeholder="ابحث عن اسم الصنف..." onkeyup="filterSearch()">
-                        </div>
-                    </div>
-
-                    <button class="btn-logout" onclick="handleLogout()" title="تسجيل الخروج">
-                        خروج <i class="fa-solid fa-door-open"></i>
-                    </button>
                 </div>
+
+                <!-- السطر التاني: شريط الشيتات واخد العرض كله -->
+                <div class="sheet-controls no-print">
+                    <i class="fa-solid fa-file-excel"></i>
+                    <select id="sheetSelect" onchange="switchSheet(this.value)"></select>
+                    <button class="btn-sheet-action btn-sheet-edit" onclick="renameCurrentSheet()" title="تعديل اسم أو تاريخ الجرد"><i class="fa-solid fa-pen"></i></button>
+                    <button class="btn-sheet-add" onclick="createNewSheet()" title="إضافة شيت جديد"><i class="fa-solid fa-plus"></i></button>
+                    <button class="btn-sheet-action btn-sheet-delete" onclick="deleteCurrentSheet()" title="حذف الشيت الحالي"><i class="fa-solid fa-trash"></i></button>
+                </div>
+
             </header>
 
             <div class="content">
@@ -502,6 +501,9 @@
                     </div>
 
                     <div class="toolbar">
+                        
+                        <button class="btn btn-warning no-print" onclick="restoreDay19Data()" style="color: #000; font-weight: 900;"><i class="fa-solid fa-magic"></i> استرجاع جرد يوم 19 🪄</button>
+
                         <button class="btn btn-outline no-print" onclick="fetchCloudData()" style="color: var(--primary);" title="تحديث البيانات من السحابة"><i class="fa-solid fa-rotate"></i> جلب التحديثات</button>
 
                         <div class="add-item-group no-print" style="margin-right:10px;">
@@ -565,7 +567,6 @@
                     <div id="settlementResults"></div>
                 </div>
 
-                <!-- تذييل الطباعة العادية -->
                 <div class="print-footer" id="printFooter" style="display: none;">
                     <div>توقيع رئيس القسم: ..........................</div>
                     <div>القائم بالجرد: <span id="printUserName"></span></div>
@@ -575,9 +576,6 @@
     </div>
 
     <script>
-        // ==========================================
-        // تسجيل الخروج التلقائي (بعد 5 دقائق من عدم النشاط)
-        // ==========================================
         let inactivityTimer;
         const INACTIVITY_LIMIT = 5 * 60 * 1000; 
 
@@ -607,9 +605,6 @@
 
         let currentFilter = 'all';
 
-        // ==========================================
-        // المؤثرات الصوتية
-        // ==========================================
         let audioCtx = null;
         function initAudio() {
             if (!audioCtx) {
@@ -650,9 +645,6 @@
             } catch(e) {}
         }
 
-        // ==========================================
-        // الوضع الليلي
-        // ==========================================
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
             const isDark = document.body.classList.contains('dark-mode');
@@ -1004,6 +996,177 @@
             db = appState[currentLoc].sheets[appState[currentLoc].activeSheet].data;
             renderSidebar();
             loadLocation(currentLoc);
+        }
+
+        function restoreDay19Data() {
+            initAudio();
+            if(!confirm("هل أنت متأكد من استرجاع جرد يوم 19 لكل من (رعاية القسطرة) و (الطوارئ)؟")) return;
+
+            const restoreData = {
+              "رعاية القسطرة": {
+                "-NORMAL SALINE 0-9% 500 ML": {"sys": 2, "actual": "", "bills": ""},
+                "اسليبر مريض": {"sys": 15, "actual": 6, "bills": ""},
+                "الكترود رسم قلب": {"sys": 0, "actual": 100, "bills": ""},
+                "انبوبة حنجرية بالبالون مقاسات": {"sys": 22, "actual": 22, "bills": ""},
+                "انبوبه حنجريه بالبالون مقاسات ( اطفال )": {"sys": 2, "actual": 2, "bills": ""},
+                "بامبرز مقاس L": {"sys": 40, "actual": 34, "bills": 6},
+                "باند ايد مستطيل": {"sys": 23, "actual": 13, "bills": 6},
+                "بلاستر حرير 10 سم": {"sys": 6, "actual": 7, "bills": ""},
+                "ترمومتر زئبقي": {"sys": 24, "actual": 22, "bills": 3},
+                "جاون طبيب جراحي": {"sys": 0, "actual": "", "bills": ""},
+                "جهاز نقل دم": {"sys": 2, "actual": 7, "bills": ""},
+                "جهاز وريد ابيض": {"sys": 9, "actual": 16, "bills": 1},
+                "جوانتي لاتكس مقاس L": {"sys": 800, "actual": 200, "bills": 100},
+                "جوانتي معقم مقاسات": {"sys": 2, "actual": 9, "bills": ""},
+                "حرير 1 علي ابره قاطعه": {"sys": 6, "actual": 6, "bills": ""},
+                "خرطوم شفط دم 2م": {"sys": 4, "actual": 3, "bills": 1},
+                "دريسنج جراحي": {"sys": 53, "actual": 7, "bills": 5},
+                "رايل مقاسات": {"sys": 5, "actual": 5, "bills": ""},
+                "رباط شاش 5سم": {"sys": 8, "actual": 10, "bills": ""},
+                "رباط ضاغط": {"sys": 2, "actual": 2, "bills": ""},
+                "سالوسيت 150": {"sys": 3, "actual": 2, "bills": 1},
+                "ستري باد 10*20": {"sys": 49, "actual": 48, "bills": 1},
+                "سرنجة انسولين 1 سم": {"sys": 52, "actual": 51, "bills": 3},
+                "س نجة 10": {"sys": 21, "actual": 21, "bills": ""},
+                "س نجة 20": {"sys": 26, "actual": 30, "bills": 1},
+                "س نجة 3": {"sys": 3, "actual": 31, "bills": ""},
+                "س نجة 5": {"sys": 94, "actual": 106, "bills": ""},
+                "س نجة 50 رايل": {"sys": 24, "actual": 25, "bills": ""},
+                "س نجة 50 سن": {"sys": 32, "actual": 31, "bills": 1},
+                "سلاح مشراط مقاس 24": {"sys": 112, "actual": 114, "bills": ""},
+                "سواب 10*10 عادى": {"sys": 50, "actual": 100, "bills": ""},
+                "سواب كحول": {"sys": 12, "actual": 40, "bills": ""},
+                "شرائط سكر": {"sys": 65, "actual": 70, "bills": ""},
+                "شكاكات": {"sys": 27, "actual": 200, "bills": ""},
+                "غطاء راس طبيب": {"sys": 0, "actual": 5, "bills": ""},
+                "قسطرة سيلكون مقاسات": {"sys": 2, "actual": 3, "bills": ""},
+                "قسطرة فولي مقاسات": {"sys": 1, "actual": 1, "bills": ""},
+                "قسطره سي في بي": {"sys": 1, "actual": 1, "bills": ""},
+                "قسطره نيلاتون مقاسات": {"sys": 20, "actual": 22, "bills": ""},
+                "كاب ممرض": {"sys": 104, "actual": 105, "bills": ""},
+                "كاندم مقاسات": {"sys": 2, "actual": 3, "bills": ""},
+                "كانيولا مقاس 14": {"sys": 1, "actual": 2, "bills": ""},
+                "كانيولا مقاس 16": {"sys": 0, "actual": 0, "bills": ""},
+                "كانيولا مقاسات": {"sys": 28, "actual": 37, "bills": ""},
+                "ثري واى مقاس 24": {"sys": 0, "actual": 1, "bills": ""},
+                "كحول طبى 1 لتر": {"sys": 4890, "actual": 5000, "bills": ""},
+                "كوب جمع عينه 120ملل": {"sys": 3, "actual": 2, "bills": 1},
+                "كي واي جيل": {"sys": 5, "actual": 5, "bills": ""},
+                "كيس جمع بول": {"sys": 9, "actual": 9, "bills": ""},
+                "ماسك اكسجين اطفال": {"sys": 0, "actual": 0, "bills": ""},
+                "ماسك اكسجين كبار": {"sys": 12, "actual": 10, "bills": 2},
+                "ماسك بالباج": {"sys": 0, "actual": 1, "bills": ""},
+                "ماسك نوبلايزر اطفال": {"sys": 1, "actual": 1, "bills": ""},
+                "ماسك نيبوبلايزر كبار": {"sys": 11, "actual": 10, "bills": 1},
+                "ماهوكر ثلاثي": {"sys": 1, "actual": 1, "bills": ""},
+                "مفرش سرير 60-90": {"sys": 32, "actual": 28, "bills": 4},
+                "ممر هوائى مقاسات": {"sys": 7, "actual": 7, "bills": ""},
+                "نيزل أكسجين": {"sys": 17, "actual": 15, "bills": 2},
+                "نيزل اكسجين اطفال": {"sys": 1, "actual": 1, "bills": ""},
+                "وصلة شريانية 150": {"sys": 3, "actual": 3, "bills": ""},
+                "وصلة وريدية 150": {"sys": 2, "actual": 8, "bills": ""},
+                "وصله تخدير كبار بالباج": {"sys": 1, "actual": 1, "bills": ""},
+                "وصله ثلاثي": {"sys": 27, "actual": 26, "bills": 3},
+                "يورينال": {"sys": 5, "actual": 4, "bills": 1},
+                "جلوكوز 10 %": {"sys": 0, "actual": "", "bills": ""},
+                "جلوكوز 25 %": {"sys": 1, "actual": 1, "bills": ""},
+                "جلوكوز 5 %": {"sys": 0, "actual": "", "bills": ""},
+                "رينجر": {"sys": 0, "actual": 4, "bills": ""},
+                "مانيتول": {"sys": 0, "actual": 1, "bills": ""},
+                "KIDMIN 250 ML": {"sys": 0, "actual": "", "bills": ""}
+              },
+              "الطوارئ": {
+                "-NORMAL SALINE 0-9% 500 ML": {"sys": 19, "actual": 19, "bills": ""},
+                "الكترود رسم قلب": {"sys": 4, "actual": 9, "bills": ""},
+                "انبوبة حنجرية بالبالون مقاسات": {"sys": 12, "actual": 15, "bills": ""},
+                "باند ايد مستطيل": {"sys": 13, "actual": 8, "bills": ""},
+                "بلاستر حرير 10 سم": {"sys": 5, "actual": 5, "bills": ""},
+                "ترمومتر زئبقي": {"sys": 10, "actual": 10, "bills": ""},
+                "جاون مريض": {"sys": 4, "actual": 4, "bills": ""},
+                "جهاز نقل دم": {"sys": 11, "actual": 12, "bills": ""},
+                "جهاز وريد ابيض": {"sys": 9, "actual": 9, "bills": ""},
+                "جوانتي لاتكس مقاس L": {"sys": 700, "actual": "", "bills": ""},
+                "جوانتي معقم مقاسات": {"sys": 10, "actual": 17, "bills": ""},
+                "حرير 1 علي ابره قاطعه": {"sys": 14, "actual": 15, "bills": ""},
+                "دريسنج جراحي": {"sys": 37, "actual": 15, "bills": ""},
+                "رايل مقاسات": {"sys": 14, "actual": 14, "bills": ""},
+                "رباط شاش 5سم": {"sys": 10, "actual": 10, "bills": ""},
+                "رباط ضاغط": {"sys": 3, "actual": 4, "bills": ""},
+                "سالوسيت 150": {"sys": 3, "actual": 3, "bills": ""},
+                "سرنجة انسولين 1 سم": {"sys": 13, "actual": 19, "bills": ""},
+                "س نجة 10": {"sys": 8, "actual": 19, "bills": ""},
+                "س نجة 20": {"sys": 20, "actual": 35, "bills": ""},
+                "س نجة 3": {"sys": 32, "actual": 32, "bills": ""},
+                "س نجة 5": {"sys": 22, "actual": 22, "bills": ""},
+                "س نجة 50 رايل": {"sys": 7, "actual": 7, "bills": ""},
+                "س نجة 50 سن": {"sys": 29, "actual": 31, "bills": ""},
+                "سيفتى بوكس": {"sys": 1, "actual": 1, "bills": ""},
+                "شرائط سكر": {"sys": 109, "actual": 110, "bills": ""},
+                "شكاكات": {"sys": 193, "actual": 200, "bills": ""},
+                "قسطرة سيلكون مقاسات": {"sys": 4, "actual": 5, "bills": ""},
+                "قسطرة فولي مقاسات": {"sys": 6, "actual": 5, "bills": ""},
+                "قسطره سي في بي": {"sys": 2, "actual": 2, "bills": ""},
+                "قسطره نيلاتون مقاسات": {"sys": 28, "actual": 39, "bills": ""},
+                "قطن طبى": {"sys": 40, "actual": "", "bills": ""},
+                "كانيولا مقاس 16": {"sys": 9, "actual": 9, "bills": ""},
+                "كانيولا مقاسات": {"sys": 49, "actual": 51, "bills": ""},
+                "كانيولا مقاس 24": {"sys": 8, "actual": 5, "bills": ""}, 
+                "كحول طبى 1 لتر": {"sys": 1, "actual": 2, "bills": ""},
+                "كوب جمع عينه 120ملل": {"sys": 5, "actual": 5, "bills": ""},
+                "كي واي جيل": {"sys": 6, "actual": 6, "bills": ""},
+                "كيس جمع بول": {"sys": 3, "actual": 3, "bills": ""},
+                "ماسك اكسجين كبار": {"sys": 5, "actual": 6, "bills": ""},
+                "ماسك بالباج": {"sys": 1, "actual": 1, "bills": ""},
+                "ماسك نيبوبلايزر كبار": {"sys": 4, "actual": 5, "bills": ""},
+                "ماسك ورق ( رباط )": {"sys": 52, "actual": 53, "bills": ""},
+                "مشرط مقاس 15": {"sys": 29, "actual": 29, "bills": ""},
+                "ممر هوائى مقاسات": {"sys": 11, "actual": 11, "bills": ""},
+                "نيزل أكسجين": {"sys": 7, "actual": 7, "bills": ""},
+                "ورق رسم قلب": {"sys": 1, "actual": "", "bills": ""},
+                "وصلة شريانية 150": {"sys": 7, "actual": 10, "bills": ""},
+                "وصلة وريدية 150": {"sys": 12, "actual": 14, "bills": ""},
+                "وصله تخدير كبار بالباج": {"sys": 2, "actual": 2, "bills": ""},
+                "وصله ثلاثي": {"sys": 28, "actual": 30, "bills": ""},
+                "يورينال": {"sys": 1, "actual": 2, "bills": ""},
+                "خرطوم شفط": {"sys": 0, "actual": 4, "bills": ""},
+                "كانيولا مقاس 14": {"sys": 0, "actual": 3, "bills": ""},
+                "ستري باد": {"sys": 0, "actual": 18, "bills": ""},
+                "كاندم": {"sys": 0, "actual": 15, "bills": ""},
+                "جلوكوز 10 %": {"sys": 2, "actual": 4, "bills": ""},
+                "جلوكوز 25 %": {"sys": 4, "actual": 4, "bills": ""},
+                "جلوكوز 5 %": {"sys": 0, "actual": "", "bills": ""},
+                "رينجر": {"sys": 0, "actual": 4, "bills": ""},
+                "مانيتول": {"sys": 0, "actual": 1, "bills": ""},
+                "KIDMIN 250 ML": {"sys": 0, "actual": "", "bills": ""}
+              }
+            };
+
+            for (let loc in restoreData) {
+                if (!appState[loc]) appState[loc] = { activeSheet: 'default', sheets: {} };
+                if (!itemsList[loc]) itemsList[loc] = [];
+                
+                const sheetId = 'sheet_restored_19_' + Date.now();
+                let newDb = {};
+                
+                for (let itemName in restoreData[loc]) {
+                    if (!itemsList[loc].includes(itemName)) {
+                        itemsList[loc].push(itemName);
+                    }
+                    newDb[itemName] = restoreData[loc][itemName];
+                }
+                
+                itemsList[loc].forEach(item => {
+                    if(!newDb[item]) newDb[item] = { sys: '', bills: '', actual: '' };
+                });
+                
+                appState[loc].sheets[sheetId] = { id: sheetId, name: 'جرد يوم 2026/9/19', data: newDb };
+                appState[loc].activeSheet = sheetId;
+            }
+            
+            saveState();
+            loadLocation(currentLoc);
+            playSound('success');
+            alert("تم استرجاع جرد يوم 19 المفقود بنجاح في قسمي (القسطرة) و (الطوارئ)!");
         }
 
         function createNewSheet(customName = null, forceId = null, shouldSave = true) {
@@ -1933,9 +2096,6 @@
             });
         });
 
-        // ==========================================
-        // دالة المساعد الصوتي لإدخال الجرد
-        // ==========================================
         function startVoiceRecognition() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRecognition) {
@@ -1944,7 +2104,7 @@
             }
 
             const recognition = new SpeechRecognition();
-            recognition.lang = 'ar-EG'; // اللغة العربية
+            recognition.lang = 'ar-EG'; 
             recognition.interimResults = false;
             recognition.maxAlternatives = 1;
 
@@ -1954,19 +2114,16 @@
             recognition.onstart = function() {
                 btn.classList.add('recording');
                 icon.className = 'fa-solid fa-microphone-lines fa-fade';
-                document.getElementById('searchInput').placeholder = "جاري الاستماع... قل اسم الصنف ثم العدد";
+                document.getElementById('searchInput').placeholder = "جاري الاستماع...";
             };
 
             recognition.onresult = function(event) {
                 let transcript = event.results[0][0].transcript;
                 
-                // تحويل الأرقام العربية (١, ٢) إلى أرقام إنجليزية (1, 2) إن وجدت
                 transcript = transcript.replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
                 
-                // إزالة الكلمات التي تسبق الرقم عادةً
                 let cleanText = transcript.replace(/العدد|عدد|حط|اكتب|سجل|كمية|كميه/g, ' ').trim();
                 
-                // البحث عن الأرقام في النص
                 let numbers = cleanText.match(/\d+/g);
                 if (!numbers) {
                     playSound('error');
@@ -1974,14 +2131,11 @@
                     return;
                 }
 
-                // استخراج آخر رقم نطقته كـ (كمية فعلية)
                 let qty = numbers[numbers.length - 1]; 
                 
-                // فصل اسم الصنف (عن طريق إزالة آخر رقم من النص)
                 let lastIdx = cleanText.lastIndexOf(qty);
                 let searchName = cleanText.substring(0, lastIdx).trim();
 
-                // معالجة خطأ كلمة سرنجة في الداتا المرفوعة في المستشفى أوتوماتيكياً
                 let alternativeSearch = searchName.replace(/سرنجة|سرنجه/g, 'س نجة');
 
                 let bestMatchRow = null;
@@ -1990,29 +2144,25 @@
                 rows.forEach(row => {
                     let itemName = row.querySelector('.item-name').innerText;
                     
-                    // تنظيف النصوص للمقارنة (تجاهل التاء المربوطة، المسافات، والهمزات)
                     let normItem = itemName.toLowerCase().replace(/ة/g, 'ه').replace(/أ|إ|آ/g, 'ا').replace(/\s+/g, '');
                     let normSearch = searchName.toLowerCase().replace(/ة/g, 'ه').replace(/أ|إ|آ/g, 'ا').replace(/\s+/g, '');
                     let normAlt = alternativeSearch.toLowerCase().replace(/ة/g, 'ه').replace(/أ|إ|آ/g, 'ا').replace(/\s+/g, '');
 
                     if (normItem.includes(normSearch) || normSearch.includes(normItem) || normItem.includes(normAlt) || normAlt.includes(normItem)) {
-                        if(!bestMatchRow) bestMatchRow = row; // اختيار أول تطابق يظهر
+                        if(!bestMatchRow) bestMatchRow = row; 
                     }
                 });
 
                 if (bestMatchRow) {
-                    // تحديث حقل الفعلي
                     let actualInput = bestMatchRow.querySelector('.actual-input');
                     actualInput.value = qty;
                     updateData(actualInput, 'actual');
 
-                    // إعطاء تأثير بصري (تظليل باللون الأخضر)
                     bestMatchRow.style.backgroundColor = 'rgba(16, 185, 129, 0.3)';
                     setTimeout(() => { 
-                        calculateRow(bestMatchRow, false); // إرجاع اللون الطبيعي
+                        calculateRow(bestMatchRow, false); 
                     }, 2000);
                     
-                    // التمرير إلى الصف تلقائياً
                     bestMatchRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     playSound('success');
                 } else {
@@ -2024,13 +2174,13 @@
             recognition.onerror = function(event) {
                 btn.classList.remove('recording');
                 icon.className = 'fa-solid fa-microphone';
-                document.getElementById('searchInput').placeholder = "ابحث عن اسم الصنف...";
+                document.getElementById('searchInput').placeholder = "بحث...";
             };
 
             recognition.onend = function() {
                 btn.classList.remove('recording');
                 icon.className = 'fa-solid fa-microphone';
-                document.getElementById('searchInput').placeholder = "ابحث عن اسم الصنف...";
+                document.getElementById('searchInput').placeholder = "بحث...";
             };
 
             recognition.start();
