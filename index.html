@@ -180,7 +180,7 @@
         .cloud-badge.offline { background: #fee2e2; color: #b91c1c; }
         .cloud-badge.syncing { background: #e0e7ff; color: #4338ca; }
 
-        /* شريط الشيتات الجديد (المتوازن) */
+        /* شريط الشيتات (المتوازن) */
         .sheet-controls { 
             display: flex; justify-content: space-between; align-items: center; 
             background: #eef2ff; padding: 10px 15px; border-radius: 12px; 
@@ -208,6 +208,7 @@
         .btn-edit-name { background: none; border: none; color: var(--primary); cursor: pointer; padding: 0 5px; font-size: 13px; opacity: 0.7; transition: 0.2s; }
         .btn-edit-name:hover { opacity: 1; transform: scale(1.1); color: var(--primary-hover); }
 
+        /* دمج المايك والبحث مع إصلاح المسافات (Padding) */
         .search-mic-group { display: flex; align-items: center; background: #f9fafb; border: 1px solid var(--border-color); border-radius: 25px; padding: 3px; transition: all 0.3s; }
         .search-mic-group:focus-within { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1); background: transparent;}
         .search-container { position: relative; }
@@ -343,7 +344,9 @@
 
         @media (max-width: 768px) {
             .hide-mobile { display: none !important; }
+            
             .search-box { width: 120px !important; padding: 8px 38px 8px 10px !important; }
+            
             .user-badge { display: none !important; }
             .sidebar { position: fixed; right: -260px; top: 0; bottom: 0; }
             .sidebar.mobile-open { right: 0; }
@@ -480,6 +483,7 @@
                     </div>
                     <div class="sheet-action-group">
                         <button class="btn-sheet-action btn-sheet-edit" onclick="renameCurrentSheet()" title="تعديل اسم أو تاريخ الجرد"><i class="fa-solid fa-pen"></i></button>
+                        <!-- تفريغ الشيت للإستيراد -->
                         <button class="btn-sheet-add" onclick="createNewSheet()" title="إضافة شيت جديد"><i class="fa-solid fa-plus"></i></button>
                         <button class="btn-sheet-action btn-sheet-delete" onclick="deleteCurrentSheet()" title="حذف الشيت الحالي"><i class="fa-solid fa-trash"></i></button>
                     </div>
@@ -536,7 +540,9 @@
                         <button class="btn btn-danger no-print" onclick="downloadImage('inventory')"><i class="fa-solid fa-image"></i> حفظ كصورة</button>
                         <button class="btn btn-primary no-print" onclick="preparePrint()"><i class="fa-solid fa-print"></i> طباعة</button>
                         <button class="btn btn-outline no-print" onclick="clearCurrentLocationNumbers()" style="color: var(--warning);" title="تصفير الأرقام فقط في هذا القسم"><i class="fa-solid fa-eraser"></i> تصفير الأرقام</button>
-                        <button class="btn btn-outline no-print" onclick="deleteAllItems()" style="color: var(--danger);" title="حذف كل أصناف هذا القسم والبدء من الصفر"><i class="fa-solid fa-trash-can"></i> مسح أصناف القسم</button>
+                        
+                        <!-- زر تفريغ الشيت (للاستيراد) اللي بيحفظ بيانات باقي الشيتات -->
+                        <button class="btn btn-outline no-print" onclick="deleteAllItems()" style="color: var(--danger);" title="تفريغ الشيت الحالي للاستيراد"><i class="fa-solid fa-broom"></i> تفريغ الشيت (للاستيراد)</button>
                     </div>
 
                     <div class="table-card">
@@ -832,19 +838,9 @@
         }
 
         const locations = ["رعاية الجراحة", "رعاية القسطرة", "الطوارئ", "الدور الرابع", "الدور الخامس"];
-        const ivFluidsList = [
-            "SODIUM CHLORIDE 3 %", 
-            "SODIUM CHLORIDE 45%", 
-            "جلوكوز 10 %", 
-            "جلوكوز 25 %", 
-            "جلوكوز 5 %", 
-            "رينجر", 
-            "مانيتول", 
-            "KIDMIN 250 ML",
-            "-NORMAL SALINE 0-9% 500 ML",
-            "% SODIUM CHLORIDE 3",
-            "SODIUM CHLORIDE 3%"
-        ];
+        
+        // المحاليل اللي بتلون بالأزرق لما تتداس على (إضافة المحاليل)
+        const ivFluidsList = ["SODIUM CHLORIDE 3 %", "SODIUM CHLORIDE 45%", "جلوكوز 10 %", "جلوكوز 25 %", "جلوكوز 5 %", "رينجر", "مانيتول", "KIDMIN 250 ML"];
         
         let currentLoc = locations[0]; 
         let itemsList = {}; 
@@ -854,23 +850,6 @@
         function sanitizeForFirebase(str) {
             if(!str) return "";
             return String(str).replace(/[.#$\[\]\/]/g, '-').trim();
-        }
-
-        // ==========================================
-        // دالة التعرف على المحاليل إجبارياً للفرز
-        // ==========================================
-        function checkIsFluid(itemName) {
-            if (!itemName) return false;
-            // فحص من القائمة المباشرة
-            if (ivFluidsList.some(f => f.trim() === itemName.trim())) return true;
-            
-            // فحص بالكلمات المفتاحية (حتى لو الإكسيل جابها متلخبطة)
-            const upper = itemName.toUpperCase();
-            if (upper.includes("جلوكوز") || upper.includes("مانيتول") || upper.includes("رينجر") || 
-                upper.includes("CHLORIDE") || upper.includes("SALINE") || upper.includes("KIDMIN")) {
-                return true;
-            }
-            return false;
         }
 
         function ensureDataConsistency() {
@@ -1138,6 +1117,7 @@
             let added = false;
             ivFluidsList.forEach(fluid => {
                 if (!itemsList[currentLoc].includes(fluid)) {
+                    // الميزة دي بتضيف المحاليل في آخر الشيت
                     itemsList[currentLoc].push(fluid); 
                     added = true;
                 }
@@ -1187,7 +1167,7 @@
 
         function deleteAllItems() {
             initAudio();
-            if(confirm(`تحذير شديد: هل أنت متأكد من تفريغ الشيت الحالي بالكامل للاستيراد؟`)) {
+            if(confirm(`تحذير شديد: هل أنت متأكد من تفريغ الشيت الحالي بالكامل للاستيراد؟ (الشيتات السابقة محفوظة)`)) {
                 playSound('delete');
                 appState[currentLoc].sheets[appState[currentLoc].activeSheet].data = {}; 
                 db = appState[currentLoc].sheets[appState[currentLoc].activeSheet].data;
@@ -1233,19 +1213,6 @@
                 appState[loc].sheets[appState[loc].activeSheet].data = {};
             }
             
-            // --- التعديل الذكي لفرز المحاليل ووضعها في النهاية ---
-            let regulars = [];
-            let fluids = [];
-            itemsList[loc].forEach(item => {
-                if (checkIsFluid(item)) {
-                    fluids.push(item);
-                } else {
-                    regulars.push(item);
-                }
-            });
-            itemsList[loc] = [...regulars, ...fluids];
-            // ------------------------------------
-
             db = appState[loc].sheets[appState[loc].activeSheet].data;
 
             document.getElementById('currentLocationTitle').innerText = loc;
@@ -1273,7 +1240,7 @@
                 const tr = document.createElement('tr');
                 tr.setAttribute('data-item', item);
                 
-                const isFluid = checkIsFluid(item);
+                const isFluid = ivFluidsList.includes(item);
                 const nameClass = isFluid ? "item-name item-fluid" : "item-name";
                 
                 tr.innerHTML = `
@@ -1882,12 +1849,7 @@
                     let d = deficits[dIdx]; let s = surpluses[sIdx];
                     let transferAmount = Math.min(d.amount, s.amount);
                     if (transferAmount > 0) {
-                        hasSuggestions = true;
-                        transfersHTML += `
-                            <div style="background: white; border: 1px solid #e5e7eb; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-right: 5px solid var(--warning); color: #000;">
-                                نقل <strong style="color:var(--primary); font-size:16px;">${transferAmount}</strong> وحدة من <strong>[${item}]</strong><br>
-                                من <span style="color:var(--success); font-weight:bold;">${s.loc}</span> (بها زيادة) ⬅️ إلى <span style="color:var(--danger); font-weight:bold;">${d.loc}</span> (بها عجز)
-                            </div>`;
+                        exportData.push(['نقل مقترح', item, transferAmount, s.loc, d.loc]);
                     }
                     d.amount -= transferAmount; s.amount -= transferAmount;
                     if (d.amount === 0) dIdx++;
