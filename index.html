@@ -166,7 +166,7 @@
 
         .main-wrapper { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; transition: all 0.3s ease; }
         
-        /* ================= تصميم الهيدر الجديد للموبايل (الصفين) ================= */
+        /* ================= تصميم الهيدر (Topbar) ================= */
         .topbar { background: var(--card-bg); padding: 15px 20px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); z-index: 50; transition: background-color 0.3s; }
         
         .topbar-main-row { display: flex; width: 100%; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; }
@@ -180,14 +180,24 @@
         .cloud-badge.offline { background: #fee2e2; color: #b91c1c; }
         .cloud-badge.syncing { background: #e0e7ff; color: #4338ca; }
 
-        /* شريط الشيتات في السطر التاني */
-        .sheet-controls { display: flex; align-items: center; gap: 8px; background: #eef2ff; padding: 8px 12px; border-radius: 12px; border: 1px solid #c7d2fe; flex-wrap: wrap; width: 100%; transition: background-color 0.3s;}
-        .sheet-controls i { color: var(--primary); }
-        .sheet-controls select { border: none; background: transparent; font-weight: 700; font-size: 14px; color: var(--primary); outline: none; cursor: pointer; max-width: 200px;}
+        /* شريط الشيتات الجديد (المتوازن) */
+        .sheet-controls { 
+            display: flex; justify-content: space-between; align-items: center; 
+            background: #eef2ff; padding: 10px 15px; border-radius: 12px; 
+            border: 1px solid #c7d2fe; width: 100%; transition: background-color 0.3s; flex-wrap: wrap; gap: 10px;
+        }
+        .sheet-select-group { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 180px; overflow: hidden; }
+        .sheet-select-group i { color: var(--primary); font-size: 18px; }
+        .sheet-select-group select { 
+            border: none; background: transparent; font-weight: 700; font-size: 14px; 
+            color: var(--primary); outline: none; cursor: pointer; width: 100%; 
+            text-overflow: ellipsis; white-space: nowrap; 
+        }
+        .sheet-action-group { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
         
-        .btn-sheet-add { background: transparent; color: var(--primary); border: 2px dashed var(--primary); width: 28px; height: 28px; border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 900; transition: 0.2s;}
+        .btn-sheet-add { background: transparent; color: var(--primary); border: 2px dashed var(--primary); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 900; transition: 0.2s;}
         .btn-sheet-add:hover { background: var(--primary); color: white; transform: scale(1.05);}
-        .btn-sheet-action { background: var(--primary); color: white; border: none; width: 28px; height: 28px; border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;}
+        .btn-sheet-action { background: var(--primary); color: white; border: none; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;}
         .btn-sheet-action:hover { background: var(--primary-hover); transform: scale(1.05);}
         .btn-sheet-edit { background: #e0f2fe; color: var(--info); }
         .btn-sheet-edit:hover { background: #bae6fd; }
@@ -198,12 +208,14 @@
         .btn-edit-name { background: none; border: none; color: var(--primary); cursor: pointer; padding: 0 5px; font-size: 13px; opacity: 0.7; transition: 0.2s; }
         .btn-edit-name:hover { opacity: 1; transform: scale(1.1); color: var(--primary-hover); }
 
-        /* دمج المايك والبحث على الشمال */
+        /* دمج المايك والبحث مع إصلاح المسافات (Padding) */
         .search-mic-group { display: flex; align-items: center; background: #f9fafb; border: 1px solid var(--border-color); border-radius: 25px; padding: 3px; transition: all 0.3s; }
         .search-mic-group:focus-within { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1); background: transparent;}
         .search-container { position: relative; }
-        .search-container i.fa-search { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
-        .search-box { padding: 8px 10px 8px 30px; border: none; border-radius: 25px; width: 160px; outline: none; font-size: 13px; background: transparent; color: var(--text-main); }
+        .search-container i.fa-search { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+        
+        /* تم تصحيح الفراغات لتبدأ الكتابة بعيداً عن العدسة */
+        .search-box { padding: 10px 38px 10px 15px; border: none; border-radius: 25px; width: 180px; outline: none; font-size: 13px; background: transparent; color: var(--text-main); }
         
         .btn-voice { background: linear-gradient(135deg, var(--primary) 0%, #312e81 100%); color: white; border: none; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; transition: all 0.3s ease; margin-left: 5px; }
         .btn-voice:hover { transform: scale(1.1); box-shadow: 0 4px 10px rgba(79, 70, 229, 0.4); }
@@ -333,7 +345,10 @@
 
         @media (max-width: 768px) {
             .hide-mobile { display: none !important; }
-            .search-box { width: 110px !important; }
+            
+            /* تعديل مساحة البحث على الموبايل عشان مفيش حاجة تلمس العدسة */
+            .search-box { width: 120px !important; padding: 8px 30px 8px 10px !important; }
+            
             .user-badge { display: none !important; }
             .sidebar { position: fixed; right: -260px; top: 0; bottom: 0; }
             .sidebar.mobile-open { right: 0; }
@@ -464,11 +479,15 @@
                 </div>
 
                 <div class="sheet-controls no-print">
-                    <i class="fa-solid fa-file-excel"></i>
-                    <select id="sheetSelect" onchange="switchSheet(this.value)"></select>
-                    <button class="btn-sheet-action btn-sheet-edit" onclick="renameCurrentSheet()" title="تعديل اسم أو تاريخ الجرد"><i class="fa-solid fa-pen"></i></button>
-                    <button class="btn-sheet-add" onclick="createNewSheet()" title="إضافة شيت جديد"><i class="fa-solid fa-plus"></i></button>
-                    <button class="btn-sheet-action btn-sheet-delete" onclick="deleteCurrentSheet()" title="حذف الشيت الحالي"><i class="fa-solid fa-trash"></i></button>
+                    <div class="sheet-select-group">
+                        <i class="fa-solid fa-file-excel"></i>
+                        <select id="sheetSelect" onchange="switchSheet(this.value)"></select>
+                    </div>
+                    <div class="sheet-action-group">
+                        <button class="btn-sheet-action btn-sheet-edit" onclick="renameCurrentSheet()" title="تعديل اسم أو تاريخ الجرد"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn-sheet-add" onclick="createNewSheet()" title="إضافة شيت جديد"><i class="fa-solid fa-plus"></i></button>
+                        <button class="btn-sheet-action btn-sheet-delete" onclick="deleteCurrentSheet()" title="حذف الشيت الحالي"><i class="fa-solid fa-trash"></i></button>
+                    </div>
                 </div>
 
             </header>
