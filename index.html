@@ -345,6 +345,7 @@
         @media (max-width: 768px) {
             .hide-mobile { display: none !important; }
             
+            /* تعديل مساحة البحث على الموبايل عشان مفيش حاجة تلمس العدسة */
             .search-box { width: 120px !important; padding: 8px 38px 8px 10px !important; }
             
             .user-badge { display: none !important; }
@@ -1849,12 +1850,7 @@
                     let d = deficits[dIdx]; let s = surpluses[sIdx];
                     let transferAmount = Math.min(d.amount, s.amount);
                     if (transferAmount > 0) {
-                        hasSuggestions = true;
-                        transfersHTML += `
-                            <div style="background: white; border: 1px solid #e5e7eb; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-right: 5px solid var(--warning); color: #000;">
-                                نقل <strong style="color:var(--primary); font-size:16px;">${transferAmount}</strong> وحدة من <strong>[${item}]</strong><br>
-                                من <span style="color:var(--success); font-weight:bold;">${s.loc}</span> (بها زيادة) ⬅️ إلى <span style="color:var(--danger); font-weight:bold;">${d.loc}</span> (بها عجز)
-                            </div>`;
+                        exportData.push(['نقل مقترح', item, transferAmount, s.loc, d.loc]);
                     }
                     d.amount -= transferAmount; s.amount -= transferAmount;
                     if (d.amount === 0) dIdx++;
@@ -1936,6 +1932,12 @@
             });
         });
 
+        // ==========================================
+        // دالة المساعد الصوتي (مُحسنة وبدون رسايل مزعجة)
+        // ==========================================
+        let recognition = null;
+        let isRecording = false;
+
         function startVoiceRecognition() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRecognition) {
@@ -1943,15 +1945,22 @@
                 return;
             }
 
-            const recognition = new SpeechRecognition();
+            const btn = document.getElementById('voiceBtn');
+            const icon = btn.querySelector('i');
+
+            // لو المايك شغال وإنت دوست عليه تاني، هيقفل بهدوء (وده بيمنع إيرور aborted)
+            if (isRecording && recognition) {
+                recognition.stop();
+                return;
+            }
+
+            recognition = new SpeechRecognition();
             recognition.lang = 'ar-EG'; 
             recognition.interimResults = false;
             recognition.maxAlternatives = 1;
 
-            const btn = document.getElementById('voiceBtn');
-            const icon = btn.querySelector('i');
-
             recognition.onstart = function() {
+                isRecording = true;
                 btn.classList.add('recording');
                 icon.className = 'fa-solid fa-microphone-lines fa-fade';
                 document.getElementById('searchInput').placeholder = "جاري الاستماع...";
@@ -2037,20 +2046,24 @@
                     }
                 } catch (err) {
                     console.error(err);
-                    alert("حدث خطأ غير متوقع أثناء تحليل الصوت.");
                 }
             };
 
             recognition.onerror = function(event) {
+                isRecording = false;
                 btn.classList.remove('recording');
                 icon.className = 'fa-solid fa-microphone';
                 document.getElementById('searchInput').placeholder = "بحث...";
-                if(event.error !== 'no-speech') {
-                   alert("خطأ في المايكروفون: " + event.error);
+                
+                // تنبيه واحد بس يظهر لو المتصفح مانع الصلاحية
+                if (event.error === 'not-allowed') {
+                    alert("المتصفح يمنع استخدام المايكروفون. يرجى الضغط على علامة القفل بجوار الرابط والسماح للمايكروفون (Allow).");
                 }
+                // تم إخفاء رسالة aborted و no-speech عشان متزعجكش
             };
 
             recognition.onend = function() {
+                isRecording = false;
                 btn.classList.remove('recording');
                 icon.className = 'fa-solid fa-microphone';
                 document.getElementById('searchInput').placeholder = "بحث...";
