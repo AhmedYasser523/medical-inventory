@@ -208,7 +208,6 @@
         .btn-edit-name { background: none; border: none; color: var(--primary); cursor: pointer; padding: 0 5px; font-size: 13px; opacity: 0.7; transition: 0.2s; }
         .btn-edit-name:hover { opacity: 1; transform: scale(1.1); color: var(--primary-hover); }
 
-        /* دمج المايك والبحث مع إصلاح المسافات (Padding) */
         .search-mic-group { display: flex; align-items: center; background: #f9fafb; border: 1px solid var(--border-color); border-radius: 25px; padding: 3px; transition: all 0.3s; }
         .search-mic-group:focus-within { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1); background: transparent;}
         .search-container { position: relative; }
@@ -344,9 +343,7 @@
 
         @media (max-width: 768px) {
             .hide-mobile { display: none !important; }
-            
             .search-box { width: 120px !important; padding: 8px 38px 8px 10px !important; }
-            
             .user-badge { display: none !important; }
             .sidebar { position: fixed; right: -260px; top: 0; bottom: 0; }
             .sidebar.mobile-open { right: 0; }
@@ -483,7 +480,6 @@
                     </div>
                     <div class="sheet-action-group">
                         <button class="btn-sheet-action btn-sheet-edit" onclick="renameCurrentSheet()" title="تعديل اسم أو تاريخ الجرد"><i class="fa-solid fa-pen"></i></button>
-                        <!-- تم إزالة زر تفريغ الشيت من هنا ونقله لأسفل مع باقي الأزرار لتجنب الخطأ -->
                         <button class="btn-sheet-add" onclick="createNewSheet()" title="إضافة شيت جديد"><i class="fa-solid fa-plus"></i></button>
                         <button class="btn-sheet-action btn-sheet-delete" onclick="deleteCurrentSheet()" title="حذف الشيت الحالي"><i class="fa-solid fa-trash"></i></button>
                     </div>
@@ -540,9 +536,7 @@
                         <button class="btn btn-danger no-print" onclick="downloadImage('inventory')"><i class="fa-solid fa-image"></i> حفظ كصورة</button>
                         <button class="btn btn-primary no-print" onclick="preparePrint()"><i class="fa-solid fa-print"></i> طباعة</button>
                         <button class="btn btn-outline no-print" onclick="clearCurrentLocationNumbers()" style="color: var(--warning);" title="تصفير الأرقام فقط في هذا القسم"><i class="fa-solid fa-eraser"></i> تصفير الأرقام</button>
-                        
-                        <!-- زر تفريغ الشيت (تم تعديله لمنع تلف البيانات القديمة) -->
-                        <button class="btn btn-outline no-print" onclick="deleteAllItems()" style="color: var(--danger);" title="تفريغ الشيت الحالي للاستيراد"><i class="fa-solid fa-broom"></i> تفريغ الشيت (للاستيراد)</button>
+                        <button class="btn btn-outline no-print" onclick="deleteAllItems()" style="color: var(--danger);" title="حذف كل أصناف هذا القسم والبدء من الصفر"><i class="fa-solid fa-trash-can"></i> مسح أصناف القسم</button>
                     </div>
 
                     <div class="table-card">
@@ -838,7 +832,19 @@
         }
 
         const locations = ["رعاية الجراحة", "رعاية القسطرة", "الطوارئ", "الدور الرابع", "الدور الخامس"];
-        const ivFluidsList = ["SODIUM CHLORIDE 3 %", "SODIUM CHLORIDE 45%", "جلوكوز 10 %", "جلوكوز 25 %", "جلوكوز 5 %", "رينجر", "مانيتول", "KIDMIN 250 ML"];
+        const ivFluidsList = [
+            "SODIUM CHLORIDE 3 %", 
+            "SODIUM CHLORIDE 45%", 
+            "جلوكوز 10 %", 
+            "جلوكوز 25 %", 
+            "جلوكوز 5 %", 
+            "رينجر", 
+            "مانيتول", 
+            "KIDMIN 250 ML",
+            "-NORMAL SALINE 0-9% 500 ML",
+            "% SODIUM CHLORIDE 3",
+            "SODIUM CHLORIDE 3%"
+        ];
         
         let currentLoc = locations[0]; 
         let itemsList = {}; 
@@ -848,6 +854,23 @@
         function sanitizeForFirebase(str) {
             if(!str) return "";
             return String(str).replace(/[.#$\[\]\/]/g, '-').trim();
+        }
+
+        // ==========================================
+        // دالة التعرف على المحاليل إجبارياً للفرز
+        // ==========================================
+        function checkIsFluid(itemName) {
+            if (!itemName) return false;
+            // فحص من القائمة المباشرة
+            if (ivFluidsList.some(f => f.trim() === itemName.trim())) return true;
+            
+            // فحص بالكلمات المفتاحية (حتى لو الإكسيل جابها متلخبطة)
+            const upper = itemName.toUpperCase();
+            if (upper.includes("جلوكوز") || upper.includes("مانيتول") || upper.includes("رينجر") || 
+                upper.includes("CHLORIDE") || upper.includes("SALINE") || upper.includes("KIDMIN")) {
+                return true;
+            }
+            return false;
         }
 
         function ensureDataConsistency() {
@@ -862,7 +885,6 @@
                     if (!appState[loc].sheets[sheet].data) {
                         appState[loc].sheets[sheet].data = {};
                     }
-                    // تم إيقاف عملية نسخ الأصناف القديمة للشيتات لتجنب المشاكل
                 }
             });
         }
@@ -1085,12 +1107,7 @@
 
         function insertRegularItem(itemName) {
             if (!itemsList[currentLoc].includes(itemName)) {
-                let firstFluidIndex = itemsList[currentLoc].findIndex(i => ivFluidsList.includes(i));
-                if (firstFluidIndex !== -1) {
-                    itemsList[currentLoc].splice(firstFluidIndex, 0, itemName);
-                } else {
-                    itemsList[currentLoc].push(itemName);
-                }
+                itemsList[currentLoc].push(itemName); 
             }
             if (!db[itemName]) {
                 db[itemName] = { sys: '', bills: '', actual: '' };
@@ -1105,10 +1122,11 @@
             
             const newItem = sanitizeForFirebase(rawNewItem);
 
-            if (Object.keys(db).includes(newItem)) { playSound('error'); return alert('هذا الصنف موجود بالفعل في هذا الشيت!'); }
+            if (itemsList[currentLoc].includes(newItem)) { playSound('error'); return alert('هذا الصنف موجود بالفعل في هذا القسم!'); }
 
             playSound('success');
             insertRegularItem(newItem);
+            ensureDataConsistency(); 
             saveState();
 
             input.value = '';
@@ -1131,19 +1149,25 @@
             
             if(added) {
                 playSound('success');
+                ensureDataConsistency();
                 saveState();
                 loadLocation(currentLoc);
             } else {
                 playSound('error');
-                alert("المحاليل موجودة بالفعل في هذا الشيت.");
+                alert("المحاليل موجودة بالفعل في هذا القسم.");
             }
         }
 
         function deleteItem(itemName) {
             initAudio();
-            if (confirm(`هل أنت متأكد من حذف "${itemName}" نهائياً من هذا الشيت؟`)) {
+            if (confirm(`هل أنت متأكد من حذف "${itemName}" نهائياً من قسم (${currentLoc})؟`)) {
                 playSound('delete');
-                delete db[itemName]; 
+                itemsList[currentLoc] = itemsList[currentLoc].filter(i => i !== itemName);
+                for (let sheet in appState[currentLoc].sheets) {
+                    if(appState[currentLoc].sheets[sheet].data[itemName]) {
+                        delete appState[currentLoc].sheets[sheet].data[itemName]; 
+                    }
+                }
                 saveState();
                 loadLocation(currentLoc);
             }
@@ -1153,8 +1177,7 @@
             initAudio();
             if(confirm(`هل أنت متأكد من تصفير الأرقام في قسم (${currentLoc}) فقط؟ (لن تُحذف الأصناف)`)) {
                 playSound('delete');
-                const currentSheetItems = Object.keys(db);
-                currentSheetItems.forEach(item => {
+                itemsList[currentLoc].forEach(item => {
                     db[item] = { sys: '', bills: '', actual: '' };
                 });
                 saveState();
@@ -1164,9 +1187,9 @@
 
         function deleteAllItems() {
             initAudio();
-            if(confirm(`تحذير: هل أنت متأكد من تفريغ الشيت الحالي بالكامل للاستعداد لملف الإكسيل الجديد؟ (شيتات الأيام السابقة لن تتأثر)`)) {
+            if(confirm(`تحذير شديد: هل أنت متأكد من تفريغ الشيت الحالي بالكامل للاستيراد؟`)) {
                 playSound('delete');
-                appState[currentLoc].sheets[appState[currentLoc].activeSheet].data = {};
+                appState[currentLoc].sheets[appState[currentLoc].activeSheet].data = {}; 
                 db = appState[currentLoc].sheets[appState[currentLoc].activeSheet].data;
                 saveState();
                 loadLocation(currentLoc);
@@ -1210,12 +1233,23 @@
                 appState[loc].sheets[appState[loc].activeSheet].data = {};
             }
             
+            // --- التعديل الذكي لفرز المحاليل ووضعها في النهاية ---
+            let regulars = [];
+            let fluids = [];
+            itemsList[loc].forEach(item => {
+                if (checkIsFluid(item)) {
+                    fluids.push(item);
+                } else {
+                    regulars.push(item);
+                }
+            });
+            itemsList[loc] = [...regulars, ...fluids];
+            // ------------------------------------
+
             db = appState[loc].sheets[appState[loc].activeSheet].data;
 
             document.getElementById('currentLocationTitle').innerText = loc;
-            
-            const currentSheetItems = Object.keys(db);
-            document.getElementById('stat-total').innerText = currentSheetItems.length;
+            document.getElementById('stat-total').innerText = itemsList[loc].length;
             
             document.getElementById('printTitle').innerText = getDynamicTitle();
             if(appState[loc] && appState[loc].sheets && appState[loc].sheets[appState[loc].activeSheet]) {
@@ -1228,18 +1262,18 @@
             const tbody = document.getElementById('inventoryBody');
             tbody.innerHTML = '';
             
-            if (currentSheetItems.length === 0) {
+            if (itemsList[loc].length === 0) {
                 tbody.innerHTML = `<tr><td colspan="8" style="padding:40px; text-align:center; color:#6b7280; font-size:16px;">
-                    لا توجد أصناف حالياً في هذا الشيت. استخدم الأزرار بالأعلى لإضافة الأصناف أو استيرادها.
+                    لا توجد أصناف حالياً في قسم (${loc}). استخدم الأزرار بالأعلى لإضافة الأصناف أو استيرادها.
                 </td></tr>`;
             }
 
-            currentSheetItems.forEach((item, index) => {
-                const data = db[item];
+            itemsList[loc].forEach((item, index) => {
+                const data = db[item] || { sys: '', bills: '', actual: '' };
                 const tr = document.createElement('tr');
                 tr.setAttribute('data-item', item);
                 
-                const isFluid = ivFluidsList.includes(item);
+                const isFluid = checkIsFluid(item);
                 const nameClass = isFluid ? "item-name item-fluid" : "item-name";
                 
                 tr.innerHTML = `
@@ -1399,6 +1433,8 @@
                         insertRegularItem(exName);
                     });
                     
+                    ensureDataConsistency();
+
                     let updatedCount = 0;
                     Object.keys(excelMap).forEach(exName => {
                         if (!db[exName]) db[exName] = { sys: '', bills: '', actual: '' };
@@ -1443,9 +1479,7 @@
             let exportData = [];
             exportData.push(['#', 'اسم الصنف الطبي', 'السيستم', 'المصروف', 'الفعلي', 'العجز', 'الزيادة']);
 
-            const sheetItems = Object.keys(db);
-
-            sheetItems.forEach((item, index) => {
+            itemsList[currentLoc].forEach((item, index) => {
                 const data = db[item] || { sys: '', bills: '', actual: '' };
                 const sysVal = parseFloat(data.sys) || 0;
                 const billsVal = parseFloat(data.bills) || 0;
@@ -1935,9 +1969,6 @@
             });
         });
 
-        // ==========================================
-        // دالة المساعد الصوتي (مُحسنة وبدون رسايل مزعجة)
-        // ==========================================
         let recognition = null;
         let isRecording = false;
 
