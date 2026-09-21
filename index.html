@@ -180,7 +180,7 @@
         .cloud-badge.offline { background: #fee2e2; color: #b91c1c; }
         .cloud-badge.syncing { background: #e0e7ff; color: #4338ca; }
 
-        /* شريط الشيتات (المتوازن) */
+        /* شريط الشيتات الجديد (المتوازن) */
         .sheet-controls { 
             display: flex; justify-content: space-between; align-items: center; 
             background: #eef2ff; padding: 10px 15px; border-radius: 12px; 
@@ -208,6 +208,7 @@
         .btn-edit-name { background: none; border: none; color: var(--primary); cursor: pointer; padding: 0 5px; font-size: 13px; opacity: 0.7; transition: 0.2s; }
         .btn-edit-name:hover { opacity: 1; transform: scale(1.1); color: var(--primary-hover); }
 
+        /* دمج المايك والبحث مع إصلاح المسافات (Padding) */
         .search-mic-group { display: flex; align-items: center; background: #f9fafb; border: 1px solid var(--border-color); border-radius: 25px; padding: 3px; transition: all 0.3s; }
         .search-mic-group:focus-within { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1); background: transparent;}
         .search-container { position: relative; }
@@ -832,8 +833,6 @@
         }
 
         const locations = ["رعاية الجراحة", "رعاية القسطرة", "الطوارئ", "الدور الرابع", "الدور الخامس"];
-        
-        // المحاليل اللي بتلون بالأزرق لما تتداس على (إضافة المحاليل)
         const ivFluidsList = ["SODIUM CHLORIDE 3 %", "SODIUM CHLORIDE 45%", "جلوكوز 10 %", "جلوكوز 25 %", "جلوكوز 5 %", "رينجر", "مانيتول", "KIDMIN 250 ML"];
         
         let currentLoc = locations[0]; 
@@ -849,14 +848,17 @@
         function ensureDataConsistency() {
             locations.forEach(loc => {
                 if (!appState[loc]) {
-                    appState[loc] = { activeSheet: 'default', sheets: { 'default': { id: 'default', name: 'جرد البداية', data: {} } } };
+                    appState[loc] = { activeSheet: 'default', sheets: { 'default': { id: 'default', name: 'جرد البداية', data: {}, order: [] } } };
                 }
                 if (!appState[loc].sheets) {
-                    appState[loc].sheets = { 'default': { id: 'default', name: 'جرد البداية', data: {} } };
+                    appState[loc].sheets = { 'default': { id: 'default', name: 'جرد البداية', data: {}, order: [] } };
                 }
                 for (let sheet in appState[loc].sheets) {
                     if (!appState[loc].sheets[sheet].data) {
                         appState[loc].sheets[sheet].data = {};
+                    }
+                    if (!appState[loc].sheets[sheet].order) {
+                        appState[loc].sheets[sheet].order = itemsList[loc] ? itemsList[loc].slice() : [];
                     }
                 }
             });
@@ -873,11 +875,12 @@
                         newState[loc].sheets[sid] = {
                             id: appState.sheets[sid].id || sid,
                             name: appState.sheets[sid].name || 'جرد',
-                            data: (appState.sheets[sid].data && appState.sheets[sid].data[loc]) ? appState.sheets[sid].data[loc] : {}
+                            data: (appState.sheets[sid].data && appState.sheets[sid].data[loc]) ? appState.sheets[sid].data[loc] : {},
+                            order: itemsList[loc] ? itemsList[loc].slice() : []
                         };
                     }
                     if(!hasAnySheet) {
-                         newState[loc].sheets['default'] = { id: 'default', name: 'جرد البداية', data: {} };
+                         newState[loc].sheets['default'] = { id: 'default', name: 'جرد البداية', data: {}, order: [] };
                          newState[loc].activeSheet = 'default';
                     } else if (!newState[loc].sheets[newState[loc].activeSheet]) {
                          newState[loc].activeSheet = Object.keys(newState[loc].sheets)[0];
@@ -888,10 +891,10 @@
             } else {
                 locations.forEach(loc => {
                     if (!appState[loc]) {
-                        appState[loc] = { activeSheet: 'default', sheets: { 'default': { id: 'default', name: 'جرد البداية', data: {} } } };
+                        appState[loc] = { activeSheet: 'default', sheets: { 'default': { id: 'default', name: 'جرد البداية', data: {}, order: [] } } };
                     }
                     if (!appState[loc].sheets) {
-                        appState[loc].sheets = { 'default': { id: 'default', name: 'جرد البداية', data: {} } };
+                        appState[loc].sheets = { 'default': { id: 'default', name: 'جرد البداية', data: {}, order: [] } };
                     }
                     if (!appState[loc].sheets[appState[loc].activeSheet]) {
                         appState[loc].activeSheet = Object.keys(appState[loc].sheets)[0] || 'default';
@@ -925,7 +928,7 @@
                 } else {
                     locations.forEach(loc => itemsList[loc] = []);
                     locations.forEach(loc => {
-                        appState[loc] = { activeSheet: 'default', sheets: { 'default': { id: 'default', name: 'جرد البداية', data: {} } } };
+                        appState[loc] = { activeSheet: 'default', sheets: { 'default': { id: 'default', name: 'جرد البداية', data: {}, order: [] } } };
                     });
                 }
                 
@@ -991,7 +994,7 @@
                 ensureDataConsistency();
             } else {
                 locations.forEach(loc => {
-                    appState[loc] = { activeSheet: 'default', sheets: { 'default': { id: 'default', name: 'جرد البداية', data: {} } } };
+                    appState[loc] = { activeSheet: 'default', sheets: { 'default': { id: 'default', name: 'جرد البداية', data: {}, order: [] } } };
                 });
             }
             
@@ -1017,7 +1020,12 @@
                 newDb[item] = { sys: '', bills: '', actual: '' };
             });
 
-            appState[currentLoc].sheets[sheetId] = { id: sheetId, name: sheetName, data: newDb };
+            appState[currentLoc].sheets[sheetId] = { 
+                id: sheetId, 
+                name: sheetName, 
+                data: newDb, 
+                order: itemsList[currentLoc].slice() 
+            };
             appState[currentLoc].activeSheet = sheetId;
             db = appState[currentLoc].sheets[sheetId].data; 
             
@@ -1086,15 +1094,6 @@
             }
         }
 
-        function insertRegularItem(itemName) {
-            if (!itemsList[currentLoc].includes(itemName)) {
-                itemsList[currentLoc].push(itemName); 
-            }
-            if (!db[itemName]) {
-                db[itemName] = { sys: '', bills: '', actual: '' };
-            }
-        }
-
         function addNewItem() {
             initAudio();
             const input = document.getElementById('newItemName');
@@ -1106,9 +1105,15 @@
             if (Object.keys(db).includes(newItem)) { playSound('error'); return alert('هذا الصنف موجود بالفعل في هذا الشيت!'); }
 
             playSound('success');
-            insertRegularItem(newItem);
-            saveState();
+            
+            if (!itemsList[currentLoc].includes(newItem)) itemsList[currentLoc].push(newItem);
+            db[newItem] = { sys: '', bills: '', actual: '' };
+            
+            let activeSheet = appState[currentLoc].sheets[appState[currentLoc].activeSheet];
+            if (!activeSheet.order) activeSheet.order = Object.keys(db);
+            activeSheet.order.push(newItem);
 
+            saveState();
             input.value = '';
             loadLocation(currentLoc);
         }
@@ -1116,14 +1121,18 @@
         function addIVFluids() {
             initAudio();
             let added = false;
+            let activeSheet = appState[currentLoc].sheets[appState[currentLoc].activeSheet];
+            if (!activeSheet.order) activeSheet.order = Object.keys(db);
+
             ivFluidsList.forEach(fluid => {
                 if (!itemsList[currentLoc].includes(fluid)) {
-                    // الميزة دي بتضيف المحاليل في آخر الشيت بكل هدوء
                     itemsList[currentLoc].push(fluid); 
-                    added = true;
                 }
+                
+                // الميزة الأساسية: المحاليل تضاف في الآخر "فقط" لو مكنتش موجودة
                 if (!db[fluid]) {
                     db[fluid] = { sys: '', bills: '', actual: '' };
+                    activeSheet.order.push(fluid);
                     added = true;
                 }
             });
@@ -1145,6 +1154,11 @@
                 
                 itemsList[currentLoc] = itemsList[currentLoc].filter(i => i !== itemName);
                 delete db[itemName]; 
+                
+                let activeSheet = appState[currentLoc].sheets[appState[currentLoc].activeSheet];
+                if(activeSheet.order) {
+                    activeSheet.order = activeSheet.order.filter(i => i !== itemName);
+                }
                 
                 saveState();
                 loadLocation(currentLoc);
@@ -1169,6 +1183,7 @@
             if(confirm(`تحذير شديد: هل أنت متأكد من تفريغ الشيت الحالي بالكامل للاستيراد؟ (الشيتات السابقة محفوظة)`)) {
                 playSound('delete');
                 appState[currentLoc].sheets[appState[currentLoc].activeSheet].data = {}; 
+                appState[currentLoc].sheets[appState[currentLoc].activeSheet].order = []; 
                 db = appState[currentLoc].sheets[appState[currentLoc].activeSheet].data;
                 saveState();
                 loadLocation(currentLoc);
@@ -1200,10 +1215,10 @@
             currentLoc = loc;
             
             if(!appState[loc]) {
-                appState[loc] = { activeSheet: 'default', sheets: { 'default': { id: 'default', name: 'جرد البداية', data: {} } } };
+                appState[loc] = { activeSheet: 'default', sheets: { 'default': { id: 'default', name: 'جرد البداية', data: {}, order: [] } } };
             }
             if(!appState[loc].sheets) {
-                appState[loc].sheets = { 'default': { id: 'default', name: 'جرد البداية', data: {} } };
+                appState[loc].sheets = { 'default': { id: 'default', name: 'جرد البداية', data: {}, order: [] } };
             }
             if(!appState[loc].sheets[appState[loc].activeSheet]) {
                 appState[loc].activeSheet = Object.keys(appState[loc].sheets)[0];
@@ -1213,15 +1228,23 @@
             }
             
             db = appState[loc].sheets[appState[loc].activeSheet].data;
+            let activeSheet = appState[loc].sheets[appState[loc].activeSheet];
+
+            if (!activeSheet.order) {
+                activeSheet.order = itemsList[loc].filter(i => db.hasOwnProperty(i));
+                Object.keys(db).forEach(k => {
+                    if(!activeSheet.order.includes(k)) activeSheet.order.push(k);
+                });
+            }
+            
+            const currentSheetItems = activeSheet.order.filter(item => db.hasOwnProperty(item));
 
             document.getElementById('currentLocationTitle').innerText = loc;
-            
-            const currentSheetItems = Object.keys(db);
             document.getElementById('stat-total').innerText = currentSheetItems.length;
             
             document.getElementById('printTitle').innerText = getDynamicTitle();
-            if(appState[loc] && appState[loc].sheets && appState[loc].sheets[appState[loc].activeSheet]) {
-                document.getElementById('printSubtitle').innerText = appState[loc].sheets[appState[loc].activeSheet].name;
+            if(activeSheet) {
+                document.getElementById('printSubtitle').innerText = activeSheet.name;
             }
             
             updateSheetSelectUI();
@@ -1236,7 +1259,6 @@
                 </td></tr>`;
             }
 
-            // عرض الأصناف بناءً على ترتيب إدخالها في الإكسيل أو اليدوي (بدون فرز إجباري)
             currentSheetItems.forEach((item, index) => {
                 const data = db[item];
                 const tr = document.createElement('tr');
@@ -1350,7 +1372,7 @@
         }
 
         // ==========================================
-        // دالة رفع الإكسيل بالترتيب المظبوط 100%
+        // الإستيراد المحمي لترتيب الإكسيل
         // ==========================================
         function handleExcelUpload(event) {
             initAudio();
@@ -1375,7 +1397,7 @@
                     const json = XLSX.utils.sheet_to_json(firstSheet, {header: 1, defval: null});
 
                     let excelMap = {};
-                    let excelOrder = []; // المصفوفة دي هتحفظ ترتيب الإكسيل حرفياً سطر سطر
+                    let excelOrder = [];
                     
                     for (let i = 0; i < json.length - 1; i++) {
                         try {
@@ -1395,7 +1417,7 @@
                                 if (!isNaN(qty) && itemName !== '' && itemName !== '0') {
                                     if (!excelMap[itemName]) {
                                         excelMap[itemName] = 0;
-                                        excelOrder.push(itemName); // حفظ الاسم بالترتيب
+                                        excelOrder.push(itemName); 
                                     }
                                     excelMap[itemName] += qty;
                                 }
@@ -1405,19 +1427,25 @@
                         }
                     }
 
-                    // استيراد الأسماء بنفس ترتيب مصفوفة الإكسيل
-                    excelOrder.forEach(exName => {
-                        insertRegularItem(exName);
-                    });
-                    
-                    ensureDataConsistency();
+                    let activeSheet = appState[currentLoc].sheets[appState[currentLoc].activeSheet];
+                    if (!activeSheet.order) activeSheet.order = [];
 
-                    let updatedCount = 0;
                     excelOrder.forEach(exName => {
+                        if (!itemsList[currentLoc].includes(exName)) itemsList[currentLoc].push(exName);
                         if (!db[exName]) db[exName] = { sys: '', bills: '', actual: '' };
                         db[exName].sys = excelMap[exName];
-                        updatedCount++;
                     });
+
+                    // دمج الترتيب الجديد مع القديم (لو في أصناف قديمة مكنتش في الإكسيل)
+                    let newOrder = [...excelOrder];
+                    activeSheet.order.forEach(item => {
+                        if (!newOrder.includes(item) && db[item]) {
+                            newOrder.push(item);
+                        }
+                    });
+                    activeSheet.order = newOrder;
+
+                    let updatedCount = excelOrder.length;
 
                     saveState();
                     loadLocation(currentLoc); 
@@ -1456,7 +1484,8 @@
             let exportData = [];
             exportData.push(['#', 'اسم الصنف الطبي', 'السيستم', 'المصروف', 'الفعلي', 'العجز', 'الزيادة']);
 
-            const sheetItems = Object.keys(db);
+            const activeSheet = appState[currentLoc].sheets[appState[currentLoc].activeSheet];
+            const sheetItems = activeSheet.order ? activeSheet.order.filter(item => db.hasOwnProperty(item)) : Object.keys(db);
 
             sheetItems.forEach((item, index) => {
                 const data = db[item] || { sys: '', bills: '', actual: '' };
