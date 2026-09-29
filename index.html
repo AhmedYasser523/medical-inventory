@@ -281,6 +281,8 @@
         .print-header { display: none; text-align: center; margin-bottom: 20px; }
         .print-footer { display: none; }
         
+        /* التعديل الجذري لمشكلة الخطوط العربية أثناء التقاط الصورة */
+        .capture-mode, .capture-mode * { font-family: Tahoma, Arial, sans-serif !important; letter-spacing: normal !important; }
         .capture-mode { background: white !important; color: black !important; }
         .capture-mode .sidebar, .capture-mode .topbar, .capture-mode .toolbar, .capture-mode .menu-toggle-btn, .capture-mode .sidebar-overlay, .capture-mode .no-print, .capture-mode .sheet-controls { display: none !important; }
         .capture-mode .main-wrapper { display: block !important; overflow: visible !important; }
@@ -1094,6 +1096,15 @@
             }
         }
 
+        function insertRegularItem(itemName) {
+            if (!itemsList[currentLoc].includes(itemName)) {
+                itemsList[currentLoc].push(itemName); 
+            }
+            if (!db[itemName]) {
+                db[itemName] = { sys: '', bills: '', actual: '' };
+            }
+        }
+
         function addNewItem() {
             initAudio();
             const input = document.getElementById('newItemName');
@@ -1129,7 +1140,6 @@
                     itemsList[currentLoc].push(fluid); 
                 }
                 
-                // الميزة الأساسية: المحاليل تضاف في الآخر "فقط" لو مكنتش موجودة
                 if (!db[fluid]) {
                     db[fluid] = { sys: '', bills: '', actual: '' };
                     activeSheet.order.push(fluid);
@@ -1371,9 +1381,6 @@
             });
         }
 
-        // ==========================================
-        // الإستيراد المحمي لترتيب الإكسيل
-        // ==========================================
         function handleExcelUpload(event) {
             initAudio();
             const file = event.target.files[0];
@@ -1436,7 +1443,6 @@
                         db[exName].sys = excelMap[exName];
                     });
 
-                    // دمج الترتيب الجديد مع القديم (لو في أصناف قديمة مكنتش في الإكسيل)
                     let newOrder = [...excelOrder];
                     activeSheet.order.forEach(item => {
                         if (!newOrder.includes(item) && db[item]) {
@@ -1657,7 +1663,7 @@
                     exportContainer.style.top = '-10000px';
                     exportContainer.style.left = '-10000px';
                     exportContainer.style.direction = 'rtl';
-                    exportContainer.style.fontFamily = "'Cairo', sans-serif";
+                    exportContainer.style.fontFamily = "Tahoma, Arial, sans-serif";
                     exportContainer.style.color = '#000000';
                     document.body.appendChild(exportContainer);
                     
@@ -1718,7 +1724,7 @@
                         exportContainer.style.top = '-10000px';
                         exportContainer.style.left = '-10000px';
                         exportContainer.style.direction = 'rtl';
-                        exportContainer.style.fontFamily = "'Cairo', sans-serif";
+                        exportContainer.style.fontFamily = "Tahoma, Arial, sans-serif";
                         exportContainer.style.color = '#000000';
                         document.body.appendChild(exportContainer);
 
