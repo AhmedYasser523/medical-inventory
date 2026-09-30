@@ -14,8 +14,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- تم استبدال مكتبة html2canvas بمكتبة dom-to-image الأقوى مع اللغة العربية -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -282,7 +281,6 @@
         .print-header { display: none; text-align: center; margin-bottom: 20px; }
         .print-footer { display: none; }
         
-        /* التعديل الجذري: مبقاش فيه خطوط أجنبية إجبارية عشان dom-to-image بيفهم عربي ممتاز */
         .capture-mode { background: white !important; color: black !important; }
         .capture-mode .sidebar, .capture-mode .topbar, .capture-mode .toolbar, .capture-mode .menu-toggle-btn, .capture-mode .sidebar-overlay, .capture-mode .no-print, .capture-mode .sheet-controls { display: none !important; }
         .capture-mode .main-wrapper { display: block !important; overflow: visible !important; }
@@ -1096,15 +1094,6 @@
             }
         }
 
-        function insertRegularItem(itemName) {
-            if (!itemsList[currentLoc].includes(itemName)) {
-                itemsList[currentLoc].push(itemName); 
-            }
-            if (!db[itemName]) {
-                db[itemName] = { sys: '', bills: '', actual: '' };
-            }
-        }
-
         function addNewItem() {
             initAudio();
             const input = document.getElementById('newItemName');
@@ -1140,6 +1129,7 @@
                     itemsList[currentLoc].push(fluid); 
                 }
                 
+                // الميزة الأساسية: المحاليل تضاف في الآخر "فقط" لو مكنتش موجودة
                 if (!db[fluid]) {
                     db[fluid] = { sys: '', bills: '', actual: '' };
                     activeSheet.order.push(fluid);
@@ -1381,6 +1371,9 @@
             });
         }
 
+        // ==========================================
+        // الإستيراد المحمي لترتيب الإكسيل
+        // ==========================================
         function handleExcelUpload(event) {
             initAudio();
             const file = event.target.files[0];
@@ -1443,6 +1436,7 @@
                         db[exName].sys = excelMap[exName];
                     });
 
+                    // دمج الترتيب الجديد مع القديم (لو في أصناف قديمة مكنتش في الإكسيل)
                     let newOrder = [...excelOrder];
                     activeSheet.order.forEach(item => {
                         if (!newOrder.includes(item) && db[item]) {
@@ -1619,7 +1613,7 @@
 
         async function downloadImage(type) {
             initAudio();
-            if (typeof domtoimage === 'undefined') {
+            if (typeof html2canvas === 'undefined') {
                 playSound('error');
                 alert("مكتبة الصور لم يتم تحميلها بعد. يرجى الانتظار ثواني وتحديث الصفحة.");
                 return;
@@ -1647,6 +1641,8 @@
                 inputs.forEach(inp => {
                     inp.setAttribute('value', inp.value);
                 });
+
+                const elementToCapture = document.querySelector('.content');
 
                 if (type === 'settlement') {
                     const clone = document.getElementById('settlementView').cloneNode(true);
@@ -1693,22 +1689,12 @@
                     exportContainer.appendChild(footerClone);
 
                     await new Promise(r => setTimeout(r, 300));
-                    
-                    const scale = 2;
-                    const dataUrl = await domtoimage.toPng(exportContainer, {
-                        bgcolor: '#ffffff',
-                        width: exportContainer.clientWidth * scale,
-                        height: exportContainer.clientHeight * scale,
-                        style: {
-                            transform: 'scale(' + scale + ')',
-                            transformOrigin: 'top left'
-                        }
-                    });
-                    
+                    const canvas = await html2canvas(exportContainer, { scale: 2, useCORS: true, backgroundColor: "#ffffff" });
+                    const imgData = canvas.toDataURL('image/png');
                     const link = document.createElement('a');
                     const dateStr = new Date().toLocaleDateString('ar-EG').replace(/\//g, '-');
                     link.download = `تسويات_${dateStr}.png`;
-                    link.href = dataUrl;
+                    link.href = imgData;
                     link.click();
                     
                     document.body.removeChild(exportContainer);
@@ -1813,20 +1799,10 @@
 
                         await new Promise(r => setTimeout(r, 200));
 
-                        const scale = 2;
-                        const dataUrl = await domtoimage.toPng(exportContainer, {
-                            bgcolor: '#ffffff',
-                            width: exportContainer.clientWidth * scale,
-                            height: exportContainer.clientHeight * scale,
-                            style: {
-                                transform: 'scale(' + scale + ')',
-                                transformOrigin: 'top left'
-                            }
-                        });
-                        
+                        const canvas = await html2canvas(exportContainer, { scale: 2, useCORS: true, backgroundColor: "#ffffff" });
                         const link = document.createElement('a');
                         link.download = totalPages === 1 ? `${baseName}.png` : `${baseName}_صفحة_${i + 1}.png`;
-                        link.href = dataUrl;
+                        link.href = canvas.toDataURL('image/png');
                         link.click();
 
                         document.body.removeChild(exportContainer);
